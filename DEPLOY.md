@@ -44,13 +44,16 @@ automatically).
    > **root**, so Root directory is left **blank**. That blank root is also where
    > Pages will look for `functions/` when `/api/generate` is added.
 
-3. **Environment variables:** none needed yet — the configurator is fully
-   static and computes the chart in the browser. They arrive with the backend:
-   - `ANTHROPIC_API_KEY` — Claude key for `/api/generate` (set a spend cap).
-   - `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` — for Checkout + the
+3. **Environment variables:** the static configurator needs none, but the
+   `/api/generate` Function does:
+   - `ANTHROPIC_API_KEY` — **required** for `/api/generate` (set a spend cap).
+     Set it for **both Production and Preview** environments, or the generator
+     returns HTTP 500 on that deployment.
+   - `GENERATE_MODEL` / `GENERATE_MAX_TOKENS` — optional overrides.
+   - `ACCESS_CODES` — optional comma-separated codes to gate generation while
+     the product is private (empty = open). Mirrors Chart Compass.
+   - `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` — later, for Checkout + the
      generation webhook.
-   - (optional) an access-code gate while the product is private, mirroring
-     Chart Compass's `ACCESS_CODES`.
 4. **Deploy**, then open the `*.pages.dev` URL and test (see checklist below).
 5. **Custom domains → Set up a domain →** `star-stories.sagemodeai.com`.
 

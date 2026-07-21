@@ -7,6 +7,7 @@
 <meta name="description" content="A personalized children's book generated from your child's real birth chart, written in the register of their age. Configure it and watch their sky appear.">
 <link rel="icon" href="assets/favicon.svg">
 <link rel="stylesheet" href="assets/styles.css">
+<link rel="stylesheet" href="assets/reader.css">
 </head>
 <body>
 
@@ -62,10 +63,29 @@
       <div class="ss-step"><span class="ss-step-n">2</span><h2>Which edition?</h2></div>
       <div class="ss-chips" id="ageBands"></div>
       <p class="ss-register" id="ageRegister"></p>
+      <div class="ss-field" id="formRow" style="display:none; margin-top:14px">
+        <label>Form <span class="ss-hint">— how the grown reader’s piece is written</span></label>
+        <div class="ss-chips" id="formChips"></div>
+      </div>
     </section>
 
     <section class="ss-card">
-      <div class="ss-step"><span class="ss-step-n">3</span><h2>Languages</h2></div>
+      <div class="ss-step"><span class="ss-step-n">3</span><h2>How is the story shaped?</h2></div>
+      <div class="ss-chips" id="shapeChips"></div>
+      <div class="ss-field" id="detailsFields" style="display:none; margin-top:14px">
+        <label>A few details <span class="ss-hint">— optional; empty falls back to surprise</span></label>
+        <input class="ss-input" id="dCrew" type="text" placeholder="The crew — siblings, friends, pets (names kept as they are)" autocomplete="off">
+        <input class="ss-input" id="dWords" type="text" placeholder="Family words to keep untranslated" autocomplete="off" style="margin-top:8px">
+        <input class="ss-input" id="dTreasure" type="text" placeholder="A treasured object" autocomplete="off" style="margin-top:8px">
+      </div>
+      <div class="ss-field" id="themeField" style="display:none; margin-top:14px">
+        <label>Theme <span class="ss-hint">— a world or a value to foreground (an add-on later)</span></label>
+        <input class="ss-input" id="fTheme" type="text" placeholder="e.g. the ocean, a forest, courage, kindness" autocomplete="off">
+      </div>
+    </section>
+
+    <section class="ss-card">
+      <div class="ss-step"><span class="ss-step-n">4</span><h2>Languages</h2></div>
 
       <div class="ss-field">
         <label>Book languages <span class="ss-hint">— pick up to 4; the mix has a shape</span></label>
@@ -94,7 +114,7 @@
     </div>
 
     <section class="ss-card">
-      <div class="ss-step"><span class="ss-step-n">4</span><h2>Your book</h2></div>
+      <div class="ss-step"><span class="ss-step-n">5</span><h2>Your book</h2></div>
       <div class="ss-summary" id="ssSummary"></div>
       <button class="ss-cta" id="ssCreate" type="button">Create this book</button>
       <p class="ss-create-note" id="ssCreateNote">Digital PDF first; a printed copy can follow.</p>
@@ -107,10 +127,24 @@
     A child inherits a poem, not a box.</p>
 </footer>
 
+<!-- Reader: streams the generated book, typeset in the house style -->
+<div class="ss-reader" id="ssReader" aria-hidden="true">
+  <div class="ss-reader-bar">
+    <span class="rb-title" id="rbTitle">Your book</span>
+    <span class="rb-status" id="rbStatus"></span>
+    <span class="rb-spacer"></span>
+    <button class="ss-reader-retry" id="rbRetry" type="button">Rewrite</button>
+    <button class="ss-reader-close" id="rbClose" type="button">Close</button>
+  </div>
+  <div class="ss-reader-error" id="rbError"></div>
+  <article class="ss-paper" id="ssPaper"></article>
+</div>
+
 <!-- astronomy-engine (same CDN build proven in Chart Compass) -->
 <script src="https://cdn.jsdelivr.net/npm/astronomy-engine@2/astronomy.browser.min.js"></script>
 <script src="assets/js/engine.js"></script>
 <script src="assets/js/sky.js"></script>
 <script src="assets/js/configurator.js"></script>
+<script src="assets/js/reader.js"></script>
 </body>
 </html>

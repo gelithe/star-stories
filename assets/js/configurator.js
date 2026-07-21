@@ -14,11 +14,19 @@ const state = {
   age: '6-8',
   bookLangs: ['LT', 'IT', 'DE'],
   parentsLang: 'IT',
+  form: 'prose',            // adult editions: prose | poem | letter
+  inputMode: 'surprise',    // surprise | details | theme
+  details: { crew: '', familyWords: '', treasure: '' },
+  theme: '',
+  // filled by computeAndPreview once a chart exists:
+  chartText: '', hasTime: false, hasPlace: false,
 };
 
 // ─── BOOT ────────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   renderAgeBands();
+  renderForms();
+  renderStoryShape();
   renderBookLanguages();
   renderParentsLanguages();
 
@@ -61,6 +69,57 @@ function syncMixShape() {
   const band = currentBand();
   document.getElementById('ageRegister').textContent = band.register;
   document.getElementById('mixShape').textContent = MIXING_SHAPES[band.shape];
+  const formRow = document.getElementById('formRow');
+  if (formRow) formRow.style.display = band.forms ? '' : 'none';
+}
+
+// ─── FORM (adult editions: prose / poem / letter) ────────────────────────────
+function renderForms() {
+  const wrap = document.getElementById('formChips');
+  if (!wrap) return;
+  wrap.innerHTML = FORMS.map(f => `
+    <button type="button" class="ss-chip${f.id === state.form ? ' is-on' : ''}" data-form="${f.id}">
+      <span class="ss-chip-t">${f.label}</span>
+      <span class="ss-chip-s">${f.hint}</span>
+    </button>`).join('');
+  wrap.querySelectorAll('[data-form]').forEach(btn =>
+    btn.addEventListener('click', () => {
+      state.form = btn.dataset.form;
+      wrap.querySelectorAll('.ss-chip').forEach(c => c.classList.toggle('is-on', c.dataset.form === state.form));
+    }));
+}
+
+// ─── STORY SHAPE (surprise / details / theme) ────────────────────────────────
+const SHAPE_MODES = [
+  { id: 'surprise', label: 'Surprise me', hint: 'shaped purely from the sky' },
+  { id: 'details',  label: 'A few details', hint: 'add the crew, family words' },
+  { id: 'theme',    label: 'Choose a theme', hint: 'a world you pick' },
+];
+function renderStoryShape() {
+  const wrap = document.getElementById('shapeChips');
+  if (!wrap) return;
+  wrap.innerHTML = SHAPE_MODES.map(m => `
+    <button type="button" class="ss-chip${m.id === state.inputMode ? ' is-on' : ''}" data-mode="${m.id}">
+      <span class="ss-chip-t">${m.label}</span>
+      <span class="ss-chip-s">${m.hint}</span>
+    </button>`).join('');
+  wrap.querySelectorAll('[data-mode]').forEach(btn =>
+    btn.addEventListener('click', () => {
+      state.inputMode = btn.dataset.mode;
+      wrap.querySelectorAll('.ss-chip').forEach(c => c.classList.toggle('is-on', c.dataset.mode === state.inputMode));
+      syncShapeFields();
+    }));
+  bind('#dCrew', 'input', e => state.details.crew = e.target.value);
+  bind('#dWords', 'input', e => state.details.familyWords = e.target.value);
+  bind('#dTreasure', 'input', e => state.details.treasure = e.target.value);
+  bind('#fTheme', 'input', e => state.theme = e.target.value);
+  syncShapeFields();
+}
+function syncShapeFields() {
+  const d = document.getElementById('detailsFields');
+  const t = document.getElementById('themeField');
+  if (d) d.style.display = state.inputMode === 'details' ? '' : 'none';
+  if (t) t.style.display = state.inputMode === 'theme' ? '' : 'none';
 }
 
 // ─── LANGUAGES ───────────────────────────────────────────────────────────────
@@ -207,21 +266,27 @@ async function computeAndPreview() {
     if (state.lat != null && !state.tz) state.tz = await fetchTimezone(state.lat, state.lon);
 
     const hasTime = !!state.birthTime;
+    const hasPlace = state.lat != null;
     const utc = localToUTC(state.birthDate, state.birthTime, state.tz, state.lon);
-    const chart = computeChart(utc, state.lat, state.lon, hasTime && state.lat != null);
+    const chart = computeChart(utc, state.lat, state.lon, hasTime && hasPlace);
     const sky = deriveSky(chart);
 
-    // Human Design type (design sun ~88° of solar arc before birth)
-    let hdType = null;
+    // Human Design + Gene Keys (design sun ~88° of solar arc before birth)
+    let hd = null, gk = null;
     try {
       const sunLon = chart.planets[0].lon;
       const design = Astronomy.SearchSunLongitude((sunLon - 88 + 360) % 360, new Date(utc.getTime() - 120 * 86400e3), 60);
-      if (design) hdType = computeHD(utc, design.date).type;
+      if (design) { hd = computeHD(utc, design.date); gk = computeGK(hd); }
     } catch {}
 
     const chinese = chineseSign(state.birthDate);
-    const copy = previewCopy(state.name, sky, chinese, hdType);
-    renderPreview(sky, copy, hasTime, state.lat != null);
+    const copy = previewCopy(state.name, sky, chinese, hd && hd.type);
+    renderPreview(sky, copy, hasTime, hasPlace);
+
+    // Retain a compact chart summary for the generator.
+    state.chartText = buildChartSummary(chart, hd, gk, chinese, hasTime, hasPlace);
+    state.hasTime = hasTime;
+    state.hasPlace = hasPlace;
   } catch (e) {
     setPreviewEmpty('Could not read this sky — check the birth date and place.');
   }
@@ -263,7 +328,26 @@ function updateSummary() {
     <div><span>Parents’ page</span><strong>${esc(state.parentsLang)}</strong></div>`;
 }
 
-function onCreate() {
+// Compact, human-readable chart the generator prompt reads.
+function buildChartSummary(chart, hd, gk, chinese, hasTime, hasPlace) {
+  const EL = ['Fire', 'Earth', 'Air', 'Water'];
+  const tally = { Fire: 0, Earth: 0, Air: 0, Water: 0 };
+  const L = [];
+  chart.planets.forEach(p => {
+    if (p.name !== 'N.Node') tally[EL[signOf(p.lon) % 4]]++;
+    L.push(`${p.name.padEnd(8)} ${fmtLon(p.lon)}${p.house ? '  H' + p.house : ''}`);
+  });
+  if (chart.angles) { L.push(`ASC      ${fmtLon(chart.angles.asc)}`); L.push(`MC       ${fmtLon(chart.angles.mc)}`); }
+  L.push(`Elements: ${EL.map(e => `${e} ${tally[e]}`).join(' · ')}`);
+  if (hd) L.push(`Human Design: ${hd.type} · ${hd.authority} · ${hd.profile}`);
+  if (gk) L.push(`Gene Keys: LW ${gk.lifesWork} · Ev ${gk.evolution} · Ra ${gk.radiance} · Pu ${gk.purpose}`);
+  L.push(`Chinese: ${chinese.element} ${chinese.animal} (${chinese.year})`);
+  if (!hasTime) L.push('(no birth time — ASC/houses omitted, Moon approximate)');
+  else if (!hasPlace) L.push('(no birthplace — houses omitted)');
+  return L.join('\n');
+}
+
+async function onCreate() {
   const problems = [];
   if (!state.name.trim()) problems.push('the child’s name');
   if (!state.birthDate) problems.push('a birth date');
@@ -274,9 +358,27 @@ function onCreate() {
     note.textContent = `Almost — add ${problems.join(', ')} first.`;
     return;
   }
-  // Generation + checkout are the next build step. For now, capture the config.
-  const order = { ...state };
-  console.log('[Star Stories] order config', order);
-  note.className = 'ss-create-note is-ok';
-  note.textContent = `${state.name.trim()}’s book is configured. Next: we write the story from this sky, typeset it, and take you to checkout — that step is coming.`;
+  // Make sure a chart summary exists (compute may still be debounced).
+  if (!state.chartText) { note.className = 'ss-create-note'; note.textContent = 'Reading the sky…'; await computeAndPreview(); }
+  if (!state.chartText) {
+    note.className = 'ss-create-note is-warn';
+    note.textContent = 'Could not read the sky — check the birth date and place.';
+    return;
+  }
+  note.className = 'ss-create-note';
+  note.textContent = '';
+
+  const band = currentBand();
+  const payload = {
+    birth: { name: state.name.trim(), date: state.birthDate, time: state.birthTime, place: state.place },
+    chart: state.chartText,
+    edition: state.age,
+    languages: state.bookLangs,
+    form: band.forms ? state.form : 'story',
+    inputMode: state.inputMode,
+    parentsLang: state.parentsLang,
+    details: state.inputMode === 'details' ? state.details : null,
+    theme: state.inputMode === 'theme' ? state.theme : null,
+  };
+  openReader(payload, `${state.name.trim()} · ${band.label}`);
 }
