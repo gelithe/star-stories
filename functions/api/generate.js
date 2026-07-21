@@ -175,8 +175,17 @@ Choose a single vivid central metaphor from the chart and let everything grow fr
   out.push(`\nEDITION REGISTER: ${REGISTERS[s.edition]}`);
 
   if (!s.isAdult) {
-    out.push(`\nLANGUAGES: ${langList}. Mixing shape — ${shape}
-Rules of craft: echo lines are RE-TELLINGS, not stiff translations (each language says it the way that language would). Names, pet-names and family words are NEVER translated. A recurring chant/refrain must appear in EVERY language of the mix — it is the line the child will say back.`);
+    const forbid = s.langs.includes('EN') ? '' :
+      ' English is NOT in the set, so write no English at all — no English narration and no English glosses in parentheses.';
+    out.push(`\nLANGUAGES — the book is written ONLY in these, nothing else: ${langList}.${forbid}
+This is the hardest constraint in the brief: the MAIN narrative text must actually BE in these languages — not one language decorated with a few words of the others. Any language outside the set is forbidden except for names.
+Mixing shape — ${shape}
+Read "led by language X" as "the main narration of that scene is written IN language X." The lead language rotates through ${langList} across the scenes, so each scene's body is fully in one of them.
+Rules of craft:
+- The one-line echo that closes a scene is a RE-TELLING (not a literal translation) in a DIFFERENT language of the set from the one that led the scene.
+- Never gloss or translate a line into English or any outside language — no parentheticals like "(In the middle…)".
+- Names, pet-names and family words are never translated.
+- The recurring chant appears once per line in EVERY language of the set — that block is the only place all languages sit together.`);
     out.push(`\nOUTPUT — return ONLY clean HTML (no markdown, no preamble, no <html>/<body> wrapper), using exactly these classes:
 - Each spread/chapter: <div class="ch-title">I · Title</div> then <div class="scene"><p>…</p>…<p class="echo">one-line echo in another language of the mix</p></div>
 - A transformation beat (optional): <div class="evolve">✦ NAME → NEWNAME ✦</div>
