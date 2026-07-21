@@ -51,9 +51,15 @@ export async function onRequestPost({ request, env }) {
 
   const payload = {
     model: env.GENERATE_MODEL || DEFAULT_MODEL,
-    max_tokens: Number(env.GENERATE_MAX_TOKENS) || 4000,
+    max_tokens: Number(env.GENERATE_MAX_TOKENS) || 16000,
     system,
     messages: [{ role: 'user', content: user }],
+    // Direct prose. Without this, Sonnet 5 runs *adaptive thinking* by default;
+    // those thinking tokens count against max_tokens and are not emitted as
+    // visible text, so a low cap yields stop_reason:max_tokens with an empty
+    // body. (Accepted on Sonnet 5 and the Opus 4.x family; drop it if
+    // GENERATE_MODEL is a model where thinking cannot be disabled.)
+    thinking: { type: 'disabled' },
     stream: true,
   };
 
