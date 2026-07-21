@@ -18,6 +18,7 @@ const state = {
   inputMode: 'surprise',    // surprise | details | theme
   details: { crew: '', familyWords: '', treasure: '' },
   theme: '',
+  accessCode: '',           // only used while ACCESS_CODES gates the server
   // filled by computeAndPreview once a chart exists:
   chartText: '', hasTime: false, hasPlace: false,
 };
@@ -38,6 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
   place.addEventListener('input', () => { state.place = place.value; onPlaceInput(place); });
   place.addEventListener('blur', () => setTimeout(hidePlaceSuggestions, 150));
 
+  bind('#fAccess', 'input', e => state.accessCode = e.target.value.trim());
   bind('#ssCreate', 'click', onCreate);
 
   syncMixShape();
@@ -379,6 +381,7 @@ async function onCreate() {
     parentsLang: state.parentsLang,
     details: state.inputMode === 'details' ? state.details : null,
     theme: state.inputMode === 'theme' ? state.theme : null,
+    accessCode: state.accessCode || undefined,
   };
   openReader(payload, `${state.name.trim()} · ${band.label}`);
 }

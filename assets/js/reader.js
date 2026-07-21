@@ -81,7 +81,7 @@ function showReaderError(msg, status) {
   st.textContent = '';
   let hint = '';
   if (status === 500) hint = ' — the server is likely missing ANTHROPIC_API_KEY (set it in Cloudflare → Settings → Environment variables).';
-  if (status === 401) hint = ' — an access code is required (ACCESS_CODES is set on the server).';
+  if (status === 401) hint = ' — enter your Access code in the form (under “Your book”) and try again.';
   errBox.textContent = msg + hint;
   errBox.classList.add('is-on');
 }
