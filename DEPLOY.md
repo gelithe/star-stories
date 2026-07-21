@@ -1,0 +1,68 @@
+# Deploying Star Stories — Cloudflare Pages
+
+The storefront deploys on **Cloudflare Pages, connected to Git** (the same
+pattern proven by the sibling project Chart Compass at
+`compass.sagemodeai.com`). There is **no CLI deploy and no build step** — Pages
+watches this repo and publishes on every push. Nothing here runs `wrangler`;
+the one-time connect and custom-domain steps are done in the Cloudflare
+dashboard.
+
+Live domain: **`starstories.sagemodeai.com`** (the `sagemodeai.com` zone is
+already on Cloudflare from Chart Compass, so the subdomain wires up
+automatically).
+
+## Branch model (chosen for long-term stability)
+
+- **Production branch: `main`.** Production always tracks `main` so nothing
+  changes underneath it when day-to-day work happens on other branches.
+- **Feature branches → preview deploys.** Every pushed branch (e.g. the next
+  one for `/api/generate`) gets its own `*.pages.dev` preview URL. Review the
+  preview, merge to `main`, production updates.
+
+## One-time setup (Cloudflare dashboard)
+
+1. **Workers & Pages → Create → Pages → Connect to Git** → pick
+   **`gelithe/star-stories`**.
+2. **Build settings:**
+
+   | Field | Value | Why |
+   |---|---|---|
+   | Production branch | `main` | production tracks a stable branch |
+   | Framework preset | None | it's a static site |
+   | Build command | *(empty)* | no build step |
+   | Build output directory | `/` | `index.html` is at the repo root |
+   | Root directory | `/` | where Pages builds and finds `/functions` later |
+
+   > Note: Chart Compass set both directory fields to `cloudflare-app` because
+   > its app lived in a subfolder. Here the site is at the repo **root**, so
+   > both are `/`. Getting **Root directory** right is what will let
+   > `/api/generate` resolve later (Pages looks for `functions/` under it).
+
+3. **Environment variables:** none needed yet — the configurator is fully
+   static and computes the chart in the browser. They arrive with the backend:
+   - `ANTHROPIC_API_KEY` — Claude key for `/api/generate` (set a spend cap).
+   - `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` — for Checkout + the
+     generation webhook.
+   - (optional) an access-code gate while the product is private, mirroring
+     Chart Compass's `ACCESS_CODES`.
+4. **Deploy**, then open the `*.pages.dev` URL and test (see checklist below).
+5. **Custom domains → Set up a domain →** `starstories.sagemodeai.com`.
+
+## Post-deploy test checklist
+
+- [ ] Page loads in the house style (gold/ink, Georgia serif).
+- [ ] Type a **birth date** → the sky preview lights up (Sun/Moon/Chinese/HD).
+      If it stays on the empty orb, the CDN `astronomy-engine` is blocked — tell
+      the maintainer to vendor it locally (removes the external dependency).
+- [ ] Add **birth time + place** → the **rising sign** appears; place
+      autocomplete (Nominatim) and timezone (Open-Meteo) resolve.
+- [ ] Age bands switch the register + the language **mixing shape** text.
+- [ ] Book-language picker enforces the **max of 4**; parents' page selectable.
+- [ ] "Create this book" validates and shows the next-step message.
+
+## Updating the live site
+
+Merge to `main` → Pages redeploys automatically. The `_headers` file makes the
+HTML shell revalidate immediately, so updates are picked up without a hard
+refresh. No Cloudflare access required for routine updates — only the initial
+connect and the env-var/secret changes touch the dashboard.
