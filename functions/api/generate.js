@@ -21,6 +21,7 @@ const DEFAULT_MODEL = 'claude-sonnet-5';
 const json = (obj, status = 200) =>
   new Response(JSON.stringify(obj), { status, headers: { 'content-type': 'application/json' } });
 const codes = env => (env.ACCESS_CODES || '').split(',').map(s => s.trim()).filter(Boolean);
+const esc = s => String(s).replace(/[<>&]/g, c => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;' }[c]));
 
 export async function onRequestOptions() {
   return new Response(null, { status: 204 });
@@ -67,11 +68,14 @@ export async function onRequestPost({ request, env }) {
   }
 
   // Re-stream Anthropic SSE as plain text deltas (same shape the reader expects).
+  // If no text ever arrives, surface the reason instead of a silent empty stream.
+  const model = payload.model;
   const stream = new ReadableStream({
     async start(controller) {
       const reader = upstream.body.getReader();
       const dec = new TextDecoder(), enc = new TextEncoder();
-      let buf = '';
+      const emit = s => controller.enqueue(enc.encode(s));
+      let buf = '', sawText = false, errMsg = '';
       try {
         while (true) {
           const { done, value } = await reader.read();
@@ -86,12 +90,21 @@ export async function onRequestPost({ request, env }) {
             if (!d || d === '[DONE]') continue;
             try {
               const ev = JSON.parse(d);
-              if (ev.type === 'content_block_delta' && ev.delta && typeof ev.delta.text === 'string')
-                controller.enqueue(enc.encode(ev.delta.text));
+              if (ev.type === 'content_block_delta' && ev.delta && typeof ev.delta.text === 'string') {
+                emit(ev.delta.text); sawText = true;
+              } else if (ev.type === 'error') {
+                errMsg = ev.error?.message || ev.error?.type || 'stream error';
+              } else if (ev.type === 'message_delta' && ev.delta?.stop_reason && ev.delta.stop_reason !== 'end_turn' && !sawText) {
+                errMsg = `stopped: ${ev.delta.stop_reason}`;
+              }
             } catch { /* keep-alive / partial frame */ }
           }
         }
-      } catch { /* upstream dropped */ }
+      } catch { errMsg = errMsg || 'stream interrupted'; }
+      if (!sawText) {
+        emit(`<div class="scene"><p><em>The generator returned no text${errMsg ? ' — ' + esc(errMsg) : ''}.</em></p>`
+          + `<p class="echo">Check that ANTHROPIC_API_KEY is valid and that the model "${esc(model)}" is available on your plan (override with GENERATE_MODEL).</p></div>`);
+      }
       controller.close();
     }
   });
