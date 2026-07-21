@@ -7,7 +7,7 @@ watches this repo and publishes on every push. Nothing here runs `wrangler`;
 the one-time connect and custom-domain steps are done in the Cloudflare
 dashboard.
 
-Live domain: **`starstories.sagemodeai.com`** (the `sagemodeai.com` zone is
+Live domain: **`star-stories.sagemodeai.com`** (the `sagemodeai.com` zone is
 already on Cloudflare from Chart Compass, so the subdomain wires up
 automatically).
 
@@ -52,7 +52,7 @@ automatically).
    - (optional) an access-code gate while the product is private, mirroring
      Chart Compass's `ACCESS_CODES`.
 4. **Deploy**, then open the `*.pages.dev` URL and test (see checklist below).
-5. **Custom domains → Set up a domain →** `starstories.sagemodeai.com`.
+5. **Custom domains → Set up a domain →** `star-stories.sagemodeai.com`.
 
 ## Post-deploy test checklist
 
