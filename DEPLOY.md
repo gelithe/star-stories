@@ -23,20 +23,26 @@ automatically).
 
 1. **Workers & Pages → Create → Pages → Connect to Git** → pick
    **`gelithe/star-stories`**.
-2. **Build settings:**
+2. **Build settings** (mirrors the working Chart Compass project; only the
+   repository and Root directory differ):
 
    | Field | Value | Why |
    |---|---|---|
+   | Git repository | `gelithe/star-stories` | this repo |
    | Production branch | `main` | production tracks a stable branch |
-   | Framework preset | None | it's a static site |
    | Build command | *(empty)* | no build step |
-   | Build output directory | `/` | `index.html` is at the repo root |
-   | Root directory | `/` | where Pages builds and finds `/functions` later |
+   | Build output | *(empty)* | empty + no build command → Pages serves the root directory as-is |
+   | Root directory | *(empty / blank)* | the site is at the **repo root** |
+   | Build comments | Enabled | same as Compass |
+   | Build cache | Disabled | same as Compass |
+   | Automatic deployments | Enabled | push-to-deploy |
+   | Build watch — Include paths | `*` | same as Compass |
+   | Build system version | Version 3 | same as Compass |
 
-   > Note: Chart Compass set both directory fields to `cloudflare-app` because
-   > its app lived in a subfolder. Here the site is at the repo **root**, so
-   > both are `/`. Getting **Root directory** right is what will let
-   > `/api/generate` resolve later (Pages looks for `functions/` under it).
+   > Note: Chart Compass sets **Root directory** to `cloudflare-app` because its
+   > app lives in a subfolder of `gelithe/docs`. Here the site is at the repo
+   > **root**, so Root directory is left **blank**. That blank root is also where
+   > Pages will look for `functions/` when `/api/generate` is added.
 
 3. **Environment variables:** none needed yet — the configurator is fully
    static and computes the chart in the browser. They arrive with the backend:
