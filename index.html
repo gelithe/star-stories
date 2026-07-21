@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Star Stories — a book about your child, from their real sky</title>
+<meta name="description" content="A personalized children's book generated from your child's real birth chart, written in the register of their age. Configure it and watch their sky appear.">
+<link rel="icon" href="assets/favicon.svg">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+
+<header class="ss-wrap ss-top">
+  <div class="ss-mark">
+    <svg width="30" height="30" viewBox="0 0 40 40" aria-hidden="true">
+      <path fill="#c9a227" d="M20 3 C22.4 14.4 25.6 17.6 37 20 C25.6 22.4 22.4 25.6 20 37 C17.6 25.6 14.4 22.4 3 20 C14.4 17.6 17.6 14.4 20 3 Z"/>
+      <circle cx="32" cy="9" r="1.6" fill="#1a9eae"/>
+      <circle cx="8" cy="31" r="1.4" fill="#9a7010"/>
+    </svg>
+    <span class="ss-brand">Star Stories</span>
+  </div>
+  <span class="ss-tag">a book about the child, for the child</span>
+</header>
+
+<section class="ss-wrap ss-hero">
+  <h1>A book written from your child’s real sky.</h1>
+  <p class="ss-lede">Their true birth chart, retold as a story in the register of their age —
+    a gift you can re-give as they grow: the same sky, retold.</p>
+  <p>Enter the birth data and watch their sky appear. That preview is the beginning of their book.</p>
+</section>
+
+<main class="ss-wrap ss-grid">
+  <!-- LEFT: the configurator -->
+  <div>
+    <section class="ss-card">
+      <div class="ss-step"><span class="ss-step-n">1</span><h2>Who is the book for?</h2></div>
+
+      <div class="ss-field">
+        <label for="fName">Child’s name <span class="ss-hint">— stays as it is, in every language</span></label>
+        <input class="ss-input" id="fName" type="text" placeholder="e.g. Nova" autocomplete="off">
+      </div>
+
+      <div class="ss-row">
+        <div class="ss-field">
+          <label for="fDate">Birth date</label>
+          <input class="ss-input" id="fDate" type="date" min="1984-01-01" max="2050-12-31">
+        </div>
+        <div class="ss-field">
+          <label for="fTime">Birth time <span class="ss-hint">— optional, unlocks rising</span></label>
+          <input class="ss-input" id="fTime" type="time">
+        </div>
+      </div>
+
+      <div class="ss-field">
+        <label for="fPlace">Birthplace</label>
+        <input class="ss-input" id="fPlace" type="text" placeholder="City, Country" autocomplete="off">
+        <div id="placeSuggestions"></div>
+      </div>
+    </section>
+
+    <section class="ss-card">
+      <div class="ss-step"><span class="ss-step-n">2</span><h2>Which edition?</h2></div>
+      <div class="ss-chips" id="ageBands"></div>
+      <p class="ss-register" id="ageRegister"></p>
+    </section>
+
+    <section class="ss-card">
+      <div class="ss-step"><span class="ss-step-n">3</span><h2>Languages</h2></div>
+
+      <div class="ss-field">
+        <label>Book languages <span class="ss-hint">— pick up to 4; the mix has a shape</span></label>
+        <div class="ss-langs" id="bookLangs"></div>
+        <p class="ss-subnote" id="langNote">Up to four languages weave through the story.</p>
+        <p class="ss-mix"><b>This edition mixes them as:</b> <span id="mixShape"></span></p>
+      </div>
+
+      <div class="ss-field">
+        <label for="parentsLang">Parents’ page <span class="ss-hint">— one language, chosen for the family</span></label>
+        <select class="ss-input" id="parentsLang"></select>
+      </div>
+    </section>
+  </div>
+
+  <!-- RIGHT: the sky + order -->
+  <aside class="ss-aside">
+    <div class="ss-sky-card">
+      <div class="ss-sky-head">Their sky</div>
+      <div id="skyPreview">
+        <div class="ss-preview-empty">
+          <div class="ss-empty-orb"></div>
+          <p>Add a birth date to see the sky begin to appear.</p>
+        </div>
+      </div>
+    </div>
+
+    <section class="ss-card">
+      <div class="ss-step"><span class="ss-step-n">4</span><h2>Your book</h2></div>
+      <div class="ss-summary" id="ssSummary"></div>
+      <button class="ss-cta" id="ssCreate" type="button">Create this book</button>
+      <p class="ss-create-note" id="ssCreateNote">Digital PDF first; a printed copy can follow.</p>
+    </section>
+  </aside>
+</main>
+
+<footer class="ss-wrap ss-foot">
+  <p><b>Star Stories.</b> The chart gives the story its shape — it never tells a child who they must become.
+    A child inherits a poem, not a box.</p>
+</footer>
+
+<!-- astronomy-engine (same CDN build proven in Chart Compass) -->
+<script src="https://cdn.jsdelivr.net/npm/astronomy-engine@2/astronomy.browser.min.js"></script>
+<script src="assets/js/engine.js"></script>
+<script src="assets/js/sky.js"></script>
+<script src="assets/js/configurator.js"></script>
+</body>
+</html>
