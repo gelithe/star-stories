@@ -120,6 +120,30 @@ export async function onRequestPost({ request, env }) {
 
 // ─── SPEC ────────────────────────────────────────────────────────────────────
 const LANG_NAMES = { LT: 'Lithuanian', IT: 'Italian', DE: 'German', EN: 'English' };
+
+// The recurring cast — one signature companion per Chinese animal (see
+// CHARACTERS.md). Same animal → same named character across every book.
+const ZODIAC_COMPANIONS = {
+  Rat:    { name: 'Pip',   essence: 'quick, curious, keeper of small shiny things' },
+  Ox:     { name: 'Bo',    essence: 'steady, patient, carries the load calmly' },
+  Tiger:  { name: 'Zuri',  essence: 'brave and warm, leaps first' },
+  Rabbit: { name: 'Mella', essence: 'gentle, intuitive, hears feelings early' },
+  Dragon: { name: 'Vael',  essence: 'big-hearted, imaginative, a little wild (small and friendly, never scary)' },
+  Snake:  { name: 'Sema',  essence: 'wise, calm, sees in the dark' },
+  Horse:  { name: 'Rio',   essence: 'free, roaming, loves the open' },
+  Goat:   { name: 'Fenn',  essence: 'tender, artistic, a dreamer' },
+  Monkey: { name: 'Ollo',  essence: 'playful, clever, turns problems into games' },
+  Rooster:{ name: 'Kesh',  essence: 'proud, honest, wakes the day' },
+  Dog:    { name: 'Baru',  essence: 'loyal, fair, guards the heart' },
+  Pig:    { name: 'Pim',   essence: 'generous, warm, grounded' },
+};
+const ANIMALS = Object.keys(ZODIAC_COMPANIONS);
+function companionFrom(chartText) {
+  const m = new RegExp(`Chinese:\\s+(\\w+)\\s+(${ANIMALS.join('|')})`).exec(chartText || '');
+  if (!m) return null;
+  const c = ZODIAC_COMPANIONS[m[2]];
+  return { element: m[1], animal: m[2], ...c };
+}
 const REGISTERS = {
   '0-2':  'Lullaby cadence — very few words per spread, sound and repetition, the images carry it. Read TO the baby.',
   '2-5':  'An animal fable — strong rhythm and repetition, a little creature who feels everything; a warm bedtime voice.',
@@ -198,9 +222,12 @@ function buildSystemPrompt(s) {
 - Ascendant (rising) → the opening image; how the hero first meets the world.
 - The most-tenanted element/house, and any tight/hard aspect → the world's setting and the story's central tension-and-lesson (e.g. a Capricorn rising over a Pisces stellium becomes "a small mountain with an ocean inside").
 - Human Design type → HOW the hero acts (a Generator responds to what lights them up; a Projector guides and is invited; a Manifestor initiates; a Reflector mirrors the room).
-- Chinese sign → a recurring COMPANION or talisman: a creature that embodies the animal (its element coloured into its nature — an Earth Pig is grounded and warm, a Water Rabbit soft and intuitive) and stays at the hero's side across MOST scenes, carrying the emotional through-line and evolving with the hero. Give it a name.
+- Chinese sign → the COMPANION (named for you below): a creature embodying the animal, its year-element coloured into its nature. It arrives near the start, stays at the hero's side across MOST scenes, embodies the Human Design mode of acting, and is present at the resolution.
 - Numerology (Life Path from the birth date; and Expression / Soul-Urge when a full name is present) → a quiet recurring number or rhythm — a refrain said N times, N companions, N doors — felt as pattern, never stated as a "meaning".
-Choose a single vivid central metaphor from the chart; the metaphor and the companion should recur on nearly every spread.`);
+Choose a single vivid central metaphor from the chart; the metaphor and the companion recur on nearly every spread.`);
+  const comp = companionFrom(s.chart);
+  if (comp) out.push(`\nTHE COMPANION for this book is **${comp.name}**, a ${comp.element} ${comp.animal} — ${comp.essence}. Use this exact name; ${comp.name} is a fixed character in the series. ${comp.name} may EARN a fuller name or title at the story's turning point — and if so, include a short, tender passage on WHERE that name comes from and what it means (do not merely announce it; the naming is the emotional pivot).`);
+  out.push(`\nSTORY FLOW — the scenes are ONE continuous story, not separate vignettes: a clear arc from beginning to end. Scene 1 opens the tension the chart implies; each scene follows causally from the last; the middle turns on the companion and the central metaphor; the final scene RESOLVES the opening tension and lands home. The recurring chant threads through and returns at the close.`);
   out.push(`\nEDITION REGISTER: ${REGISTERS[s.edition]}`);
 
   if (!s.isAdult) {
@@ -211,7 +238,7 @@ Choose a single vivid central metaphor from the chart; the metaphor and the comp
 The MAIN narrative text must actually BE in these languages — not one language sprinkled with words of the others. Any language outside the set is forbidden except for names and family words.
 LANGUAGE PLAN (follow exactly — fixed assignments, not a suggestion):
 ${languagePlan(s, n)}
-The recurring chant/refrain near the end appears once per line in EVERY language of the set — that block is the only place all languages sit together. Echo lines are re-tellings, not literal translations.`);
+The recurring chant/refrain near the end appears once per line in EVERY language of the set — that block is the only place all languages sit together. Echo lines are re-tellings, not literal translations. Within a single scene's body do NOT mix two languages: the whole body is in that scene's one assigned language (only names and family words keep their own language).`);
     out.push(`\nOUTPUT — return ONLY clean HTML (no markdown, no preamble, no <html>/<body> wrapper). Write EXACTLY ${n} scenes, numbered I…${ROMAN[n]}. Each scene is, in order:
 <figure class="art" data-motif="KEY" data-scene="one short vivid visual line, in English, describing this scene for an illustrator"></figure>
 <div class="ch-title">${ROMAN[1]} · Title</div>
