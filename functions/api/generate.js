@@ -136,6 +136,34 @@ const MIX_SHAPES = {
   'single-lead':      'Single lead: one language leads, with meaningful phrases from the others (family words stay family words).',
 };
 const SHAPE_FOR_AGE = { '0-2':'echo', '2-5':'rotating-lead', '6-8':'rotating-chapters', '9-12':'single-lead', 'teen':'single-lead', 'ya':'single-lead', 'adult':'single-lead' };
+const SCENE_COUNT = { '0-2': 4, '2-5': 5, '6-8': 5, '9-12': 6, 'teen': 5 };
+// Illustration motif vocabulary the model tags each scene with (see illustrate.js).
+const MOTIFS_LIST = 'sea, mountain-sea, mountain, fog, sword, sun, moon, sky, cosmos, star, egg, forest, garden, door-home, boat, whale, companion, crown';
+const ROMAN = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII'];
+const sceneCount = e => SCENE_COUNT[e] || 5;
+
+// Deterministic, per-scene language assignment — the model followed a loose
+// "rotate the languages" instruction unreliably (led in English, skipped or
+// added languages), so we compute the exact plan and hand it over as fixed rows.
+function languagePlan(s, n) {
+  const names = s.langs.map(c => LANG_NAMES[c]);
+  const shape = SHAPE_FOR_AGE[s.edition];
+  if (shape === 'single-lead') {
+    const lead = names[0], others = names.slice(1);
+    return `Every one of the ${n} scenes is narrated in ${lead}${others.length ? `, with short meaningful phrases from ${others.join(' and ')} where they land naturally` : ''}. The narration language never switches between scenes; family words stay in their own language.`;
+  }
+  if (shape === 'echo') {
+    return `There are ${n} spreads. On EACH spread the single line is stated once in every language, always in this order: ${names.join(', ')}. Every language appears on every spread — none skipped, none added.`;
+  }
+  // rotating-lead / rotating-chapters
+  const rows = [];
+  for (let i = 0; i < n; i++) {
+    const lead = names[i % names.length];
+    const echo = names[(i + 1) % names.length];
+    rows.push(`  • Scene ${i + 1}: body written FULLY in ${lead}${names.length > 1 ? `; closing one-line echo in ${echo}` : ''}`);
+  }
+  return `Write EXACTLY ${n} scenes. Each scene's body is written fully in its assigned language — the assignments are fixed, obey them exactly:\n${rows.join('\n')}\nEvery language in the set leads at least once; introduce no language outside the set.`;
+}
 
 function normalizeSpec(b) {
   if (!b || !b.birth || !b.chart) return null;
@@ -170,28 +198,29 @@ function buildSystemPrompt(s) {
 - Ascendant (rising) → the opening image; how the hero first meets the world.
 - The most-tenanted element/house, and any tight/hard aspect → the world's setting and the story's central tension-and-lesson (e.g. a Capricorn rising over a Pisces stellium becomes "a small mountain with an ocean inside").
 - Human Design type → HOW the hero acts (a Generator responds to what lights them up; a Projector guides and is invited; a Manifestor initiates; a Reflector mirrors the room).
-- Chinese sign → a companion creature or motif.
-Choose a single vivid central metaphor from the chart and let everything grow from it.`);
+- Chinese sign → a recurring COMPANION or talisman: a creature that embodies the animal (its element coloured into its nature — an Earth Pig is grounded and warm, a Water Rabbit soft and intuitive) and stays at the hero's side across MOST scenes, carrying the emotional through-line and evolving with the hero. Give it a name.
+- Numerology (Life Path from the birth date; and Expression / Soul-Urge when a full name is present) → a quiet recurring number or rhythm — a refrain said N times, N companions, N doors — felt as pattern, never stated as a "meaning".
+Choose a single vivid central metaphor from the chart; the metaphor and the companion should recur on nearly every spread.`);
   out.push(`\nEDITION REGISTER: ${REGISTERS[s.edition]}`);
 
   if (!s.isAdult) {
+    const n = sceneCount(s.edition);
     const forbid = s.langs.includes('EN') ? '' :
-      ' English is NOT in the set, so write no English at all — no English narration and no English glosses in parentheses.';
+      ' English is NOT in the set — write no English anywhere, and never gloss a line in parentheses.';
     out.push(`\nLANGUAGES — the book is written ONLY in these, nothing else: ${langList}.${forbid}
-This is the hardest constraint in the brief: the MAIN narrative text must actually BE in these languages — not one language decorated with a few words of the others. Any language outside the set is forbidden except for names.
-Mixing shape — ${shape}
-Read "led by language X" as "the main narration of that scene is written IN language X." The lead language rotates through ${langList} across the scenes, so each scene's body is fully in one of them.
-Rules of craft:
-- The one-line echo that closes a scene is a RE-TELLING (not a literal translation) in a DIFFERENT language of the set from the one that led the scene.
-- Never gloss or translate a line into English or any outside language — no parentheticals like "(In the middle…)".
-- Names, pet-names and family words are never translated.
-- The recurring chant appears once per line in EVERY language of the set — that block is the only place all languages sit together.`);
-    out.push(`\nOUTPUT — return ONLY clean HTML (no markdown, no preamble, no <html>/<body> wrapper), using exactly these classes:
-- Each spread/chapter: <div class="ch-title">I · Title</div> then <div class="scene"><p>…</p>…<p class="echo">one-line echo in another language of the mix</p></div>
-- A transformation beat (optional): <div class="evolve">✦ NAME → NEWNAME ✦</div>
-- The shared chant near the end: <div class="spell">line in language 1<br>line in language 2<br>…</div>
-- Finally a parents' page written in ${LANG_NAMES[s.parentsLang]}: <div class="parents"><h2>Title</h2><p>…2–4 short paragraphs, each naming ONE concrete chart feature and how it became a story beat…</p><p class="mirror">A story is a mirror, not a map of the future.</p></div>
-Length: ${lengthGuide(s.edition)}. Use ✦ not emoji.`);
+The MAIN narrative text must actually BE in these languages — not one language sprinkled with words of the others. Any language outside the set is forbidden except for names and family words.
+LANGUAGE PLAN (follow exactly — fixed assignments, not a suggestion):
+${languagePlan(s, n)}
+The recurring chant/refrain near the end appears once per line in EVERY language of the set — that block is the only place all languages sit together. Echo lines are re-tellings, not literal translations.`);
+    out.push(`\nOUTPUT — return ONLY clean HTML (no markdown, no preamble, no <html>/<body> wrapper). Write EXACTLY ${n} scenes, numbered I…${ROMAN[n]}. Each scene is, in order:
+<figure class="art" data-motif="KEY" data-scene="one short vivid visual line, in English, describing this scene for an illustrator"></figure>
+<div class="ch-title">${ROMAN[1]} · Title</div>
+<div class="scene"><p>…</p>… <p class="echo">closing echo (rotating shapes only; omit for a single-lead book)</p></div>
+- KEY is ONE word chosen (best fit per scene) from: ${MOTIFS_LIST}.
+- Optional transformation beat inside a scene: <div class="evolve">✦ NAME → NEWNAME ✦</div>
+- After the last scene, the shared chant: <div class="spell">line per language<br>…</div>
+- Then the parents' page, written ENTIRELY in ${LANG_NAMES[s.parentsLang]} and in no other language: <div class="parents"><h2>Title</h2><p>…2–4 short paragraphs, each naming ONE concrete chart feature (a placement, the Human Design type, the Chinese animal + companion, a Life Path number) and how it became a story beat…</p><p class="mirror">A story is a mirror, not a map of the future.</p></div>
+Use ✦ not emoji.`);
   } else {
     out.push(`\nLANGUAGE: lead in ${LANG_NAMES[s.langs[0]]}${s.langs.length > 1 ? `, with meaningful phrases from ${s.langs.slice(1).map(c=>LANG_NAMES[c]).join(', ')} where they land naturally` : ''}. Names and family words are never translated.`);
     out.push(`\nOUTPUT — return ONLY clean HTML (no markdown, no preamble), form = ${s.form}:` + adultOutput(s));
@@ -226,6 +255,9 @@ function buildUserPrompt(s) {
     lines.push(`\nMode: DETAILS — weave in without overriding the chart: ${bits.join('; ') || '(none provided — treat as surprise)'}.`);
   } else if (s.inputMode === 'theme' && s.theme) {
     lines.push(`\nMode: CHOSEN THEME — set the story in this world/value: "${s.theme}". The chart still shapes the character and the lesson; the theme sets the setting/metaphor layer only.`);
+  }
+  if (!s.isAdult) {
+    lines.push(`\nReminder: obey the LANGUAGE PLAN exactly — the right languages, none skipped, none added, the parents' page in ${LANG_NAMES[s.parentsLang]} only. Keep the Chinese-zodiac companion present across scenes.`);
   }
   lines.push(`\nReturn only the HTML as specified.`);
   return lines.join('\n');
