@@ -66,3 +66,14 @@
   border: 1px solid #5a2a2a; border-radius: 10px; padding: 14px 16px; font-size: 14px; display: none;
 }
 .ss-reader-error.is-on { display: block; }
+
+/* ── in-story illustrations (house-style vector, or painted) ── */
+.ss-paper figure.art{ margin:6px auto 14px; max-width:340px; }
+.ss-paper .ss-art-svg{ display:block; width:100%; height:auto; border-radius:8px;
+  box-shadow:0 8px 22px -14px rgba(44,36,22,.5); }
+.ss-paper .ss-art-img{ display:block; width:100%; height:auto; border-radius:8px;
+  box-shadow:0 10px 26px -14px rgba(44,36,22,.55); }
+.ss-paper figure.art.is-painting{ position:relative; }
+.ss-paper figure.art.is-painting::after{
+  content:'painting…'; position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+  font-size:12px; letter-spacing:.08em; color:#9a7010; background:rgba(255,253,247,.6); border-radius:8px; }

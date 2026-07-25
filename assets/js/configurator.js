@@ -5,6 +5,9 @@
 
 const state = {
   name: '',
+  fullName: '',             // optional — unlocks name-based numerology
+  artStyle: 'vector',       // vector (house style) | painted (rendered, opt-in)
+  element: 'Water',         // set from the chart; tints the illustrations
   birthDate: '',
   birthTime: '',
   place: '',
@@ -28,10 +31,12 @@ document.addEventListener('DOMContentLoaded', () => {
   renderAgeBands();
   renderForms();
   renderStoryShape();
+  renderArtStyle();
   renderBookLanguages();
   renderParentsLanguages();
 
   bind('#fName', 'input', e => { state.name = e.target.value; schedulePreview(); });
+  bind('#fFullName', 'input', e => { state.fullName = e.target.value; schedulePreview(); });
   bind('#fDate', 'change', e => { state.birthDate = e.target.value; schedulePreview(); });
   bind('#fTime', 'change', e => { state.birthTime = e.target.value; schedulePreview(); });
 
@@ -282,11 +287,13 @@ async function computeAndPreview() {
     } catch {}
 
     const chinese = chineseSign(state.birthDate);
+    const num = numerology(state.birthDate, state.fullName);
     const copy = previewCopy(state.name, sky, chinese, hd && hd.type);
     renderPreview(sky, copy, hasTime, hasPlace);
 
-    // Retain a compact chart summary for the generator.
-    state.chartText = buildChartSummary(chart, hd, gk, chinese, hasTime, hasPlace);
+    // Retain a compact chart summary + the element (illustration accent).
+    state.element = sky.sunElement || 'Water';
+    state.chartText = buildChartSummary(chart, hd, gk, chinese, num, hasTime, hasPlace);
     state.hasTime = hasTime;
     state.hasPlace = hasPlace;
   } catch (e) {
@@ -330,8 +337,32 @@ function updateSummary() {
     <div><span>Parents’ page</span><strong>${esc(state.parentsLang)}</strong></div>`;
 }
 
+// ─── ART STYLE (house-style vector, or rendered/painted opt-in) ──────────────
+const ART_STYLES = [
+  { id: 'vector',  label: 'House style', hint: 'gold & ink vector scenes' },
+  { id: 'painted', label: 'Painted',     hint: 'rendered art · beta' },
+];
+function renderArtStyle() {
+  const wrap = document.getElementById('artStyle');
+  if (!wrap) return;
+  wrap.innerHTML = ART_STYLES.map(a => `
+    <button type="button" class="ss-chip${a.id === state.artStyle ? ' is-on' : ''}" data-art="${a.id}">
+      <span class="ss-chip-t">${a.label}</span>
+      <span class="ss-chip-s">${a.hint}</span>
+    </button>`).join('');
+  wrap.querySelectorAll('[data-art]').forEach(btn =>
+    btn.addEventListener('click', () => {
+      state.artStyle = btn.dataset.art;
+      wrap.querySelectorAll('.ss-chip').forEach(c => c.classList.toggle('is-on', c.dataset.art === state.artStyle));
+      const note = document.getElementById('artNote');
+      if (note) note.textContent = state.artStyle === 'painted'
+        ? 'Painted mode calls an image model per scene — needs an image API key on the server; falls back to the house style if unavailable.'
+        : 'Vector scenes, tinted to the child’s element — sharp at any print size, included.';
+    }));
+}
+
 // Compact, human-readable chart the generator prompt reads.
-function buildChartSummary(chart, hd, gk, chinese, hasTime, hasPlace) {
+function buildChartSummary(chart, hd, gk, chinese, num, hasTime, hasPlace) {
   const EL = ['Fire', 'Earth', 'Air', 'Water'];
   const tally = { Fire: 0, Earth: 0, Air: 0, Water: 0 };
   const L = [];
@@ -343,7 +374,11 @@ function buildChartSummary(chart, hd, gk, chinese, hasTime, hasPlace) {
   L.push(`Elements: ${EL.map(e => `${e} ${tally[e]}`).join(' · ')}`);
   if (hd) L.push(`Human Design: ${hd.type} · ${hd.authority} · ${hd.profile}`);
   if (gk) L.push(`Gene Keys: LW ${gk.lifesWork} · Ev ${gk.evolution} · Ra ${gk.radiance} · Pu ${gk.purpose}`);
-  L.push(`Chinese: ${chinese.element} ${chinese.animal} (${chinese.year})`);
+  L.push(`Chinese: ${chinese.element} ${chinese.animal} (${chinese.year})  ← recurring companion/talisman`);
+  if (num && num.lifePath != null) {
+    const extra = num.expression != null ? ` · Expression ${num.expression} · Soul ${num.soul}` : ' (Life Path from birth date only — add a full name for Expression/Soul)';
+    L.push(`Numerology: Life Path ${num.lifePath}${extra}`);
+  }
   if (!hasTime) L.push('(no birth time — ASC/houses omitted, Moon approximate)');
   else if (!hasPlace) L.push('(no birthplace — houses omitted)');
   return L.join('\n');

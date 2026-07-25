@@ -51,11 +51,17 @@ async function streamBook(payload) {
       return;
     }
 
+    const element = (typeof state !== 'undefined' && state.element) || 'Water';
     const reader = res.body.getReader();
     const dec = new TextDecoder();
     let acc = '';
     let raf = null;
-    const paint = () => { raf = null; paper.innerHTML = acc; };
+    const paint = () => {
+      raf = null;
+      paper.innerHTML = acc;
+      // fill illustration slots as scenes stream in (vector is instant & safe)
+      if (typeof ART !== 'undefined') ART.fill(paper, element);
+    };
 
     while (true) {
       const { done, value } = await reader.read();
@@ -65,8 +71,16 @@ async function streamBook(payload) {
     }
     if (raf) cancelAnimationFrame(raf);
     paper.innerHTML = acc || '<p class="scene">The sky was quiet — try again.</p>';
+    if (typeof ART !== 'undefined') ART.fill(paper, element);
     paper.classList.remove('is-writing');
     status.textContent = 'done';
+
+    // Painted mode (opt-in): replace the vector scenes with rendered art.
+    if (typeof state !== 'undefined' && state.artStyle === 'painted') {
+      status.textContent = 'painting…';
+      await paintIllustrations(paper, element, payload.accessCode);
+      status.textContent = 'done';
+    }
   } catch (e) {
     if (e.name === 'AbortError') return; // closed/retried intentionally
     showReaderError('Network error while writing the book — please retry.');
@@ -84,6 +98,46 @@ function showReaderError(msg, status) {
   if (status === 401) hint = ' — enter your Access code in the form (under “Your book”) and try again.';
   errBox.textContent = msg + hint;
   errBox.classList.add('is-on');
+}
+
+// Painted mode (opt-in): render each scene via /api/illustrate, swap over the
+// vector art. Sequential and fault-tolerant — on any failure it keeps the
+// house-style SVG that's already in the slot and notes it once.
+async function paintIllustrations(paper, element, accessCode) {
+  const figs = [...paper.querySelectorAll('figure.art[data-scene]')];
+  let noted = false;
+  for (const fig of figs) {
+    const scene = fig.dataset.scene;
+    if (!scene) continue;
+    fig.classList.add('is-painting');
+    try {
+      const res = await fetch('/api/illustrate', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ scene, element, motif: fig.dataset.motif, accessCode }),
+        signal: _readerCtl && _readerCtl.signal,
+      });
+      if (!res.ok) throw new Error('illustrate ' + res.status);
+      const j = await res.json();
+      if (j && j.url) {
+        const img = new Image();
+        img.src = j.url; img.alt = scene; img.className = 'ss-art-img';
+        await new Promise((ok, no) => { img.onload = ok; img.onerror = no; });
+        fig.innerHTML = ''; fig.appendChild(img);
+      } else { throw new Error('no url'); }
+    } catch (e) {
+      if (e && e.name === 'AbortError') return;
+      if (!noted) {
+        noted = true;
+        const box = document.getElementById('rbError');
+        box.textContent = 'Painted mode is not available yet (no image key on the server) — showing the house style instead.';
+        box.classList.add('is-on');
+      }
+      break; // don't hammer a missing/broken endpoint for every scene
+    } finally {
+      fig.classList.remove('is-painting');
+    }
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {

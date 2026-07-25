@@ -201,3 +201,39 @@ function chineseSign(dateStr) { // 'YYYY-MM-DD' (local birth date)
   }
   return { animal: CN_ANIMALS[(y - 4) % 12], element: CN_ELEMENTS[Math.floor(((y - 4) % 10) / 2)], year: y };
 }
+
+// ─── NUMEROLOGY ──────────────────────────────────────────────────────────────
+// Life Path from the birth date; Expression / Soul-Urge / Personality from a
+// full name when given. Reduced to a single digit, master numbers 11/22/33 kept.
+// A felt story motif (a recurring number/rhythm), never stated as "meaning".
+const NUM_LETTER = { A:1,B:2,C:3,D:4,E:5,F:6,G:7,H:8,I:9,J:1,K:2,L:3,M:4,N:5,O:6,P:7,Q:8,R:9,S:1,T:2,U:3,V:4,W:5,X:6,Y:7,Z:8 };
+const NUM_VOWELS = 'AEIOU';
+
+function reduceNum(n) {
+  while (n > 9 && n !== 11 && n !== 22 && n !== 33) {
+    n = String(n).split('').reduce((a, d) => a + (+d), 0);
+  }
+  return n;
+}
+
+function numerology(dateStr, fullName) {
+  const out = { lifePath: null };
+  const [y, m, d] = String(dateStr || '').split('-').map(Number);
+  if (y && m && d) {
+    const rc = x => reduceNum(String(x).split('').reduce((a, ch) => a + (+ch), 0));
+    out.lifePath = reduceNum(rc(y) + rc(m) + rc(d));
+  }
+  const name = String(fullName || '').toUpperCase().replace(/[^A-Z]/g, '');
+  if (name) {
+    let all = 0, vow = 0, con = 0;
+    for (const ch of name) {
+      const v = NUM_LETTER[ch] || 0;
+      all += v;
+      if (NUM_VOWELS.includes(ch)) vow += v; else con += v;
+    }
+    out.expression = reduceNum(all);
+    out.soul = reduceNum(vow);
+    out.personality = reduceNum(con);
+  }
+  return out;
+}

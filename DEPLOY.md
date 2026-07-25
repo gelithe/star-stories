@@ -50,6 +50,9 @@ automatically).
      Set it for **both Production and Preview** environments, or the generator
      returns HTTP 500 on that deployment.
    - `GENERATE_MODEL` / `GENERATE_MAX_TOKENS` — optional overrides.
+   - `REPLICATE_API_TOKEN` — optional; enables **painted-mode** illustrations
+     (`/api/illustrate`). Without it, painted mode falls back to the vector
+     house style. `GENERATE_IMAGE_MODEL` overrides the default Flux model.
    - `ACCESS_CODES` — optional comma-separated codes to gate generation while
      the product is private (empty = open). Mirrors Chart Compass.
    - `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` — later, for Checkout + the
