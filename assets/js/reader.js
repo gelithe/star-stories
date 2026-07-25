@@ -32,6 +32,8 @@ async function streamBook(payload) {
   paper.innerHTML = '';
   paper.classList.add('is-writing');
   status.textContent = 'writing…';
+  const dlBtn = document.getElementById('rbDownload');
+  if (dlBtn) dlBtn.style.display = 'none';
 
   if (_readerCtl) _readerCtl.abort();
   _readerCtl = new AbortController();
@@ -74,6 +76,8 @@ async function streamBook(payload) {
     if (typeof ART !== 'undefined') ART.fill(paper, element);
     paper.classList.remove('is-writing');
     status.textContent = 'done';
+    const dl = document.getElementById('rbDownload');
+    if (dl && acc) dl.style.display = '';
 
     // Painted mode (opt-in): replace the vector scenes with rendered art.
     if (typeof state !== 'undefined' && state.artStyle === 'painted') {
@@ -143,6 +147,7 @@ async function paintIllustrations(paper, element, accessCode) {
 document.addEventListener('DOMContentLoaded', () => {
   bind('#rbClose', 'click', closeReader);
   bind('#rbRetry', 'click', retryBook);
+  bind('#rbDownload', 'click', () => { if (typeof exportBook === 'function') exportBook(); });
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape' && document.getElementById('ssReader').classList.contains('is-open')) closeReader();
   });
