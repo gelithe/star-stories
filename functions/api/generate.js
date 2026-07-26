@@ -173,7 +173,7 @@ const MIX_SHAPES = {
   'single-lead':      'Single lead: one language leads, with meaningful phrases from the others (family words stay family words).',
 };
 const SHAPE_FOR_AGE = { '0-2':'echo', '3-5':'rotating-lead', '6-8':'rotating-chapters', '9-12':'single-lead', 'teen':'single-lead', 'ya':'single-lead', 'adult':'single-lead' };
-const SCENE_COUNT = { '0-2': 6, '3-5': 6, '6-8': 5, '9-12': 6, 'teen': 5 };
+const SCENE_COUNT = { '0-2': 7, '3-5': 7, '6-8': 5, '9-12': 6, 'teen': 5 };
 // Illustration motif vocabulary the model tags each scene with (see illustrate.js).
 const MOTIFS_LIST = 'sea, mountain-sea, mountain, fog, sword, sun, moon, sky, cosmos, star, egg, forest, garden, door-home, boat, whale, companion, crown';
 const ROMAN = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII'];
@@ -228,28 +228,33 @@ function buildSystemPrompt(s) {
   const langList = s.langs.map(c => LANG_NAMES[c]).join(', ');
   const shape = MIX_SHAPES[SHAPE_FOR_AGE[s.edition]];
   const isVerse = !s.isAdult && bandFormat(s.edition).fmt === 'verse';
+  const titled = !s.isAdult && bandFormat(s.edition).titles; // 6–8, 9–12, teen
   const out = [];
   out.push(`You are the author of "Star Stories" — personalized books written from a child's REAL birth chart (natal astrology + Human Design + Gene Keys + Chinese zodiac). You turn a chart into a story, never into a horoscope.`);
-  out.push(`\nTHE ETHICAL LINE (non-negotiable): a story is a MIRROR, never a prediction of destiny. The chart gives the story its SHAPE — a child with a Scorpio Moon gets a hero who feels deeper than anyone knows — but the text NEVER tells the reader who they must become. No career predictions, no relationship fates, no "you will be". No astrology jargon in the story itself (that lives only on the parents' page). A child inherits a poem, not a box.`);
-  out.push(`\nHOW TO READ THE CHART INTO STORY:
-- Sun sign → the hero's core temperament and light.
-- Moon sign → what the story is really ABOUT: the emotional engine, the inner weather.
-- Ascendant (rising) → the opening image; how the hero first meets the world.
-- The most-tenanted element/house, and any tight/hard aspect → the world's setting and the story's central tension-and-lesson (e.g. a Capricorn rising over a Pisces stellium becomes "a small mountain with an ocean inside").
-- Human Design type → HOW the hero acts (a Generator responds to what lights them up; a Projector guides and is invited; a Manifestor initiates; a Reflector mirrors the room).
-- Chinese sign → the COMPANION (named for you below): a creature embodying the animal, its year-element coloured into its nature. It arrives near the start, stays at the hero's side across MOST scenes, embodies the Human Design mode of acting, and is present at the resolution.
-- Numerology (Life Path from the birth date; and Expression / Soul-Urge when a full name is present) → a quiet recurring number or rhythm — a refrain said N times, N companions, N doors — felt as pattern, never stated as a "meaning".
-Choose a single vivid central metaphor from the chart; the metaphor and the companion recur on nearly every spread.`);
+  out.push(`\nTHE ETHICAL LINE (non-negotiable): a story is a MIRROR, never a prediction of destiny. The chart gives the story its SHAPE — a child with a Scorpio Moon gets a hero who feels deeper than anyone knows — but the text NEVER tells the reader who they must become. No career predictions, no relationship fates, no "you will be". No astrology jargon in the story itself (that lives only on the parents' page). A child inherits a poem, not a box.
+Practical test for EVERY line: would it make this child feel TRAPPED by who they are, or SEEN in who they are? Keep only "seen".`);
+  out.push(`\nTHE METHOD — build every book the same way; only the register (step 4) changes with age:
+1. Read the chart for the ONE dominant truth — the single structural fact that most defines this child (a Moon that feels everything; a serious surface over an inner ocean; fire that only becomes itself with others). Do NOT cram ten placements — depth beats coverage. One truth per book.
+2. Name its GIFT and its SHADOW together — deep feeling AND overwhelm, drive AND the lonely solo run. Honest, never flattering.
+3. Turn it into a METAPHOR a child can hold — feelings become a sea, a wave, a weather. Never the words "Scorpio Moon", only "the moon that rocks her when the feelings get big".
+4. Tell it in the age's REGISTER (given below).
+5. END ON THE PRACTICAL GIFT — the one repeatable, kind thing that helps (name the feeling; wait for the wave; let the team in). A gift the child can use, never a verdict or a label.
+
+Reading aids — use these only to FIND the one truth, not to list them all: Sun = core light; Moon = the emotional engine, usually where the truth lives; Ascendant = the opening image; the most-tenanted element/house or a tight hard aspect = the central tension (a Capricorn rising over a Pisces stellium → "a small mountain with an ocean inside"); Human Design type = HOW the hero acts (a Generator responds to what lights it up; a Projector guides and is invited; a Manifestor initiates; a Reflector mirrors the room); Chinese sign = the COMPANION (named below); numerology = a quiet recurring number/rhythm, felt as pattern, never explained as a "meaning".
+The chosen metaphor and the companion recur on nearly every spread.`);
   const comp = companionFrom(s.chart);
   if (comp && isVerse) {
     out.push(`\nTHE COMPANION for this book is **${comp.name}**, a ${comp.element} ${comp.animal} — ${comp.essence}. ${comp.name} is a fixed character in the series. In a lullaby ${comp.name} appears only softly — a warm presence beside the baby on a spread or two. Do NOT give ${comp.name} a naming pivot or a plot; this is too young for that.`);
+  } else if (comp && titled) {
+    out.push(`\nTHE COMPANION for this book is **${comp.name}**, a ${comp.element} ${comp.animal} — ${comp.essence}. Use this exact name; ${comp.name} is a fixed character in the series. ${comp.name} stays at the hero's side across most scenes and embodies the child's Human Design way of acting. ${comp.name} may EVOLVE — earn a fuller name or title at the turning point — and if so, include a short, tender passage on WHERE that name comes from and what it means (do not merely announce it; the naming is the emotional pivot).`);
   } else if (comp) {
-    out.push(`\nTHE COMPANION for this book is **${comp.name}**, a ${comp.element} ${comp.animal} — ${comp.essence}. Use this exact name; ${comp.name} is a fixed character in the series. ${comp.name} may EARN a fuller name or title at the story's turning point — and if so, include a short, tender passage on WHERE that name comes from and what it means (do not merely announce it; the naming is the emotional pivot).`);
+    // 3–5 fable: companion present throughout, delivers the gift simply — no naming pivot (too young for that move).
+    out.push(`\nTHE COMPANION for this book is **${comp.name}**, a ${comp.element} ${comp.animal} — ${comp.essence}. Use this exact name; ${comp.name} is a fixed character in the series. ${comp.name} stays beside the little hero and, near the turn, delivers the story's gift in ONE simple line the child could repeat. Keep ${comp.name} steady — no name change, no long backstory.`);
   }
   if (isVerse) {
     out.push(`\nSHAPE — a lullaby is not a plot. The spreads are a gentle progression, not a story with tension and resolution: begin at the child arriving / the day softening, move through a few warm images drawn from the chart, and end at sleep ("goodnight, ${s.birth.name}"). No conflict, no lesson spelled out — just images and rest.`);
   } else {
-    out.push(`\nSTORY FLOW — the scenes are ONE continuous story, not separate vignettes: a clear arc from beginning to end. Scene 1 opens the tension the chart implies; each scene follows causally from the last; the middle turns on the companion and the central metaphor; the final scene RESOLVES the opening tension and lands home. The recurring chant threads through and returns at the close.`);
+    out.push(`\nSTORY FLOW — the scenes are ONE continuous story, not separate vignettes: a clear arc from beginning to end. Scene 1 opens the tension the chart implies; each scene follows causally from the last; the middle turns on the companion and the central metaphor; the final scene RESOLVES the opening tension, lands home, and leaves the child with the practical gift (step 5). The recurring chant threads through and returns at the close.`);
   }
   out.push(`\nEDITION REGISTER: ${REGISTERS[s.edition]}`);
 
@@ -267,7 +272,7 @@ ${languagePlan(s, n)}
 ${langTail}`);
     const bf = bandFormat(s.edition);
     const parentsName = LANG_NAMES[s.parentsLang];
-    const parentsBlock = `<div class="parents"><h2>Title</h2><p>…2–4 short paragraphs, each naming ONE concrete chart feature (a placement, the Human Design type, the Chinese animal + companion, a Life Path number) and how it became a story beat…</p><p class="mirror">A story is a mirror, not a map of the future.</p></div>`;
+    const parentsBlock = `<div class="parents"><h2>Title</h2><p>…2–4 short paragraphs, each naming ONE concrete chart feature (a placement, the Human Design type, the Chinese animal + companion, a Life Path number) and how it became a story beat. Name the ONE practical gift the story lands on — the repeatable, kind thing that helps…</p><p class="mirror">A story is a mirror, not a map of the future.</p></div>`;
     if (bf.fmt === 'verse') {
       out.push(`\nOUTPUT — return ONLY clean HTML (no markdown, no preamble, no <html>/<body> wrapper).
 This is a LULLABY, not a story. Write EXACTLY ${n} tiny spreads. NO chapter titles, NO paragraphs, NO plot — each spread is ONE image, said as a short couplet, once in every language of the set.
@@ -289,8 +294,7 @@ Use ✦ not emoji.`);
 <figure class="art" data-motif="KEY" data-scene="one short vivid visual line, in English, describing this scene for an illustrator"></figure>${titleLine}
 <div class="scene"><p>…</p>… <p class="echo">closing echo (rotating shapes only; omit for a single-lead book)</p></div>
 - ${brevity}
-- KEY is ONE word chosen (best fit per scene) from: ${MOTIFS_LIST}.
-- Optional transformation beat inside a scene: <div class="evolve">✦ NAME → NEWNAME ✦</div>
+- KEY is ONE word chosen (best fit per scene) from: ${MOTIFS_LIST}.${bf.titles ? '\n- Optional transformation beat inside a scene, when the companion evolves: <div class="evolve">✦ NAME → NEWNAME ✦</div>' : ''}
 - After the last ${unit.replace(/s$/, '')}, the shared chant: <div class="spell">line per language<br>…</div>
 - Then the parents' page, written ENTIRELY in ${parentsName} and in no other language: ${parentsBlock}
 Use ✦ not emoji.`);
