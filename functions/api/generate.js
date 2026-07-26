@@ -16,7 +16,7 @@
 // investing heavily in prompt quality (see DEPLOY.md / the architecture notes).
 
 const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
-const DEFAULT_MODEL = 'claude-sonnet-5';
+const DEFAULT_MODEL = 'claude-opus-5';
 
 const json = (obj, status = 200) =>
   new Response(JSON.stringify(obj), { status, headers: { 'content-type': 'application/json' } });
@@ -49,17 +49,19 @@ export async function onRequestPost({ request, env }) {
   const system = buildSystemPrompt(spec);
   const user = buildUserPrompt(spec);
 
+  const model = env.GENERATE_MODEL || DEFAULT_MODEL;
+  // Direct prose. Without this, Sonnet 5 runs *adaptive thinking* by default;
+  // those thinking tokens count against max_tokens and are not emitted as
+  // visible text, so a low cap yields stop_reason:max_tokens with an empty body.
+  // Sonnet 5 and the Opus family accept thinking:disabled; the Fable/Mythos
+  // family REJECT it (400) — thinking is always on there — so omit it for them.
+  const noThinking = /^claude-(fable|mythos)/.test(model);
   const payload = {
-    model: env.GENERATE_MODEL || DEFAULT_MODEL,
+    model,
     max_tokens: Number(env.GENERATE_MAX_TOKENS) || 16000,
     system,
     messages: [{ role: 'user', content: user }],
-    // Direct prose. Without this, Sonnet 5 runs *adaptive thinking* by default;
-    // those thinking tokens count against max_tokens and are not emitted as
-    // visible text, so a low cap yields stop_reason:max_tokens with an empty
-    // body. (Accepted on Sonnet 5 and the Opus 4.x family; drop it if
-    // GENERATE_MODEL is a model where thinking cannot be disabled.)
-    thinking: { type: 'disabled' },
+    ...(noThinking ? {} : { thinking: { type: 'disabled' } }),
     stream: true,
   };
 
@@ -75,7 +77,6 @@ export async function onRequestPost({ request, env }) {
 
   // Re-stream Anthropic SSE as plain text deltas (same shape the reader expects).
   // If no text ever arrives, surface the reason instead of a silent empty stream.
-  const model = payload.model;
   const stream = new ReadableStream({
     async start(controller) {
       const reader = upstream.body.getReader();
