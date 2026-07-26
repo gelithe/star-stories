@@ -8,15 +8,28 @@
 // Environment variables (Cloudflare Pages → Settings → Environment variables):
 //   ANTHROPIC_API_KEY    required — your Anthropic key (sk-ant-…). Set a spend cap.
 //   ACCESS_CODES         optional — comma-separated codes; empty = OPEN (dev only).
-//   GENERATE_MODEL       optional — model id (default below).
-//   GENERATE_MAX_TOKENS  optional — cap per book (default 4000).
+//   GENERATE_MODEL       optional — force one model id for ALL editions (overrides the pen map below).
+//   GENERATE_LYRIC_MODEL optional — model id for the lyric editions (0–2 verse + adult poem); default Fable 5.
+//   GENERATE_MAX_TOKENS  optional — cap per book (default 16000).
 //
 // NOTE: the craft prompt below is the product's IP. While this repo is public
 // the prompt is readable by anyone — consider making the repo private before
 // investing heavily in prompt quality (see DEPLOY.md / the architecture notes).
 
 const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
-const DEFAULT_MODEL = 'claude-opus-5';
+const DEFAULT_MODEL = 'claude-opus-5';        // the everyday pen: disciplined, cheap (~$0.07/book)
+const LYRIC_MODEL   = 'claude-fable-5';       // the premium pen for lyric editions (~$0.23/book)
+
+// Pick the model for a book. An explicit GENERATE_MODEL env var always wins;
+// otherwise the lyric editions (the 0–2 lullaby's verse form, and the adult
+// poem) get the lyric pen, everything else the everyday pen. Override the two
+// defaults with GENERATE_MODEL / GENERATE_LYRIC_MODEL.
+function modelForSpec(spec, env) {
+  if (env.GENERATE_MODEL) return env.GENERATE_MODEL;
+  const isVerse = !spec.isAdult && bandFormat(spec.edition).fmt === 'verse';
+  const isPoem  = spec.isAdult && spec.form === 'poem';
+  return (isVerse || isPoem) ? (env.GENERATE_LYRIC_MODEL || LYRIC_MODEL) : DEFAULT_MODEL;
+}
 
 const json = (obj, status = 200) =>
   new Response(JSON.stringify(obj), { status, headers: { 'content-type': 'application/json' } });
@@ -49,7 +62,7 @@ export async function onRequestPost({ request, env }) {
   const system = buildSystemPrompt(spec);
   const user = buildUserPrompt(spec);
 
-  const model = env.GENERATE_MODEL || DEFAULT_MODEL;
+  const model = modelForSpec(spec, env);
   // Direct prose. Without this, Sonnet 5 runs *adaptive thinking* by default;
   // those thinking tokens count against max_tokens and are not emitted as
   // visible text, so a low cap yields stop_reason:max_tokens with an empty body.
