@@ -41,6 +41,11 @@
   line-height: 2; margin: 26px 0; padding: 16px; border-top: 1px solid #e4d9bf; border-bottom: 1px solid #e4d9bf;
 }
 .ss-paper .evolve { text-align: center; font-size: 14pt; color: #1a9eae; letter-spacing: 0.08em; margin: 18px 0; }
+
+/* 0–2 lullaby: one image per spread, said as a couplet once per language */
+.ss-paper .verse { text-align: center; margin: 10px 0 26px; }
+.ss-paper .verse .line { font-size: 15.5pt; line-height: 1.7; margin-bottom: 12px; color: #9a7010; }
+.ss-paper .verse .line + .line { color: #6b5a3e; font-style: italic; font-size: 14pt; }
 .ss-paper .poem { text-align: center; font-size: 14pt; line-height: 1.95; color: #2c2416; margin: 8px 0; }
 
 .ss-paper .parents {

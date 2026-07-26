@@ -145,22 +145,35 @@ function companionFrom(chartText) {
   return { element: m[1], animal: m[2], ...c };
 }
 const REGISTERS = {
-  '0-2':  'Lullaby cadence — very few words per spread, sound and repetition, the images carry it. Read TO the baby.',
-  '2-5':  'An animal fable — strong rhythm and repetition, a little creature who feels everything; a warm bedtime voice.',
-  '6-8':  'A quest with short chapters; the child is the hero. Concrete, brave, a little funny; early self-reading.',
+  '0-2':  'A lullaby to read TO a baby. Tiny: ONE image per spread, said as a short couplet — two or three words a line, sound and repetition over meaning. No chapters, no plot, no sentence longer than a breath. Think board book.',
+  '3-5':  'A short animal fable for bedtime. Simple, concrete, playful, rhythmic — a little creature who feels everything. Two or three SHORT sentences per spread, strong repetition, one small lesson felt not told. Nothing abstract or literary.',
+  '6-8':  'A quest with short chapters; the child is the hero. Concrete, brave, a little funny; early self-reading. Short paragraphs.',
   '9-12': 'Adventure with first interiority — "your secret compass". Longer sentences, real feelings, private reading.',
   'teen': 'Honest and unpatronising — identity and intensity. No moralising, no baby-talk.',
   'ya':   'A letter to carry when leaving home — the parents\' book re-addressed to the young adult.',
   'adult':'A reflective portrait — the chart read back to the grown reader themselves, literary and unhurried.',
 };
+// Per-band OUTPUT contract — this is what got lost when every age collapsed into
+// one chaptered template. Grounded in the three handcrafted originals:
+// Nova (0-2) ≈ 200 words of couplets; Luis (3-5) ≈ 390 words of short scenes;
+// Lars (6-8) ≈ 520 words of short chapters. `words` is the cap PER SPREAD across
+// ALL languages; `fmt` picks the shape; `titles` gates chapter headings.
+const BAND_FORMAT = {
+  '0-2':  { fmt: 'verse', titles: false, words: 35,  paras: '' },
+  '3-5':  { fmt: 'scene', titles: false, words: 70,  paras: '2–3' },
+  '6-8':  { fmt: 'scene', titles: true,  words: 110, paras: '3–4' },
+  '9-12': { fmt: 'scene', titles: true,  words: 150, paras: '3–5' },
+  'teen': { fmt: 'scene', titles: true,  words: 160, paras: '3–5' },
+};
+const bandFormat = e => BAND_FORMAT[e] || BAND_FORMAT['6-8'];
 const MIX_SHAPES = {
   echo:               'Echo: every spread says one thing, once per language (lullaby repetition).',
   'rotating-lead':    'Rotating lead: each scene led by one language, closed by a one-line echo in another; a chant recurs in all languages.',
   'rotating-chapters':'Rotating chapters: each chapter led by one language with bridge echoes; the refrain always in every language.',
   'single-lead':      'Single lead: one language leads, with meaningful phrases from the others (family words stay family words).',
 };
-const SHAPE_FOR_AGE = { '0-2':'echo', '2-5':'rotating-lead', '6-8':'rotating-chapters', '9-12':'single-lead', 'teen':'single-lead', 'ya':'single-lead', 'adult':'single-lead' };
-const SCENE_COUNT = { '0-2': 4, '2-5': 5, '6-8': 5, '9-12': 6, 'teen': 5 };
+const SHAPE_FOR_AGE = { '0-2':'echo', '3-5':'rotating-lead', '6-8':'rotating-chapters', '9-12':'single-lead', 'teen':'single-lead', 'ya':'single-lead', 'adult':'single-lead' };
+const SCENE_COUNT = { '0-2': 6, '3-5': 6, '6-8': 5, '9-12': 6, 'teen': 5 };
 // Illustration motif vocabulary the model tags each scene with (see illustrate.js).
 const MOTIFS_LIST = 'sea, mountain-sea, mountain, fog, sword, sun, moon, sky, cosmos, star, egg, forest, garden, door-home, boat, whale, companion, crown';
 const ROMAN = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII'];
@@ -191,7 +204,8 @@ function languagePlan(s, n) {
 
 function normalizeSpec(b) {
   if (!b || !b.birth || !b.chart) return null;
-  const edition = REGISTERS[b.edition] ? b.edition : '6-8';
+  const reqEd = b.edition === '2-5' ? '3-5' : b.edition; // legacy band id → new
+  const edition = REGISTERS[reqEd] ? reqEd : '6-8';
   const langs = Array.isArray(b.languages) && b.languages.length ? b.languages.filter(c => LANG_NAMES[c]) : ['EN'];
   const form = ['prose', 'poem', 'letter'].includes(b.form) ? b.form : 'story';
   const inputMode = ['surprise', 'details', 'theme'].includes(b.inputMode) ? b.inputMode : 'surprise';
@@ -213,6 +227,7 @@ function normalizeSpec(b) {
 function buildSystemPrompt(s) {
   const langList = s.langs.map(c => LANG_NAMES[c]).join(', ');
   const shape = MIX_SHAPES[SHAPE_FOR_AGE[s.edition]];
+  const isVerse = !s.isAdult && bandFormat(s.edition).fmt === 'verse';
   const out = [];
   out.push(`You are the author of "Star Stories" — personalized books written from a child's REAL birth chart (natal astrology + Human Design + Gene Keys + Chinese zodiac). You turn a chart into a story, never into a horoscope.`);
   out.push(`\nTHE ETHICAL LINE (non-negotiable): a story is a MIRROR, never a prediction of destiny. The chart gives the story its SHAPE — a child with a Scorpio Moon gets a hero who feels deeper than anyone knows — but the text NEVER tells the reader who they must become. No career predictions, no relationship fates, no "you will be". No astrology jargon in the story itself (that lives only on the parents' page). A child inherits a poem, not a box.`);
@@ -226,28 +241,60 @@ function buildSystemPrompt(s) {
 - Numerology (Life Path from the birth date; and Expression / Soul-Urge when a full name is present) → a quiet recurring number or rhythm — a refrain said N times, N companions, N doors — felt as pattern, never stated as a "meaning".
 Choose a single vivid central metaphor from the chart; the metaphor and the companion recur on nearly every spread.`);
   const comp = companionFrom(s.chart);
-  if (comp) out.push(`\nTHE COMPANION for this book is **${comp.name}**, a ${comp.element} ${comp.animal} — ${comp.essence}. Use this exact name; ${comp.name} is a fixed character in the series. ${comp.name} may EARN a fuller name or title at the story's turning point — and if so, include a short, tender passage on WHERE that name comes from and what it means (do not merely announce it; the naming is the emotional pivot).`);
-  out.push(`\nSTORY FLOW — the scenes are ONE continuous story, not separate vignettes: a clear arc from beginning to end. Scene 1 opens the tension the chart implies; each scene follows causally from the last; the middle turns on the companion and the central metaphor; the final scene RESOLVES the opening tension and lands home. The recurring chant threads through and returns at the close.`);
+  if (comp && isVerse) {
+    out.push(`\nTHE COMPANION for this book is **${comp.name}**, a ${comp.element} ${comp.animal} — ${comp.essence}. ${comp.name} is a fixed character in the series. In a lullaby ${comp.name} appears only softly — a warm presence beside the baby on a spread or two. Do NOT give ${comp.name} a naming pivot or a plot; this is too young for that.`);
+  } else if (comp) {
+    out.push(`\nTHE COMPANION for this book is **${comp.name}**, a ${comp.element} ${comp.animal} — ${comp.essence}. Use this exact name; ${comp.name} is a fixed character in the series. ${comp.name} may EARN a fuller name or title at the story's turning point — and if so, include a short, tender passage on WHERE that name comes from and what it means (do not merely announce it; the naming is the emotional pivot).`);
+  }
+  if (isVerse) {
+    out.push(`\nSHAPE — a lullaby is not a plot. The spreads are a gentle progression, not a story with tension and resolution: begin at the child arriving / the day softening, move through a few warm images drawn from the chart, and end at sleep ("goodnight, ${s.birth.name}"). No conflict, no lesson spelled out — just images and rest.`);
+  } else {
+    out.push(`\nSTORY FLOW — the scenes are ONE continuous story, not separate vignettes: a clear arc from beginning to end. Scene 1 opens the tension the chart implies; each scene follows causally from the last; the middle turns on the companion and the central metaphor; the final scene RESOLVES the opening tension and lands home. The recurring chant threads through and returns at the close.`);
+  }
   out.push(`\nEDITION REGISTER: ${REGISTERS[s.edition]}`);
 
   if (!s.isAdult) {
     const n = sceneCount(s.edition);
     const forbid = s.langs.includes('EN') ? '' :
       ' English is NOT in the set — write no English anywhere, and never gloss a line in parentheses.';
+    const langTail = isVerse
+      ? `Each language's line is a re-telling of the same image, not a stiff literal translation — say it the way that language would. Names and family words are never translated.`
+      : `The recurring chant/refrain near the end appears once per line in EVERY language of the set — that block is the only place all languages sit together. Echo lines are re-tellings, not literal translations. Within a single scene's body do NOT mix two languages: the whole body is in that scene's one assigned language (only names and family words keep their own language).`;
     out.push(`\nLANGUAGES — the book is written ONLY in these, nothing else: ${langList}.${forbid}
 The MAIN narrative text must actually BE in these languages — not one language sprinkled with words of the others. Any language outside the set is forbidden except for names and family words.
 LANGUAGE PLAN (follow exactly — fixed assignments, not a suggestion):
 ${languagePlan(s, n)}
-The recurring chant/refrain near the end appears once per line in EVERY language of the set — that block is the only place all languages sit together. Echo lines are re-tellings, not literal translations. Within a single scene's body do NOT mix two languages: the whole body is in that scene's one assigned language (only names and family words keep their own language).`);
-    out.push(`\nOUTPUT — return ONLY clean HTML (no markdown, no preamble, no <html>/<body> wrapper). Write EXACTLY ${n} scenes, numbered I…${ROMAN[n]}. Each scene is, in order:
-<figure class="art" data-motif="KEY" data-scene="one short vivid visual line, in English, describing this scene for an illustrator"></figure>
-<div class="ch-title">${ROMAN[1]} · Title</div>
+${langTail}`);
+    const bf = bandFormat(s.edition);
+    const parentsName = LANG_NAMES[s.parentsLang];
+    const parentsBlock = `<div class="parents"><h2>Title</h2><p>…2–4 short paragraphs, each naming ONE concrete chart feature (a placement, the Human Design type, the Chinese animal + companion, a Life Path number) and how it became a story beat…</p><p class="mirror">A story is a mirror, not a map of the future.</p></div>`;
+    if (bf.fmt === 'verse') {
+      out.push(`\nOUTPUT — return ONLY clean HTML (no markdown, no preamble, no <html>/<body> wrapper).
+This is a LULLABY, not a story. Write EXACTLY ${n} tiny spreads. NO chapter titles, NO paragraphs, NO plot — each spread is ONE image, said as a short couplet, once in every language of the set.
+Each spread, in order:
+<figure class="art" data-motif="KEY" data-scene="one short vivid visual line, in English, for the illustrator"></figure>
+<div class="verse"><p class="line">first language — two very short lines<br>(the second line)</p><p class="line">next language — the same image, retold</p>… one <p class="line"> per language, in this fixed order: ${langList}</div>
+- Each line is 2–6 words; at most two lines per language; keep the whole spread under ${bf.words} words across all languages.
+- KEY is ONE word (best fit per spread) from: ${MOTIFS_LIST}.
+- Do NOT add an echo line or a <div class="spell"> chant — saying the couplet once per language IS the refrain.
+- After the last spread, the parents' page, written ENTIRELY in ${parentsName} and in no other language: ${parentsBlock}
+Use ✦ not emoji.`);
+    } else {
+      const unit = bf.titles ? 'chapters' : 'spreads';
+      const titleLine = bf.titles ? `\n<div class="ch-title">${ROMAN[1]} · Title</div>` : '';
+      const brevity = bf.titles
+        ? `Keep each chapter to ${bf.paras} short paragraphs, under ${bf.words} words total.`
+        : `Keep each spread to ${bf.paras} SHORT sentences (under ${bf.words} words total). Simple, concrete, rhythmic — repetition is welcome; nothing literary or abstract.`;
+      out.push(`\nOUTPUT — return ONLY clean HTML (no markdown, no preamble, no <html>/<body> wrapper). Write EXACTLY ${n} ${unit}, numbered I…${ROMAN[n]}. Each ${unit.replace(/s$/, '')} is, in order:
+<figure class="art" data-motif="KEY" data-scene="one short vivid visual line, in English, describing this scene for an illustrator"></figure>${titleLine}
 <div class="scene"><p>…</p>… <p class="echo">closing echo (rotating shapes only; omit for a single-lead book)</p></div>
+- ${brevity}
 - KEY is ONE word chosen (best fit per scene) from: ${MOTIFS_LIST}.
 - Optional transformation beat inside a scene: <div class="evolve">✦ NAME → NEWNAME ✦</div>
-- After the last scene, the shared chant: <div class="spell">line per language<br>…</div>
-- Then the parents' page, written ENTIRELY in ${LANG_NAMES[s.parentsLang]} and in no other language: <div class="parents"><h2>Title</h2><p>…2–4 short paragraphs, each naming ONE concrete chart feature (a placement, the Human Design type, the Chinese animal + companion, a Life Path number) and how it became a story beat…</p><p class="mirror">A story is a mirror, not a map of the future.</p></div>
+- After the last ${unit.replace(/s$/, '')}, the shared chant: <div class="spell">line per language<br>…</div>
+- Then the parents' page, written ENTIRELY in ${parentsName} and in no other language: ${parentsBlock}
 Use ✦ not emoji.`);
+    }
   } else {
     out.push(`\nLANGUAGE: lead in ${LANG_NAMES[s.langs[0]]}${s.langs.length > 1 ? `, with meaningful phrases from ${s.langs.slice(1).map(c=>LANG_NAMES[c]).join(', ')} where they land naturally` : ''}. Names and family words are never translated.`);
     out.push(`\nOUTPUT — return ONLY clean HTML (no markdown, no preamble), form = ${s.form}:` + adultOutput(s));
@@ -256,7 +303,7 @@ Use ✦ not emoji.`);
 }
 
 function lengthGuide(edition) {
-  return { '0-2':'4–5 very short spreads', '2-5':'5–6 short spreads', '6-8':'5–6 chapters', '9-12':'6–7 short chapters', 'teen':'5–6 sections' }[edition] || '5–6 chapters';
+  return { '0-2':'6 tiny spreads', '3-5':'5–6 short spreads', '6-8':'5 short chapters', '9-12':'6 short chapters', 'teen':'5 sections' }[edition] || '5–6 chapters';
 }
 function adultOutput(s) {
   if (s.form === 'poem')

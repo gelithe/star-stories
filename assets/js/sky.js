@@ -6,8 +6,8 @@
 
 // ─── PRODUCT: age editions (README.md) ───────────────────────────────────────
 const AGE_BANDS = [
-  { id: '0-2',  label: '0–2',        reader: 'read to the baby',      register: 'Lullaby cadence — few words, the pictures carry it.',            shape: 'echo' },
-  { id: '2-5',  label: '2–5',        reader: 'bedtime story',         register: 'An animal fable — rhythm, repetition, a little creature who feels everything.', shape: 'rotating-lead' },
+  { id: '0-2',  label: '0–2',        reader: 'read to the baby',      register: 'A lullaby — a couplet a spread, the pictures carry it.',          shape: 'echo' },
+  { id: '3-5',  label: '3–5',        reader: 'bedtime story',         register: 'A short animal fable — rhythm and repetition, a little creature who feels everything.', shape: 'rotating-lead' },
   { id: '6-8',  label: '6–8',        reader: 'early self-reading',    register: 'A quest with short chapters — the child as the hero.',           shape: 'rotating-chapters' },
   { id: '9-12', label: '9–12',       reader: 'private reading',       register: 'Adventure and first interiority — "your secret compass".',       shape: 'single-lead' },
   { id: 'teen', label: 'Teenager',   reader: 'skeptical reading',     register: 'Honest and unpatronising — identity and intensity.',            shape: 'single-lead' },

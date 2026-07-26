@@ -10,9 +10,9 @@ const BOOK_CSS = `
 @page { size: 154mm 216mm; margin: 0; }
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { font-family: Georgia, 'Times New Roman', serif; color: #2c2416; background: #fff; }
-.page { width: 154mm; height: 216mm; padding: 19mm; page-break-after: always;
+.page { width: 154mm; min-height: 216mm; padding: 19mm; page-break-after: always;
   display: flex; flex-direction: column; justify-content: center; text-align: center;
-  position: relative; overflow: hidden; }
+  position: relative; overflow: visible; }
 .page:last-child { page-break-after: auto; }
 .page.cover { background: #10101c; color: #f2ead0; }
 .cover h1 { font-size: 26pt; font-weight: normal; letter-spacing: .06em; line-height: 1.35; color: #f2ead0; }
@@ -23,6 +23,9 @@ body { font-family: Georgia, 'Times New Roman', serif; color: #2c2416; backgroun
 .ch-title { font-size: 15pt; color: #9a7010; letter-spacing: .06em; margin-bottom: 6mm; }
 .scene { font-size: 11.5pt; line-height: 1.8; text-align: left; }
 .scene p { margin-bottom: 4.5mm; }
+.verse { text-align: center; margin: 0 auto; }
+.verse .line { font-size: 14pt; line-height: 1.7; margin-bottom: 5mm; color: #9a7010; }
+.verse .line + .line { color: #6b5a3e; font-style: italic; font-size: 12.5pt; }
 .echo { font-style: italic; color: #6b5a3e; font-size: 10.5pt; }
 .evolve { text-align: center; color: #1a9eae; letter-spacing: .1em; margin: 5mm 0; font-size: 13pt; }
 .spell { text-align: center; font-size: 13pt; color: #9a7010; letter-spacing: .04em; line-height: 1.95; margin: 6mm 0; }
