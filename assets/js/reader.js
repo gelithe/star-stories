@@ -109,6 +109,11 @@ function showReaderError(msg, status) {
 // house-style SVG that's already in the slot and notes it once.
 async function paintIllustrations(paper, element, accessCode) {
   const figs = [...paper.querySelectorAll('figure.art[data-scene]')];
+  // The book's companion (Chinese animal) so scenes render the same recurring
+  // avatar; the server pins its canonical look. See AVATARS.md / companions.json.
+  const chart = (typeof state !== 'undefined' && state.chartText) || '';
+  const cm = /Chinese:\s+\w+\s+(Rat|Ox|Tiger|Rabbit|Dragon|Snake|Horse|Goat|Monkey|Rooster|Dog|Pig)/.exec(chart);
+  const companion = cm ? cm[1] : '';
   let noted = false;
   for (const fig of figs) {
     const scene = fig.dataset.scene;
@@ -118,7 +123,7 @@ async function paintIllustrations(paper, element, accessCode) {
       const res = await fetch('/api/illustrate', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ scene, element, motif: fig.dataset.motif, accessCode }),
+        body: JSON.stringify({ scene, element, motif: fig.dataset.motif, companion, accessCode }),
         signal: _readerCtl && _readerCtl.signal,
       });
       if (!res.ok) throw new Error('illustrate ' + res.status);
