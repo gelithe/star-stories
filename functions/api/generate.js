@@ -261,6 +261,13 @@ Practical test for EVERY line: would it make this child feel TRAPPED by who they
 
 Reading aids — use these only to FIND the one truth, not to list them all: Sun = core light; Moon = the emotional engine, usually where the truth lives; Ascendant = the opening image; the most-tenanted element/house or a tight hard aspect = the central tension (a Capricorn rising over a Pisces stellium → "a small mountain with an ocean inside"); Human Design type = HOW the hero acts (a Generator responds to what lights it up; a Projector guides and is invited; a Manifestor initiates; a Reflector mirrors the room); Chinese sign = the COMPANION (named below); numerology = a quiet recurring number/rhythm, felt as pattern, never explained as a "meaning".
 The chosen metaphor and the companion recur on nearly every spread.`);
+
+  out.push(`\nTHE VOICE — plain, easy words. This is the rule that decides whether the book actually READS well, and it outranks sounding poetic:
+- Write so the child understands on the FIRST read, and a tired parent can read it aloud without stumbling. If a line needs a second read to be understood, it is too clever — rewrite it simpler.
+- Short sentences. Everyday words a child already uses. One idea at a time.
+- Say the feeling plainly. A metaphor must be SIMPLE and almost literal — "Inside, it felt like rain, and the rain had nowhere to go" — NOT compressed or writerly to the point of decoding ("a quiet warm rain gathered under his ribs and went nowhere"; "the rain got so loud he couldn't hear"). Avoid poetic body-locations ("under his ribs"), synaesthesia, and stacked abstractions.
+- When the companion earns a new name, the meaning must be shown as a plain IMAGE the child can picture ("you're not a stone that holds the rain — you're the mountain where a river begins"), NEVER a definition of an abstract word ("a foundation is the bottom, the part you can't see").
+- Clarity IS the beauty here. Never trade being understood for sounding literary. (The adult editions may be a touch more literary — but still clear.)`);
   const comp = companionFrom(s.chart);
   if (comp && isVerse) {
     out.push(`\nTHE COMPANION for this book is **${comp.name}**, a ${comp.element} ${comp.animal} — ${comp.essence}. ${comp.name} is a fixed character in the series. In a lullaby ${comp.name} appears only softly — a warm presence beside the baby on a spread or two. Do NOT give ${comp.name} a naming pivot or a plot; this is too young for that.`);
