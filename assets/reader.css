@@ -21,6 +21,16 @@
 }
 .ss-reader-close:hover, .ss-reader-retry:hover { filter: brightness(1.05); }
 
+/* reading-mode toggle (page-turn ↔ scroll) */
+.ss-reader-bar .rb-modes { display: inline-flex; gap: 2px; background: rgba(231,220,174,0.14);
+  border-radius: 9px; padding: 2px; margin-left: 6px; }
+.ss-reader-bar .rb-mode {
+  font-family: Georgia, serif; font-size: 12.5px; cursor: pointer; color: #e7dcae;
+  background: transparent; border: none; border-radius: 7px; padding: 6px 11px; letter-spacing: 0.02em;
+}
+.ss-reader-bar .rb-mode.on { background: #e7dcae; color: #10101c; }
+@media (max-width: 560px) { .ss-reader-bar .rb-mode { padding: 6px 8px; font-size: 12px; } }
+
 /* the "paper" the story is typeset on */
 .ss-paper {
   max-width: 640px; margin: 0 auto; background: #fffdf7; color: #2c2416;
@@ -82,3 +92,27 @@
 .ss-paper figure.art.is-painting::after{
   content:'painting…'; position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
   font-size:12px; letter-spacing:.08em; color:#9a7010; background:rgba(255,253,247,.6); border-radius:8px; }
+
+/* ── page-turn reader ── one spread at a time, built from #ssPaper once done ── */
+.ss-pages { position: relative; }
+/* each spread reuses the .ss-paper look; hidden until it is the active page */
+.ss-spread { display: none; }
+.ss-spread.active { display: block; animation: ssFlip 0.34s ease; }
+@keyframes ssFlip {
+  from { opacity: 0; transform: translateY(8px) rotateX(4deg); transform-origin: top center; }
+  to   { opacity: 1; transform: none; }
+}
+/* a spread centres its single illustration a touch larger than the scroll view */
+.ss-spread figure.art { max-width: 400px; }
+
+.ss-pagenav {
+  max-width: 640px; margin: 16px auto 0; display: flex; align-items: center; justify-content: center; gap: 20px;
+}
+.ss-pagenav .rb-nav {
+  font-family: Georgia, serif; font-size: 26px; line-height: 1; cursor: pointer; color: #10101c;
+  background: #e7dcae; border: none; border-radius: 50%; width: 46px; height: 46px;
+  display: flex; align-items: center; justify-content: center; padding-bottom: 3px;
+}
+.ss-pagenav .rb-nav:hover { filter: brightness(1.05); }
+.ss-pagenav .rb-nav:disabled { opacity: 0.35; cursor: default; filter: none; }
+.ss-pagenav .rb-count { font-size: 13px; letter-spacing: 0.12em; color: #cfc8b6; min-width: 64px; text-align: center; }

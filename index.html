@@ -146,13 +146,25 @@
   <div class="ss-reader-bar">
     <span class="rb-title" id="rbTitle">Your book</span>
     <span class="rb-status" id="rbStatus"></span>
+    <span class="rb-modes" role="group" aria-label="Reading mode">
+      <button class="rb-mode on" id="rbModePage" type="button">Turn pages</button>
+      <button class="rb-mode" id="rbModeScroll" type="button">Scroll</button>
+    </span>
     <span class="rb-spacer"></span>
     <button class="ss-reader-retry" id="rbDownload" type="button" style="display:none">Download book</button>
     <button class="ss-reader-retry" id="rbRetry" type="button">Rewrite</button>
     <button class="ss-reader-close" id="rbClose" type="button">Close</button>
   </div>
   <div class="ss-reader-error" id="rbError"></div>
+  <!-- Continuous scroll (also the live surface while the book is being written) -->
   <article class="ss-paper" id="ssPaper"></article>
+  <!-- Page-turn: filled from #ssPaper once writing finishes -->
+  <div class="ss-pages" id="ssPages" style="display:none"></div>
+  <div class="ss-pagenav" id="ssPageNav" style="display:none">
+    <button class="rb-nav" id="rbPrev" type="button" aria-label="Previous page">‹</button>
+    <span class="rb-count" id="rbCount"></span>
+    <button class="rb-nav" id="rbNext" type="button" aria-label="Next page">›</button>
+  </div>
 </div>
 
 <!-- astronomy-engine (same CDN build proven in Chart Compass) -->

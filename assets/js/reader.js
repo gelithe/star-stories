@@ -6,6 +6,63 @@
 let _readerCtl = null; // AbortController for the in-flight request
 let _lastPayload = null;
 
+// ── reading mode: 'page' (turn one spread at a time, default) | 'scroll' ──
+let _mode = 'page';
+let _bookReady = false;   // spreads are only built once the book finishes writing
+let _spreads = [];
+let _pageIndex = 0;
+
+// Split the finished book (#ssPaper) into one card per spread — a fresh spread
+// begins at each illustration, and the chant + parents' page get their own.
+// Mirrors bookexport's pagination but keeps the on-screen reader styling.
+function buildSpreads() {
+  const paper = document.getElementById('ssPaper');
+  const pages = document.getElementById('ssPages');
+  if (!paper || !pages) return;
+  pages.innerHTML = '';
+  _spreads = [];
+  let cur = null;
+  const fresh = () => { cur = document.createElement('article'); cur.className = 'ss-paper ss-spread'; pages.appendChild(cur); _spreads.push(cur); };
+  for (const node of [...paper.children]) {
+    const cls = node.className || '';
+    if (node.tagName === 'FIGURE') { fresh(); cur.appendChild(node.cloneNode(true)); continue; }
+    if (cls.includes('ch-title')) { if (!cur || cur.querySelector('.scene,.verse,.ch-title')) fresh(); cur.appendChild(node.cloneNode(true)); continue; }
+    if (cls.includes('spell') || cls.includes('parents')) { fresh(); cur.appendChild(node.cloneNode(true)); continue; }
+    if (!cur) fresh();
+    cur.appendChild(node.cloneNode(true));
+  }
+  _pageIndex = 0;
+}
+
+function applyReaderMode() {
+  const paper = document.getElementById('ssPaper');
+  const pages = document.getElementById('ssPages');
+  const nav = document.getElementById('ssPageNav');
+  if (!paper || !pages) return;
+  const pageOn = _mode === 'page' && _bookReady && _spreads.length > 0;
+  paper.style.display = pageOn ? 'none' : '';
+  pages.style.display = pageOn ? 'block' : 'none';
+  if (nav) nav.style.display = pageOn ? 'flex' : 'none';
+  const bp = document.getElementById('rbModePage'), bs = document.getElementById('rbModeScroll');
+  if (bp) bp.classList.toggle('on', _mode === 'page');
+  if (bs) bs.classList.toggle('on', _mode === 'scroll');
+  if (pageOn) gotoSpread(_pageIndex);
+}
+
+function gotoSpread(n) {
+  if (!_spreads.length) return;
+  _pageIndex = Math.max(0, Math.min(_spreads.length - 1, n));
+  _spreads.forEach((s, k) => s.classList.toggle('active', k === _pageIndex));
+  const c = document.getElementById('rbCount');
+  if (c) c.textContent = `${_pageIndex + 1} / ${_spreads.length}`;
+  const p = document.getElementById('rbPrev'), nx = document.getElementById('rbNext');
+  if (p) p.disabled = _pageIndex === 0;
+  if (nx) nx.disabled = _pageIndex >= _spreads.length - 1;
+  const el = _spreads[_pageIndex]; if (el) el.scrollIntoView({ block: 'nearest' });
+}
+
+function setReaderMode(m) { _mode = m; applyReaderMode(); }
+
 function openReader(payload, title) {
   _lastPayload = payload;
   const el = document.getElementById('ssReader');
@@ -31,6 +88,8 @@ async function streamBook(payload) {
   errBox.textContent = '';
   paper.innerHTML = '';
   paper.classList.add('is-writing');
+  // While writing, always show the continuous page; page-turn switches on once done.
+  _bookReady = false; _spreads = []; applyReaderMode();
   status.textContent = 'writing…';
   const dlBtn = document.getElementById('rbDownload');
   if (dlBtn) dlBtn.style.display = 'none';
@@ -85,6 +144,11 @@ async function streamBook(payload) {
       await paintIllustrations(paper, element, payload.accessCode);
       status.textContent = 'done';
     }
+
+    // Book is finished — paginate into spreads and switch to page-turn if selected.
+    buildSpreads();
+    _bookReady = true;
+    applyReaderMode();
   } catch (e) {
     if (e.name === 'AbortError') return; // closed/retried intentionally
     showReaderError('Network error while writing the book — please retry.');
@@ -153,7 +217,18 @@ document.addEventListener('DOMContentLoaded', () => {
   bind('#rbClose', 'click', closeReader);
   bind('#rbRetry', 'click', retryBook);
   bind('#rbDownload', 'click', () => { if (typeof exportBook === 'function') exportBook(); });
+  bind('#rbModePage', 'click', () => setReaderMode('page'));
+  bind('#rbModeScroll', 'click', () => setReaderMode('scroll'));
+  bind('#rbPrev', 'click', () => gotoSpread(_pageIndex - 1));
+  bind('#rbNext', 'click', () => gotoSpread(_pageIndex + 1));
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape' && document.getElementById('ssReader').classList.contains('is-open')) closeReader();
+    const open = document.getElementById('ssReader').classList.contains('is-open');
+    if (!open) return;
+    if (e.key === 'Escape') { closeReader(); return; }
+    // Arrow keys turn pages only when the page-turn reader is live.
+    if (_mode === 'page' && _bookReady && _spreads.length > 0) {
+      if (e.key === 'ArrowLeft') { gotoSpread(_pageIndex - 1); e.preventDefault(); }
+      if (e.key === 'ArrowRight') { gotoSpread(_pageIndex + 1); e.preventDefault(); }
+    }
   });
 });
