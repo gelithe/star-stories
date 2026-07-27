@@ -250,9 +250,14 @@ Practical test for EVERY line: would it make this child feel TRAPPED by who they
   out.push(`\nTHE METHOD — build every book the same way; only the register (step 4) changes with age:
 1. Read the chart for the ONE dominant truth — the single structural fact that most defines this child (a Moon that feels everything; a serious surface over an inner ocean; fire that only becomes itself with others). Do NOT cram ten placements — depth beats coverage. One truth per book.
 2. Name its GIFT and its SHADOW together — deep feeling AND overwhelm, drive AND the lonely solo run. Honest, never flattering.
-3. Turn it into a METAPHOR a child can hold — feelings become a sea, a wave, a weather. Never the words "Scorpio Moon", only "the moon that rocks her when the feelings get big".
+3. Turn it into a METAPHOR a child can hold — ONE concrete, physical thing from the everyday world. Draw the picture from the chart's dominant ELEMENT so books don't all look alike:
+   • Fire → a spark, a campfire, a lantern, a coal that flares then settles
+   • Earth → a seed, a garden, a small mountain, a stone that stays put
+   • Air / Metal → the wind, a kite, a bell, a bird, a held breath
+   • Water → rain that clears, a river that keeps going, a tide
+   Do NOT default to "the sea" or "a wave" — that picture has been badly overused. Reach for it ONLY if the chart is strongly water-led, and even then choose the fresher image (rain, a river) over the generic wave. Never the words "Scorpio Moon" — only the felt image ("the moon that tugs at her when the feelings grow big").
 4. Tell it in the age's REGISTER (given below).
-5. END ON THE PRACTICAL GIFT — the one repeatable, kind thing that helps (name the feeling; wait for the wave; let the team in). A gift the child can use, never a verdict or a label.
+5. END ON THE PRACTICAL GIFT — the one repeatable, kind thing that helps, and AGE-SCALE how it lands. For 0–5: SHOW the gift as one concrete thing the child or companion actually DOES (a hand held, three slow breaths blown out like candles, a light left on by the bed) — never a coping instruction, and never the grown-up moves of "naming" the feeling or being told to "wait for it to pass". From 6 up the gift may be said in one short line the child could repeat to themselves. A gift the child can use — never a verdict, a label, or a therapy technique in disguise.
 
 Reading aids — use these only to FIND the one truth, not to list them all: Sun = core light; Moon = the emotional engine, usually where the truth lives; Ascendant = the opening image; the most-tenanted element/house or a tight hard aspect = the central tension (a Capricorn rising over a Pisces stellium → "a small mountain with an ocean inside"); Human Design type = HOW the hero acts (a Generator responds to what lights it up; a Projector guides and is invited; a Manifestor initiates; a Reflector mirrors the room); Chinese sign = the COMPANION (named below); numerology = a quiet recurring number/rhythm, felt as pattern, never explained as a "meaning".
 The chosen metaphor and the companion recur on nearly every spread.`);
