@@ -8,6 +8,7 @@
 <link rel="icon" href="assets/favicon.svg">
 <link rel="stylesheet" href="assets/styles.css">
 <link rel="stylesheet" href="assets/reader.css">
+<link rel="stylesheet" href="assets/poster.css">
 </head>
 <body>
 
@@ -132,6 +133,10 @@
       </div>
       <button class="ss-cta" id="ssCreate" type="button">Create this book</button>
       <p class="ss-create-note" id="ssCreateNote">Digital PDF first; a printed copy can follow.</p>
+      <div class="ss-addon">
+        <button class="ss-addon-btn" id="ssPosterBtn" type="button">✦ Make a little life-rules poster</button>
+        <span class="ss-addon-hint">A handful of gentle truths from the same sky — printable for the wall.</span>
+      </div>
     </section>
   </aside>
 </main>
@@ -167,6 +172,20 @@
   </div>
 </div>
 
+<!-- Poster: the "little compass" add-on — life-rules from the same chart -->
+<div class="ss-poster-overlay" id="ssPoster" aria-hidden="true">
+  <div class="ss-reader-bar">
+    <span class="rb-title">Little compass</span>
+    <span class="rb-status" id="pbStatus"></span>
+    <span class="rb-spacer"></span>
+    <button class="ss-reader-retry" id="pbDownload" type="button" style="display:none">Download poster</button>
+    <button class="ss-reader-retry" id="pbRetry" type="button">Rewrite</button>
+    <button class="ss-reader-close" id="pbClose" type="button">Close</button>
+  </div>
+  <div class="ss-reader-error" id="pbError"></div>
+  <div class="ss-poster-body" id="ssPosterBody"></div>
+</div>
+
 <!-- astronomy-engine (same CDN build proven in Chart Compass) -->
 <script src="https://cdn.jsdelivr.net/npm/astronomy-engine@2/astronomy.browser.min.js"></script>
 <script src="assets/js/engine.js"></script>
@@ -175,5 +194,6 @@
 <script src="assets/js/bookexport.js"></script>
 <script src="assets/js/configurator.js"></script>
 <script src="assets/js/reader.js"></script>
+<script src="assets/js/poster.js"></script>
 </body>
 </html>

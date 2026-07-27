@@ -1,0 +1,203 @@
+// Star Stories — the "little compass" poster add-on.
+// Calls /api/poster for a handful of life-rules drawn from the child's real
+// chart, lays them out as a printable A3 poster, and offers it as a download
+// (open → Ctrl/Cmd-P → Save as PDF, same flow as the book export).
+//
+// Reuses escHtml() and slug() from bookexport.js, ART from illustrate.js, and
+// the shared `state`.
+
+let _posterData = null;
+let _companionsCache = null;
+
+// Load the companion registry once so the poster can show the child's avatar.
+async function loadCompanions() {
+  if (_companionsCache) return _companionsCache;
+  try {
+    const res = await fetch('assets/data/companions.json');
+    _companionsCache = await res.json();
+  } catch { _companionsCache = { companions: [] }; }
+  return _companionsCache;
+}
+
+function companionSheet(reg, animal) {
+  const c = (reg.companions || []).find(x => x.animal === animal);
+  return c && c.assets && c.assets.sheet ? c.assets.sheet : '';
+}
+
+function posterPayload() {
+  return {
+    people: [{ name: state.name.trim() || 'the child', chart: state.chartText }],
+    birth: { name: state.name.trim(), date: state.birthDate, place: state.place },
+    languages: state.bookLangs,
+    parentsLang: state.parentsLang,
+    accessCode: state.accessCode || undefined,
+  };
+}
+
+async function openPoster() {
+  const note = document.getElementById('ssCreateNote');
+  if (!state.name.trim() || !state.chartText) {
+    if (!state.chartText && state.birthDate) { if (note) { note.className = 'ss-create-note'; note.textContent = 'Reading the sky…'; } await computeAndPreview(); }
+    if (!state.name.trim() || !state.chartText) {
+      if (note) { note.className = 'ss-create-note is-warn'; note.textContent = 'Add the child’s name and birth date first, then make the poster.'; }
+      return;
+    }
+  }
+  if (note) { note.className = 'ss-create-note'; note.textContent = ''; }
+
+  const overlay = document.getElementById('ssPoster');
+  const bodyEl = document.getElementById('ssPosterBody');
+  const status = document.getElementById('pbStatus');
+  const errBox = document.getElementById('pbError');
+  const dl = document.getElementById('pbDownload');
+  overlay.classList.add('is-open');
+  document.body.style.overflow = 'hidden';
+  errBox.classList.remove('is-on'); errBox.textContent = '';
+  bodyEl.innerHTML = '';
+  if (dl) dl.style.display = 'none';
+  status.textContent = 'reading the sky…';
+
+  try {
+    const [reg, res] = await Promise.all([
+      loadCompanions(),
+      fetch('/api/poster', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(posterPayload()),
+      }),
+    ]);
+    if (!res.ok) {
+      let msg = `Poster failed (HTTP ${res.status}).`;
+      try { const j = await res.json(); if (j && j.error) msg = j.error; } catch {}
+      if (res.status === 500) msg += ' — the server is missing ANTHROPIC_API_KEY.';
+      if (res.status === 401) msg += ' — enter your Access code in the form and try again.';
+      showPosterError(msg); return;
+    }
+    const data = await res.json();
+    _posterData = data;
+    bodyEl.innerHTML = renderPoster(data, reg);
+    wireCompanionFallback(data);
+    status.textContent = 'ready to print';
+    if (dl) dl.style.display = '';
+  } catch (e) {
+    showPosterError('Network error while writing the poster — please retry.');
+  }
+}
+
+function closePoster() {
+  document.getElementById('ssPoster').classList.remove('is-open');
+  document.body.style.overflow = '';
+}
+
+function showPosterError(msg) {
+  document.getElementById('pbStatus').textContent = '';
+  const b = document.getElementById('pbError');
+  b.textContent = msg; b.classList.add('is-on');
+}
+
+function posterElement(data) {
+  return (data.companion && data.companion.element) || (typeof state !== 'undefined' && state.element) || 'Water';
+}
+function vectorCompanion(el) {
+  const vec = (typeof ART !== 'undefined' && ART.motifSVG) ? ART.motifSVG('companion', el) : '';
+  return vec ? `<div class="pc-avatar pc-vec">${vec}</div>` : '';
+}
+
+// The companion figure: the registered painted avatar if we have one, else the
+// house-style vector companion so the poster is never empty. If the CDN image
+// fails to load, wireCompanionFallback() swaps in the vector (done in JS to
+// avoid quoting an SVG inside an HTML attribute).
+function companionFigure(data, reg) {
+  const sheet = data.companion ? companionSheet(reg, data.companion.animal) : '';
+  if (sheet) {
+    const alt = (data.companion.name || '') + ' the ' + data.companion.animal;
+    return `<img class="pc-avatar" id="pcAvatar" src="${escHtml(sheet)}" alt="${escHtml(alt)}">`;
+  }
+  return vectorCompanion(posterElement(data));
+}
+function wireCompanionFallback(data) {
+  const img = document.getElementById('pcAvatar');
+  if (!img) return;
+  img.onerror = () => { img.outerHTML = vectorCompanion(posterElement(data)); };
+}
+
+function rulesHTML(rules) {
+  return rules.map(r =>
+    `<div class="pc-rule"><span class="pc-star">✦</span><p>${escHtml(r.text)}${r.source ? `<small>${escHtml(r.source)}</small>` : ''}</p></div>`
+  ).join('');
+}
+
+function renderPoster(data, reg) {
+  return `<div class="pc-poster">
+    <div class="pc-frame"></div>
+    ${data.kicker ? `<div class="pc-kicker">${escHtml(data.kicker)}</div>` : ''}
+    <h1 class="pc-title">${escHtml(data.title)}</h1>
+    ${data.subtitle ? `<div class="pc-sub">${escHtml(data.subtitle)}</div>` : ''}
+    ${companionFigure(data, reg)}
+    <div class="pc-rules">${rulesHTML(data.rules)}</div>
+    <div class="pc-foot"><b>${escHtml(data.mirror)}</b><br>Star Stories</div>
+  </div>`;
+}
+
+// ── Print-ready download: a self-contained A3 poster document ────────────────
+const POSTER_DOC_CSS = `
+@page{size:297mm 420mm;margin:0}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#4a4a5e;font-family:Georgia,'Times New Roman',serif}
+.poster{width:297mm;height:420mm;margin:0 auto;background:#faf6ec;color:#2c2416;position:relative;padding:30mm 26mm;display:flex;flex-direction:column;overflow:hidden}
+.frame{position:absolute;inset:14mm;border:1.5px solid #c9a227;border-radius:4mm;pointer-events:none}
+.frame:before{content:"";position:absolute;inset:3mm;border:.6px solid #d9c98f;border-radius:3mm}
+.kicker{text-align:center;letter-spacing:.32em;text-transform:uppercase;font-size:10pt;color:#9a7010;margin-bottom:5mm}
+h1{text-align:center;font-size:34pt;font-weight:normal;letter-spacing:.04em;color:#2c2416;line-height:1.12}
+.sub{text-align:center;font-size:11pt;color:#8a7860;margin-top:4mm;font-style:italic}
+.avatar{display:block;width:52mm;height:auto;margin:7mm auto 4mm;filter:drop-shadow(0 8px 18px rgba(44,36,22,.25))}
+.rules{margin:5mm auto 0;max-width:210mm;display:flex;flex-direction:column;gap:6mm}
+.rule{display:flex;gap:6mm;align-items:flex-start}
+.rule .star{flex:0 0 auto;color:#c9a227;font-size:15pt;line-height:1.4}
+.rule p{font-size:14.5pt;line-height:1.5;color:#3a3020}
+.rule small{display:block;color:#9a8a6a;font-size:9.5pt;font-style:italic;margin-top:1mm}
+.foot{margin-top:auto;text-align:center;color:#8a7860;font-style:italic;font-size:11pt;padding-top:8mm}
+.foot b{color:#9a7010;font-style:normal;letter-spacing:.05em}
+`;
+
+function posterAvatarForDoc(data, reg) {
+  const sheet = data.companion ? companionSheet(reg, data.companion.animal) : '';
+  if (sheet) return `<img class="avatar" src="${escHtml(sheet)}" alt="">`;
+  const el = (data.companion && data.companion.element) || (state && state.element) || 'Water';
+  const vec = (typeof ART !== 'undefined' && ART.motifSVG) ? ART.motifSVG('companion', el) : '';
+  return vec ? `<div class="avatar">${vec}</div>` : '';
+}
+
+async function downloadPoster() {
+  if (!_posterData) return;
+  const reg = await loadCompanions();
+  const d = _posterData;
+  const doc = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
+<title>${escHtml(d.title)} — Star Stories</title><style>${POSTER_DOC_CSS}</style></head>
+<body><div class="poster">
+  <div class="frame"></div>
+  ${d.kicker ? `<div class="kicker">${escHtml(d.kicker)}</div>` : ''}
+  <h1>${escHtml(d.title)}</h1>
+  ${d.subtitle ? `<div class="sub">${escHtml(d.subtitle)}</div>` : ''}
+  ${posterAvatarForDoc(d, reg)}
+  <div class="rules">${d.rules.map(r => `<div class="rule"><span class="star">✦</span><p>${escHtml(r.text)}${r.source ? `<small>${escHtml(r.source)}</small>` : ''}</p></div>`).join('')}</div>
+  <div class="foot"><b>${escHtml(d.mirror)}</b><br>Star Stories</div>
+</div></body></html>`;
+
+  const blob = new Blob([doc], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `${slug(state.name || 'compass')}-little-compass.html`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 4000);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  bind('#ssPosterBtn', 'click', openPoster);
+  bind('#pbClose', 'click', closePoster);
+  bind('#pbRetry', 'click', openPoster);
+  bind('#pbDownload', 'click', downloadPoster);
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && document.getElementById('ssPoster').classList.contains('is-open')) closePoster();
+  });
+});
