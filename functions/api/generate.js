@@ -298,11 +298,41 @@ ${comp.name} EVOLVES TWICE across the book: each time the hero says something tr
 - ONE PLAIN RULE governs the world, stated in a single child-sized sentence, and the whole plot obeys it: "every feeling nobody names turns into fog." The rule is the chart's truth translated into a law of nature.
 - THE EMOTIONAL SKILL IS THE MAGIC. The practical gift is not advice added at the end — it is the SPELL that works in this world. Naming the feeling parts the fog; the breath moves the water. Nothing else works.
 - THE WRONG TOOL FIRST. The hero attacks the problem the obvious way and it FAILS, visibly and physically — the sword passes straight through the fog, because fog cannot be cut, pushed, caught or shouted at. Then, and only then, the real magic. This is where the chart's tension becomes plot.
-- THE COMPANION EVOLVES, MORE THAN ONCE, AND COURAGE IS WHAT LEVELS IT UP. Each time the hero says something true and hard, the companion transforms and earns a new name (Aquari → MARELLI → STELLAMAR), marked <div class="evolve">✦ NAME → NEWNAME ✦</div>. Two evolutions across the book is right for a longer edition. The new name must MEAN something the child can picture. This progression is the game inside the story — a child will chase it.
+${titled ? `- THE COMPANION EVOLVES, MORE THAN ONCE, AND COURAGE IS WHAT LEVELS IT UP. Each time the hero says something true and hard, the companion transforms and earns a new name (Aquari → MARELLI → STELLAMAR), marked <div class="evolve">✦ NAME → NEWNAME ✦</div>. Two evolutions across the book. The new name must MEAN something the child can picture. This progression is the game inside the story — a child will chase it.` : `- NO EVOLUTIONS at this age — the companion stays exactly itself, one steady friend. The magic of the world is enough.`}
 - THE CREW ARRIVES WITH POWERS. If siblings/friends/pets are given, bring them in mid-story as themselves, each with one delightful ability drawn from their real character (a laugh that punches a hole in the fog; a little sister who glows; a cat who crosses dry-pawed because cats always know the way). Being helped BY people they love is the point.
 - THE BRAVEST LINE IS THE SMALLEST. The final obstacle is cleared not by force but by the hardest quiet admission ("sometimes I want to be little too"). A confession, never a triumph.
 - BOTH/AND ENDING. Nothing is cured, outgrown or fixed. The hero wakes as themselves — the calm face AND the ocean, both his, both strength. Then the portable refrain, once per language.
-Use sound words in capitals for impact (TRRAKŠT! POKŠT!) — sparingly, one or two per book.`);
+Use sound words in capitals for impact (TRRAKŠT! POKŠT!) — sparingly, one or two per book.
+
+WHERE THE WORLD COMES FROM — build it from the chart's dominant element and truth, so no two books share a world. Water → an inner ocean, a rain-country, a river under the house. Fire → a forge, a sleeping volcano, a lantern-world going dark. Earth → a root-country under the garden, a mountain's inside, a seed-vault. Air/Metal → a sky of winds, a city of bells, a kite-country. The threat to that world is the child's SHADOW made physical (unnamed feelings → fog; a fire hoarded → everything freezing; a garden that will not let anything go → roots strangling).`);
+
+    if (titled) out.push(`\nWORKED EXAMPLE — this is the standard, from the handcrafted original. Study the MOVES and the energy; do NOT reuse the ocean, the fog, the names, or any of this content. A different chart must produce a completely different world.
+
+  [real opening, then the anchor, then the crossing]
+  "From the outside Lars looks serious and solid — like a small mountain. But Lars has a secret: an entire ocean lives inside him. Dreams swim there, underwater stars shine, and the feelings are as big as whales.
+  One night a pearly egg glows on his pillow. TRRAKŠT! Out climbs a small creature with blue eyes and a star-shaped tail.
+  — I am Aquari, he says. — I shine when you feel. And now I need your help, Lars. The ocean is fading."
+
+  [the world's one rule + the child's role]
+  "— What is this fog? asks Lars.
+  — It is all the things left unsaid, answers Aquari. — Every feeling nobody calls by name becomes fog. Only you can melt it. You are the captain of this ocean."
+
+  [the wrong tool fails — physically — then the real magic, and the evolution]
+  "Lars draws his dream sword and charges the wall of fog — HIEB! But the sword goes straight through. You cannot defeat fog. You cannot push it, catch it, or shout at it.
+  — Name it, whispers Aquari. — Name what you feel. That is the only magic that works here.
+  Lars breathes deep. And very quietly he says: — Sometimes I am afraid.
+  The fog tears open like a curtain. And Aquari begins to shine, brighter and brighter —
+  ✦ Aquari → MARELLI ✦"
+
+  [the bravest line is the smallest, and it clears the last of it]
+  "One last cloud of fog remains, the darkest one. Lars looks at it a long time. Then he says the bravest thing of all:
+  — Sometimes I want to be little too.
+  And the fog... vanishes. All of it."
+
+  [both/and ending — nothing cured]
+  "In the morning Lars wakes with his serious face — as always. But now he knows: the serious face and the ocean inside — both are his. And both are strength."
+
+Notice what makes it a real hero story: the child is NEEDED, the world can be LOST, the obvious solution FAILS, and courage — not cleverness or force — is what changes things. Match that. Never write a book where the hero merely takes a walk and learns a technique.`);
   }
   out.push(`\nEDITION REGISTER: ${REGISTERS[s.edition]}`);
 
