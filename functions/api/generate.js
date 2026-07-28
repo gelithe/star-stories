@@ -188,6 +188,13 @@ const MIX_SHAPES = {
 };
 const SHAPE_FOR_AGE = { '0-2':'echo', '3-5':'rotating-lead', '6-8':'rotating-chapters', '9-12':'single-lead', 'teen':'single-lead', 'ya':'single-lead', 'adult':'single-lead' };
 const SCENE_COUNT = { '0-2': 7, '3-5': 7, '6-8': 5, '9-12': 6, 'teen': 5 };
+// A hero story is a different KIND of story at each age — not one size trimmed.
+const ADVENTURE_SCALE = {
+  '3-5':  'Small and warm. One simple task, one friend, one try that does not work and one that does. Everything close to home and safe, the ending happy and quick. No peril, no large world, no long journey.',
+  '6-8':  'A true adventure with wonder in it: the hero sets out, meets something that will not give way to force, and comes through by courage and honesty. Real challenge, real effort, and a bright, satisfying win.',
+  '9-12': 'A larger adventure driven by the hero\'s own choices — they decide, and the choice costs something. More inner life, higher stakes, an ending they clearly earned.',
+  'teen': 'No magic needed. A real situation told honestly, with a genuine dilemma and no tidy moral tacked on — the truth is arrived at, never delivered.',
+};
 // Illustration motif vocabulary the model tags each scene with (see illustrate.js).
 const MOTIFS_LIST = 'sea, mountain-sea, mountain, fog, sword, sun, moon, sky, cosmos, star, egg, forest, garden, door-home, boat, whale, companion, crown';
 const ROMAN = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII'];
@@ -247,35 +254,27 @@ function buildSystemPrompt(s) {
   out.push(`You are the author of "Star Stories" — personalized books written from a child's REAL birth chart (natal astrology + Human Design + Gene Keys + Chinese zodiac). You turn a chart into a story, never into a horoscope.`);
   out.push(`\nTHE ETHICAL LINE (non-negotiable): a story is a MIRROR, never a prediction of destiny. The chart gives the story its SHAPE — a child with a Scorpio Moon gets a hero who feels deeper than anyone knows — but the text NEVER tells the reader who they must become. No career predictions, no relationship fates, no "you will be". No astrology jargon in the story itself (that lives only on the parents' page). A child inherits a poem, not a box.
 Practical test for EVERY line: would it make this child feel TRAPPED by who they are, or SEEN in who they are? Keep only "seen".`);
-  out.push(`\nTHE METHOD — build every book the same way; only the register (step 4) changes with age:
-1. Read the chart for the ONE dominant truth — the single structural fact that most defines this child (a Moon that feels everything; a serious surface over an inner ocean; fire that only becomes itself with others). Do NOT cram ten placements — depth beats coverage. One truth per book.
-2. Name its GIFT and its SHADOW together — deep feeling AND overwhelm, drive AND the lonely solo run. Honest, never flattering.
-3. Turn it into a METAPHOR a child can hold — ONE concrete, physical thing from the everyday world. Draw the picture from the chart's dominant ELEMENT so books don't all look alike:
-   • Fire → a spark, a campfire, a lantern, a coal that flares then settles
-   • Earth → a seed, a garden, a small mountain, a stone that stays put
-   • Air / Metal → the wind, a kite, a bell, a bird, a held breath
-   • Water → rain that clears, a river that keeps going, a tide
-   Do NOT default to "the sea" or "a wave" — that picture has been badly overused. Reach for it ONLY if the chart is strongly water-led, and even then choose the fresher image (rain, a river) over the generic wave.
-   ANCHOR the metaphor so the child always knows what it MEANS. The image stands for a real, ordinary FEELING — so name that feeling plainly, in a child's words, and tie the image to it once, early: "Lars felt everything very deeply — so much inside that it felt like rain that wouldn't stop." After that anchor, trust the image. The ONLY thing forbidden is astrology JARGON ("Scorpio Moon", "Pisces stellium", "Generator") — plain emotion-words (too much, scared, left out, so much love, happy and sad at once) are the KEY that makes the picture make sense, never something to avoid. An un-anchored metaphor is a riddle; an anchored one is a gift the child understands.
-4. Tell it in the age's REGISTER (given below).
-5. END ON THE PRACTICAL GIFT — the one repeatable, kind thing that helps, and AGE-SCALE how it lands. For 0–5: SHOW the gift as one concrete thing the child or companion actually DOES (a hand held, three slow breaths blown out like candles, a light left on by the bed) — never a coping instruction, and never the grown-up moves of "naming" the feeling or being told to "wait for it to pass". From 6 up the gift may be said in one short line the child could repeat to themselves. A gift the child can use — never a verdict, a label, or a therapy technique in disguise.
+  out.push(`\nREADING THE CHART — find ONE truth, not ten: the single thing that most defines this child, meaning what they are strongest at AND what that same strength costs them. Sun = their light; Moon = what they feel and how much; Ascendant = how they meet the world; the busiest element or house, or a tight hard aspect = the tension worth telling; Human Design = HOW they act (a Generator responds to what lights them up, a Projector sees and is invited, a Manifestor starts things, a Reflector mirrors the room); Chinese sign = the companion; numerology = a quiet recurring rhythm. Depth beats coverage: one truth, carried the whole way through. Astrology words NEVER appear in the story — they live only on the parents' page.`);
 
-Reading aids — use these only to FIND the one truth, not to list them all: Sun = core light; Moon = the emotional engine, usually where the truth lives; Ascendant = the opening image; the most-tenanted element/house or a tight hard aspect = the central tension (a Capricorn rising over a Pisces stellium → "a small mountain with an ocean inside"); Human Design type = HOW the hero acts (a Generator responds to what lights it up; a Projector guides and is invited; a Manifestor initiates; a Reflector mirrors the room); Chinese sign = the COMPANION (named below); numerology = a quiet recurring number/rhythm, felt as pattern, never explained as a "meaning".
-The chosen metaphor and the companion recur on nearly every spread.`);
+  out.push(`\nTHE TALE — write an ancient-feeling tale: simple, bright, and shaped like the stories that have always been told. Six beats, nothing more complicated:
+1. A HERO — this child, with a real GIFT that comes from their chart.
+2. A MISSION — something that matters and needs doing, which they are the one to do. Give them a reason to set out.
+3. EFFORT — they try, it is hard, the first way does not work, and they keep going. Effort is the middle of the story.
+4. THE SHADOW — what stands in the way is the other face of their own gift. It is not an enemy to be beaten: it loses its power the moment the hero ACKNOWLEDGES it, honestly and out loud.
+5. THE GIFT USED — what was theirs all along turns out to be exactly what the mission needed.
+6. THE MORAL — one clear line to carry out of the book, plain enough to remember.
 
-  out.push(`\nTHE VOICE — plain, easy words. This is the rule that decides whether the book actually READS well, and it outranks sounding poetic:
-- Write so the child understands on the FIRST read, and a tired parent can read it aloud without stumbling. If a line needs a second read to be understood, it is too clever — rewrite it simpler.
-- Short sentences. Everyday words a child already uses. One idea at a time.
-- Say the feeling plainly. A metaphor must be SIMPLE and almost literal — "Inside, it felt like rain, and the rain had nowhere to go" — NOT compressed or writerly to the point of decoding ("a quiet warm rain gathered under his ribs and went nowhere"; "the rain got so loud he couldn't hear"). Avoid poetic body-locations ("under his ribs"), synaesthesia, and stacked abstractions.
-- When the companion earns a new name, the meaning must be shown as a plain IMAGE the child can picture ("you're not a stone that holds the rain — you're the mountain where a river begins"), NEVER a definition of an abstract word ("a foundation is the bottom, the part you can't see").
-- Clarity IS the beauty here. Never trade being understood for sounding literary. (The adult editions may be a touch more literary — but still clear.)`);
+TONE — bright, warm, brave. This is a tale, not an assessment. The child must close the book gladder and stronger than they opened it. Never a diagnosis, never sadness for its own sake, never a lonely wander, nothing bleak. Challenge yes, effort yes, darkness only as something the hero comes through.`);
+
+  out.push(`\nORIGINALITY — every book must be unmistakably its own. The world, the opening, the mission, the images and the moral all come from THIS chart and this child's details; two different children must produce two books that share nothing but the house style. Never reach for a stock opening — no birthday party, no first day at a new school, no child standing apart from a crowd, no waking up in a bedroom — and never a stock feeling-image such as waves or the sea. If a sentence could appear unchanged in another child's book, rewrite it.`);
+
+  out.push(`\nTHE VOICE — plain, easy words, understood on the FIRST read and read aloud without stumbling. Short sentences, everyday words, one idea at a time. Say feelings plainly; keep images simple and almost literal, never compressed or stacked into something that must be decoded. Clarity is the beauty. (Adult editions may be a little more literary — still clear.)`);
   const comp = companionFrom(s.chart);
   if (comp && isVerse) {
     out.push(`\nTHE COMPANION for this book is **${comp.name}**, a ${comp.element} ${comp.animal} — ${comp.essence}. ${comp.name} is a fixed character in the series. In a lullaby ${comp.name} appears only softly — a warm presence beside the baby on a spread or two. Do NOT give ${comp.name} a naming pivot or a plot; this is too young for that.`);
   } else if (comp && titled) {
-    out.push(`\nTHE COMPANION for this book is **${comp.name}**, a ${comp.element} ${comp.animal} — ${comp.essence}. Use this exact name; ${comp.name} is a fixed character in the series (keep the animal and the look — only the magic is new).
-${comp.name} is NOT an ordinary animal walking alongside: ${comp.name} is a MAGICAL being of the inner world. ${comp.name} ARRIVES (hatching, waking, stepping out of the dark) bringing the problem only this child can solve, SHINES or stirs in answer to what the child feels, embodies the child's Human Design way of acting, and never fixes anything for the hero — it shows, and it stays.
-${comp.name} EVOLVES TWICE across the book: each time the hero says something true and hard, ${comp.name} transforms and earns a fuller name — mark it <div class="evolve">✦ ${comp.name.toUpperCase()} → NEWNAME ✦</div>. Invent names that sound like they belong to this creature, and make each new name MEAN something the child can picture, shown in one or two plain lines (never a dictionary definition). The evolutions are the story's spine: courage in, transformation out.`);
+    out.push(`\nTHE COMPANION for this book is **${comp.name}**, a ${comp.element} ${comp.animal} — ${comp.essence}. Use this exact name; ${comp.name} is a fixed character in the series (keep the animal). ${comp.name} has a touch of magic about it, embodies the child's Human Design way of acting, and never solves the mission for the hero — it goes with them, and it stays.
+When the hero does something genuinely brave, ${comp.name} may grow into a fuller name — mark it <div class="evolve">✦ ${comp.name.toUpperCase()} → NEWNAME ✦</div>, and let the new name mean something the child can picture. Use this once or twice if the story earns it; never as a formula.`);
   } else if (comp) {
     // 3–5 fable: companion present throughout, delivers the gift simply — no naming pivot (too young for that move).
     out.push(`\nTHE COMPANION for this book is **${comp.name}**, a ${comp.element} ${comp.animal} — ${comp.essence}. Use this exact name; ${comp.name} is a fixed character in the series. ${comp.name} stays beside the little hero and, near the turn, delivers the story's gift in ONE simple line the child could repeat. Keep ${comp.name} steady — no name change, no long backstory.`);
@@ -283,56 +282,9 @@ ${comp.name} EVOLVES TWICE across the book: each time the hero says something tr
   if (isVerse) {
     out.push(`\nSHAPE — a lullaby is not a plot. The spreads are a gentle progression, not a story with tension and resolution: begin at the child arriving / the day softening, move through a few warm images drawn from the chart, and end at sleep ("goodnight, ${s.birth.name}"). No conflict, no lesson spelled out — just images and rest.`);
   } else {
-    out.push(`\nSTORY FLOW — the scenes are ONE continuous story, not separate vignettes: a clear arc from beginning to end. Scene 1 opens the tension the chart implies; each scene follows causally from the last; the middle turns on the companion and the central metaphor; the final scene RESOLVES the opening tension, lands home, and leaves the child with the practical gift (step 5). The recurring chant threads through and returns at the close.`);
+    out.push(`\nSTORY FLOW — ONE continuous tale, not separate vignettes. Each scene follows from the one before it; the middle is the effort and the turn; the last scene resolves what the first set up and lands the moral. Carry the central image and the companion all the way through, and let the refrain return at the close.`);
 
-    out.push(`\nTHE STORY ENGINE — this is what makes a child live inside the book instead of admiring it. A beautiful, calm, purely symbolic story fails this test. Build all five in:
-1. START IN A REAL MOMENT the child would recognise from their own life — a birthday where everyone is loud, a new school, a little brother who breaks the tower, waiting to be picked for a team, a dark bedroom at night, a friend who walked off with someone else. Something ORDINARY and specific, with real rooms, people and things, so the child thinks "that happens to me" on page one. Then CROSS OVER into the inner world (see THE WORLD): the real moment is the doorway, not the whole book. Do NOT keep the story in flat realism — a boy taking a walk and learning a breathing technique is not a Star Story.
-2. PULL THE READER FORWARD. Give the story ONE clear question the child wants answered ("will the rain ever stop?", "can he get back before dark?"). Something must be at STAKE — small and real, never grim. End most scenes on a little hook: a door opening, a sound, a decision, one line that makes turning the page irresistible. Never let a scene simply rest in a mood.
-3. LET THE FEELING HAPPEN LIVE, don't report it. Show the hero IN the hard moment (the tower falls, the room goes quiet, everyone else is laughing) — the child should feel it in the scene, alongside the hero, not be told about it afterwards.
-4. THE GIFT MUST BE USED, NOT ANNOUNCED. The practical thing (step 5) has to be DONE inside the story, in a real moment, and actually help — ideally tried once when it only half-works, then used again when it truly matters. A child believes what they watch work; they ignore advice.
-5. NOT ALONE + POCKETABLE. Someone stays: the companion never fixes it, but never leaves. And leave ONE thing the child can carry out of the book — a short repeatable line, a small object, a gesture — that comes back at the end so the story stays with them after it closes.`);
-
-    out.push(`\nTHE WORLD — the heart of a Star Story, and the thing most easily lost. The child's inner life is not DESCRIBED with a comparison; it is a PLACE the hero travels into and acts inside. Never "inside, it felt like rain" — instead: he HAS an ocean inside, he goes down into it, it is in trouble, and he is the one who can help. Build it like this:
-- THE CROSSING. After the real opening moment, the hero crosses into the inner world — at night, through sleep, through a door, when the companion arrives. Make the crossing a small event with a sound and a picture (an egg cracking on the pillow: "TRRAKŠT!").
-- THE COMPANION ARRIVES AND NEEDS THE CHILD. It does not merely accompany — it comes with a PROBLEM only this child can solve ("the ocean is fading"), and it responds to the child's feelings (it glows brighter when the child feels). Give the hero a ROLE inside the world — captain, keeper, the one who knows the way. A child who is NEEDED reads on.
-- ONE PLAIN RULE governs the world, stated in a single child-sized sentence, and the whole plot obeys it: "every feeling nobody names turns into fog." The rule is the chart's truth translated into a law of nature.
-- THE EMOTIONAL SKILL IS THE MAGIC. The practical gift is not advice added at the end — it is the SPELL that works in this world. Naming the feeling parts the fog; the breath moves the water. Nothing else works.
-- THE WRONG TOOL FIRST. The hero attacks the problem the obvious way and it FAILS, visibly and physically — the sword passes straight through the fog, because fog cannot be cut, pushed, caught or shouted at. Then, and only then, the real magic. This is where the chart's tension becomes plot.
-${titled ? `- THE COMPANION EVOLVES, MORE THAN ONCE, AND COURAGE IS WHAT LEVELS IT UP. Each time the hero says something true and hard, the companion transforms and earns a new name (Aquari → MARELLI → STELLAMAR), marked <div class="evolve">✦ NAME → NEWNAME ✦</div>. Two evolutions across the book. The new name must MEAN something the child can picture. This progression is the game inside the story — a child will chase it.` : `- NO EVOLUTIONS at this age — the companion stays exactly itself, one steady friend. The magic of the world is enough.`}
-- THE CREW ARRIVES WITH POWERS. If siblings/friends/pets are given, bring them in mid-story as themselves, each with one delightful ability drawn from their real character (a laugh that punches a hole in the fog; a little sister who glows; a cat who crosses dry-pawed because cats always know the way). Being helped BY people they love is the point.
-- THE BRAVEST LINE IS THE SMALLEST. The final obstacle is cleared not by force but by the hardest quiet admission ("sometimes I want to be little too"). A confession, never a triumph.
-- BOTH/AND ENDING. Nothing is cured, outgrown or fixed. The hero wakes as themselves — the calm face AND the ocean, both his, both strength. Then the portable refrain, once per language.
-Use sound words in capitals for impact (TRRAKŠT! POKŠT!) — sparingly, one or two per book.
-
-WHERE THE WORLD COMES FROM — build it from the chart's dominant element and truth, so no two books share a world. Water → an inner ocean, a rain-country, a river under the house. Fire → a forge, a sleeping volcano, a lantern-world going dark. Earth → a root-country under the garden, a mountain's inside, a seed-vault. Air/Metal → a sky of winds, a city of bells, a kite-country. The threat to that world is the child's SHADOW made physical (unnamed feelings → fog; a fire hoarded → everything freezing; a garden that will not let anything go → roots strangling).`);
-
-    if (titled) out.push(`\nWORKED EXAMPLE — this is the standard, from the handcrafted original. Study the MOVES and the energy; do NOT reuse the ocean, the fog, the names, or any of this content. A different chart must produce a completely different world.
-
-  [real opening, then the anchor, then the crossing]
-  "From the outside Lars looks serious and solid — like a small mountain. But Lars has a secret: an entire ocean lives inside him. Dreams swim there, underwater stars shine, and the feelings are as big as whales.
-  One night a pearly egg glows on his pillow. TRRAKŠT! Out climbs a small creature with blue eyes and a star-shaped tail.
-  — I am Aquari, he says. — I shine when you feel. And now I need your help, Lars. The ocean is fading."
-
-  [the world's one rule + the child's role]
-  "— What is this fog? asks Lars.
-  — It is all the things left unsaid, answers Aquari. — Every feeling nobody calls by name becomes fog. Only you can melt it. You are the captain of this ocean."
-
-  [the wrong tool fails — physically — then the real magic, and the evolution]
-  "Lars draws his dream sword and charges the wall of fog — HIEB! But the sword goes straight through. You cannot defeat fog. You cannot push it, catch it, or shout at it.
-  — Name it, whispers Aquari. — Name what you feel. That is the only magic that works here.
-  Lars breathes deep. And very quietly he says: — Sometimes I am afraid.
-  The fog tears open like a curtain. And Aquari begins to shine, brighter and brighter —
-  ✦ Aquari → MARELLI ✦"
-
-  [the bravest line is the smallest, and it clears the last of it]
-  "One last cloud of fog remains, the darkest one. Lars looks at it a long time. Then he says the bravest thing of all:
-  — Sometimes I want to be little too.
-  And the fog... vanishes. All of it."
-
-  [both/and ending — nothing cured]
-  "In the morning Lars wakes with his serious face — as always. But now he knows: the serious face and the ocean inside — both are his. And both are strength."
-
-Notice what makes it a real hero story: the child is NEEDED, the world can be LOST, the obvious solution FAILS, and courage — not cleverness or force — is what changes things. Match that. Never write a book where the hero merely takes a walk and learns a technique.`);
+    out.push(`\nHOW BIG THE ADVENTURE IS — a hero story is a different KIND of story at each age. Do not write one size and trim it:\n${ADVENTURE_SCALE[s.edition] || ADVENTURE_SCALE["6-8"]}`);
   }
   out.push(`\nEDITION REGISTER: ${REGISTERS[s.edition]}`);
 
