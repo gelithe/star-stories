@@ -63,9 +63,15 @@ export async function onRequestPost({ request, env }) {
     .filter(c => LANG_NAMES[c]);
   const lead = LANG_NAMES[langs[0]] || 'English';
   const others = langs.slice(1).map(c => LANG_NAMES[c]);
-  const count = family ? Math.min(8, Math.max(6, people.length + 3)) : 6;
+  // Everyone gets the SAME number of rules — an "at least one each" instruction
+  // over a rounded total left one person with two and everyone else with one.
+  // Small families can carry two each; from five people it is one each plus a
+  // third shared line, so the sheet stays a readable length.
+  const perPerson = family ? (people.length <= 4 ? 2 : 1) : 6;
+  const shared = family ? (people.length <= 4 ? 2 : 3) : 0;
+  const count = family ? people.length * perPerson + shared : 6;
 
-  const system = buildPosterPrompt({ family, people, lead, others, count });
+  const system = buildPosterPrompt({ family, people, lead, others, count, perPerson, shared });
   const user = buildPosterUser({ family, people, place: body.birth && body.birth.place, date: body.birth && body.birth.date });
 
   const model = env.POSTER_MODEL || DEFAULT_MODEL;
@@ -123,7 +129,7 @@ export async function onRequestPost({ request, env }) {
   });
 }
 
-function buildPosterPrompt({ family, lead, others, count }) {
+function buildPosterPrompt({ family, lead, others, count, perPerson, shared }) {
   const o = [];
   o.push(`You are the author of "Star Stories". You turn a child's REAL birth chart (natal astrology + Human Design + Gene Keys + Chinese zodiac + numerology) into a small printable poster called a "little compass" — a handful of gentle life-truths the child can keep on the wall.`);
   o.push(`\nTHE ETHICAL LINE (non-negotiable): a story is a MIRROR, never a prediction of destiny. Each truth reflects who the child ALREADY is — never who they must become. No career, no relationship, no "you will be". No astrology jargon in the rule text itself. Practical test for every line: would it make the child feel TRAPPED by who they are, or SEEN in who they are? Keep only "seen".`);
@@ -134,12 +140,14 @@ function buildPosterPrompt({ family, lead, others, count }) {
   ✓ rule alone (also fine): "When you don't know what to do, say out loud what you like. Everything starts there."
 Every line must contain something the child could actually DO. If a line only tells them what they are like, add the second half.
 - 8–24 words, second person, warm, plain, and easy to read aloud. Naming the moment it applies ("When…", "If…", "On the days when…") is the usual bridge from the recognition to the rule.
+- BOTH HALVES MUST BE ABOUT THE SAME THING. Whatever the line opens with, it must finish on that same subject — do not swap in a new image at the end. ✗ "When you want a new friend, ask someone a question out loud — a question opens doors." (starts on a friend, ends on doors). ✓ "When you want a new friend, ask them one question out loud — that is how it starts." Answer the situation you raised, plainly, and stop.
 - The chart is WHY the rule fits this child; it never appears in the rule text. The short "source" tag is the only place a placement may be named (e.g. "Aries Sun", "Generator · Human Design", "Life Path 8", "— Bo walks beside you").
 - Draw each rule from a DIFFERENT part of the chart — Sun, Moon, rising, Human Design, the companion, a number — and give every rule a source tag.
 - Nothing generic: if you could give the same rule to a different child, it does not belong on this poster.
 - Say what TO do, not what to avoid. Kind, encouraging, never a warning or a verdict.`);
   if (family) {
-    o.push(`\nThis is a FAMILY compass: give at least one truth clearly belonging to EACH person (use their name in the source tag, e.g. "Nova · Cancer Sun"), then one or two shared truths that hold the whole family together. ${count} rules total.`);
+    o.push(`\nThis is a FAMILY compass, and it must be EVEN-HANDED — a child counts the lines that belong to them. Give EXACTLY ${perPerson} rule${perPerson > 1 ? 's' : ''} to EACH person, no one more and no one fewer, then EXACTLY ${shared} shared rules for the whole family at the end. ${count} rules in total, and the subtitle's number must match.
+Order them person by person (all of one person's rules together, in the order the charts are given), with the shared ones last. Start each source tag with that person's name ("Nova · Cancer Sun"); tag the shared ones for the family. A shared rule must be something the family DOES together, drawn from what their charts have in common.`);
   } else {
     o.push(`\nThis is one child's compass: exactly ${count} rules.`);
   }
