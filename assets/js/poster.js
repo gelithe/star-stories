@@ -198,11 +198,11 @@ body{background:#4a4a5e;font-family:Georgia,'Times New Roman',serif}
 .kicker{text-align:center;letter-spacing:.32em;text-transform:uppercase;font-size:10pt;color:#9a7010;margin-bottom:5mm}
 h1{text-align:center;font-size:34pt;font-weight:normal;letter-spacing:.04em;color:#2c2416;line-height:1.12}
 .sub{text-align:center;font-size:11pt;color:#8a7860;margin-top:4mm;font-style:italic}
-.avatar{display:block;width:52mm;height:auto;margin:7mm auto 4mm;filter:drop-shadow(0 8px 18px rgba(44,36,22,.25))}
-.rules{margin:5mm auto 0;max-width:210mm;display:flex;flex-direction:column;gap:6mm}
+.avatar{display:block;width:44mm;height:auto;margin:7mm auto 4mm;filter:drop-shadow(0 8px 18px rgba(44,36,22,.25))}
+.rules{margin:5mm auto 0;max-width:210mm;display:flex;flex-direction:column;gap:5mm}
 .rule{display:flex;gap:6mm;align-items:flex-start}
 .rule .star{flex:0 0 auto;color:#c9a227;font-size:15pt;line-height:1.4}
-.rule p{font-size:14.5pt;line-height:1.5;color:#3a3020}
+.rule p{font-size:13.5pt;line-height:1.5;color:#3a3020}
 .rule small{display:block;color:#9a8a6a;font-size:9.5pt;font-style:italic;margin-top:1mm}
 .foot{margin-top:auto;text-align:center;color:#8a7860;font-style:italic;font-size:11pt;padding-top:8mm}
 .foot b{color:#9a7010;font-style:normal;letter-spacing:.05em}

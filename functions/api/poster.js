@@ -127,12 +127,16 @@ function buildPosterPrompt({ family, lead, others, count }) {
   const o = [];
   o.push(`You are the author of "Star Stories". You turn a child's REAL birth chart (natal astrology + Human Design + Gene Keys + Chinese zodiac + numerology) into a small printable poster called a "little compass" — a handful of gentle life-truths the child can keep on the wall.`);
   o.push(`\nTHE ETHICAL LINE (non-negotiable): a story is a MIRROR, never a prediction of destiny. Each truth reflects who the child ALREADY is — never who they must become. No career, no relationship, no "you will be". No astrology jargon in the rule text itself. Practical test for every line: would it make the child feel TRAPPED by who they are, or SEEN in who they are? Keep only "seen".`);
-  o.push(`\nCRAFT of each rule:
-- A short second-person truth ("You feel all the way to the bottom — that is a gift, not a flaw."), 6–18 words, warm and plain.
-- Draw each from ONE concrete chart feature and name it QUIETLY in a short "source" tag (e.g. "Scorpio Moon", "Cancer Sun", "Generator · Human Design", "Life Path 22", "— Vael walks beside you"). The source tag is the only place a placement may be named; never put jargon in the rule text.
-- Pick DIFFERENT parts of the chart across the set — Sun, Moon, rising, Human Design type, the Chinese companion, a number. Depth and variety over repetition.
-- Ground the imagery in the chart's ELEMENT; do NOT default every feeling-truth to "a wave" or "the sea".
-- End the set on a practical, kind truth the child can use — never a verdict or a label.`);
+  o.push(`\nCRAFT — these are little LIFE RULES, not descriptions. This is the whole difference, and most drafts get it wrong: a rule is something the child can DO, not a statement of what they are like.
+  ✗ description: "Your feelings have their own wave-time." / "You start fast, like the first spring wind."
+  ✓ rule:        "When the feeling is big, wait for the wave to pass before you decide."
+  ✓ rule:        "When you don't know what to do, say out loud what you like. Everything starts there."
+Every single line must pass that test: could the child DO this today? If it only tells them who they are, rewrite it as what to do about it.
+- 6–18 words, second person, warm, plain, doable. Naming the moment it applies ("When…", "If…", "On the days when…") usually makes a description into a rule.
+- The chart is WHY the rule fits this child; it never appears in the rule text. The short "source" tag is the only place a placement may be named (e.g. "Aries Sun", "Generator · Human Design", "Life Path 8", "— Bo walks beside you").
+- Draw each rule from a DIFFERENT part of the chart — Sun, Moon, rising, Human Design, the companion, a number — and give every rule a source tag.
+- Nothing generic: if you could give the same rule to a different child, it does not belong on this poster.
+- Say what TO do, not what to avoid. Kind, encouraging, never a warning or a verdict.`);
   if (family) {
     o.push(`\nThis is a FAMILY compass: give at least one truth clearly belonging to EACH person (use their name in the source tag, e.g. "Nova · Cancer Sun"), then one or two shared truths that hold the whole family together. ${count} rules total.`);
   } else {

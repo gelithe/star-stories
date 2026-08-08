@@ -37,24 +37,30 @@
 .ss-poster-body { display: flex; justify-content: center; }
 
 /* the poster itself — an A3 sheet scaled to fit the screen */
+/* A3 proportions are a MINIMUM, not a cage: with a fixed ratio and
+   overflow:hidden the rules were being clipped off the bottom. The sheet now
+   grows when the content needs more room, so the preview is always readable —
+   the downloaded file is the print-exact one. */
 .pc-poster {
-  width: min(94vw, 500px); aspect-ratio: 297 / 420;
+  --pw: min(94vw, 540px);
+  width: var(--pw); min-height: calc(var(--pw) * 420 / 297);
   background: #faf6ec; color: #2c2416; position: relative;
-  padding: 8.5%; display: flex; flex-direction: column; overflow: hidden;
+  padding: 8% 7.5%; display: flex; flex-direction: column; overflow: visible;
   border-radius: 6px; box-shadow: 0 30px 80px -20px rgba(0,0,0,0.6);
   font-family: Georgia, 'Times New Roman', serif;
 }
-.pc-frame { position: absolute; inset: 4.5%; border: 1.5px solid #c9a227; border-radius: 12px; pointer-events: none; }
-.pc-frame:before { content: ""; position: absolute; inset: 10px; border: 0.6px solid #d9c98f; border-radius: 9px; }
-.pc-kicker { text-align: center; letter-spacing: 0.3em; text-transform: uppercase; font-size: 10px; color: #9a7010; margin-bottom: 12px; }
-.pc-title { text-align: center; font-size: clamp(20px, 5.4vw, 30px); font-weight: normal; letter-spacing: 0.03em; line-height: 1.12; color: #2c2416; }
-.pc-sub { text-align: center; font-size: 12px; color: #8a7860; margin-top: 8px; font-style: italic; }
-.pc-avatar { display: block; width: 34%; height: auto; margin: 16px auto 8px; filter: drop-shadow(0 8px 18px rgba(44,36,22,0.25)); }
+.pc-frame { position: absolute; inset: 4%; border: 1.5px solid #c9a227; border-radius: 12px; pointer-events: none; }
+.pc-frame:before { content: ""; position: absolute; inset: 9px; border: 0.6px solid #d9c98f; border-radius: 9px; }
+.pc-kicker { text-align: center; letter-spacing: 0.28em; text-transform: uppercase; font-size: 9.5px; color: #9a7010; margin-bottom: 10px; }
+.pc-title { text-align: center; font-size: clamp(19px, 4.6vw, 27px); font-weight: normal; letter-spacing: 0.03em; line-height: 1.14; color: #2c2416; }
+.pc-sub { text-align: center; font-size: 11.5px; color: #8a7860; margin-top: 7px; font-style: italic; line-height: 1.4; }
+.pc-avatar { display: block; width: 25%; height: auto; margin: 12px auto 4px; filter: drop-shadow(0 8px 18px rgba(44,36,22,0.25)); }
 .pc-avatar.pc-vec svg { display: block; width: 100%; height: auto; }
-.pc-rules { margin: 10px auto 0; width: 100%; display: flex; flex-direction: column; gap: clamp(8px, 1.7vh, 15px); }
-.pc-rule { display: flex; gap: 12px; align-items: flex-start; }
-.pc-rule .pc-star { flex: 0 0 auto; color: #c9a227; font-size: 14px; line-height: 1.45; }
-.pc-rule p { font-size: clamp(12px, 2.9vw, 15px); line-height: 1.45; color: #3a3020; }
-.pc-rule small { display: block; color: #9a8a6a; font-size: 10px; font-style: italic; margin-top: 2px; }
-.pc-foot { margin-top: auto; text-align: center; color: #8a7860; font-style: italic; font-size: 11px; padding-top: 14px; }
+.pc-rules { margin: 12px auto 0; width: 100%; display: flex; flex-direction: column; gap: 13px; }
+.pc-rule { display: flex; gap: 11px; align-items: flex-start; }
+.pc-rule .pc-star { flex: 0 0 auto; color: #c9a227; font-size: 13px; line-height: 1.5; }
+.pc-rule p { font-size: 14px; line-height: 1.5; color: #3a3020; }
+.pc-rule small { display: block; color: #9a8a6a; font-size: 10px; font-style: italic; margin-top: 3px; }
+.pc-foot { margin-top: auto; text-align: center; color: #8a7860; font-style: italic; font-size: 11px; padding-top: 18px; }
+@media (max-width: 460px) { .pc-rule p { font-size: 13px; } .pc-rules { gap: 11px; } }
 .pc-foot b { color: #9a7010; font-style: normal; letter-spacing: 0.05em; }
