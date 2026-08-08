@@ -71,7 +71,7 @@ export async function onRequestPost({ request, env }) {
   const shared = family ? (people.length <= 4 ? 2 : 3) : 0;
   const count = family ? people.length * perPerson + shared : 6;
 
-  // Each person's companion, by name. Without this the model only sees
+  // Each person's Chinese sign. Without this the model only sees
   // "Chinese: Metal Ox" in the chart text and writes generic animals.
   const comps = people
     .map(p => { const c = companionFrom(p.chart); return c ? { person: p.name, ...c } : null; })
@@ -153,11 +153,11 @@ function buildPosterPrompt({ family, lead, others, count, perPerson, shared }) {
 Every line must contain something the child could actually DO. If a line only tells them what they are like, add the second half.
 - 8–24 words, second person, warm, plain, and easy to read aloud. Naming the moment it applies ("When…", "If…", "On the days when…") is the usual bridge from the recognition to the rule.
 - BOTH HALVES MUST BE ABOUT THE SAME THING. Whatever the line opens with, it must finish on that same subject — do not swap in a new image at the end. ✗ "When you want a new friend, ask someone a question out loud — a question opens doors." (starts on a friend, ends on doors). ✓ "When you want a new friend, ask them one question out loud — that is how it starts." Answer the situation you raised, plainly, and stop.
-- The chart is WHY the rule fits this child; it never appears in the rule text. The short "source" tag is the only place a placement may be named (e.g. "Aries Sun", "Generator · Human Design", "Life Path 8", "— Bo walks beside you").
-- Draw each rule from a DIFFERENT part of the chart — Sun, Moon, rising, Human Design, the companion, a number — and give every rule a source tag.
+- The chart is WHY the rule fits this child; it never appears in the rule text. The short "source" tag is the only place a placement may be named (e.g. "Aries Sun", "Generator · Human Design", "Life Path 8", "Metal Ox").
+- Draw each rule from a DIFFERENT part of the chart — Sun, Moon, rising, Human Design, the Chinese sign, a number — and give every rule a source tag.
 - Nothing generic: if you could give the same rule to a different child, it does not belong on this poster.
 - Say what TO do, not what to avoid. Kind, encouraging, never a warning or a verdict.
-- The companions have NAMES (given below) — if a rule mentions one, use its name, never the bare animal ("Bo goes slowly beside you", not "an Ox follows you"). And a rule about a companion still has to be doable and make plain sense; "name them when you go far" sounds lovely and means nothing.`);
+- THE POSTER MUST STAND ALONE. Many people will own only this sheet and no book, so it may never lean on anything from the stories — no character names, no invented creatures, nothing a stranger would not understand. When a rule uses someone's Chinese sign, name it plainly as element + animal ("your Wood Rat", "the Metal Ox in you"), exactly as given below. And such a rule still has to be doable and mean something on its face: "name them when you go far" sounds lovely and says nothing.`);
   if (family) {
     o.push(`\nThis is a FAMILY compass, and it must be EVEN-HANDED — a child counts the lines that belong to them. Give EXACTLY ${perPerson} rule${perPerson > 1 ? 's' : ''} to EACH person, no one more and no one fewer, then EXACTLY ${shared} shared rules for the whole family at the end. ${count} rules in total, and the subtitle's number must match.
 Order them person by person (all of one person's rules together, in the order the charts are given), with the shared ones last. Start each source tag with that person's name ("Nova · Cancer Sun"); tag the shared ones for the family. A shared rule must be something the family DOES together, drawn from what their charts have in common.
@@ -178,7 +178,7 @@ function buildPosterUser({ family, people, comps, place, date }) {
     : `Write ${people[0].name}'s little compass.`);
   if (date || place) lines.push(`\nKicker facts: ${[date, place].filter(Boolean).join(' · ')}`);
   if (comps && comps.length) {
-    lines.push(`\nCompanions (use these NAMES, never the bare animal): ${comps.map(c => `${c.person} → ${c.name} the ${c.animal}`).join('; ')}`);
+    lines.push(`\nChinese signs (refer to them exactly like this — element + animal): ${comps.map(c => `${c.person} → ${c.element} ${c.animal}`).join('; ')}`);
   }
   for (const p of people) lines.push(`\n— ${p.name}'s chart:\n${p.chart}`);
   lines.push(`\nReturn only the JSON object as specified.`);

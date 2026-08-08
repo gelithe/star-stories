@@ -163,8 +163,10 @@ function companionFigure(data, reg) {
   if (data.family && all.length > 1) {
     const sheets = all.map(c => ({ c, url: companionSheet(reg, c.animal) }));
     if (sheets.every(s => s.url)) {
+      // Labelled by Chinese sign, not by the books' character names — a poster
+      // is often bought on its own and must make sense without them.
       return `<div class="pc-avatars">${sheets.map(s =>
-        `<img src="${escHtml(s.url)}" alt="${escHtml(s.c.name + ' the ' + s.c.animal)}" title="${escHtml(s.c.person + ' · ' + s.c.name)}">`
+        `<img src="${escHtml(s.url)}" alt="${escHtml(s.c.element + ' ' + s.c.animal)}" title="${escHtml(s.c.person + ' · ' + s.c.element + ' ' + s.c.animal)}">`
       ).join('')}</div>`;
     }
     return vectorCompanion(posterElement(data));
@@ -172,7 +174,7 @@ function companionFigure(data, reg) {
   const solo = data.companion || all[0];
   const sheet = solo ? companionSheet(reg, solo.animal) : '';
   if (sheet) {
-    return `<img class="pc-avatar" id="pcAvatar" src="${escHtml(sheet)}" alt="${escHtml(solo.name + ' the ' + solo.animal)}">`;
+    return `<img class="pc-avatar" id="pcAvatar" src="${escHtml(sheet)}" alt="${escHtml(solo.element + ' ' + solo.animal)}">`;
   }
   return vectorCompanion(posterElement(data));
 }
