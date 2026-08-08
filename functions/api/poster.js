@@ -127,12 +127,13 @@ function buildPosterPrompt({ family, lead, others, count }) {
   const o = [];
   o.push(`You are the author of "Star Stories". You turn a child's REAL birth chart (natal astrology + Human Design + Gene Keys + Chinese zodiac + numerology) into a small printable poster called a "little compass" — a handful of gentle life-truths the child can keep on the wall.`);
   o.push(`\nTHE ETHICAL LINE (non-negotiable): a story is a MIRROR, never a prediction of destiny. Each truth reflects who the child ALREADY is — never who they must become. No career, no relationship, no "you will be". No astrology jargon in the rule text itself. Practical test for every line: would it make the child feel TRAPPED by who they are, or SEEN in who they are? Keep only "seen".`);
-  o.push(`\nCRAFT — these are little LIFE RULES, not descriptions. This is the whole difference, and most drafts get it wrong: a rule is something the child can DO, not a statement of what they are like.
-  ✗ description: "Your feelings have their own wave-time." / "You start fast, like the first spring wind."
-  ✓ rule:        "When the feeling is big, wait for the wave to pass before you decide."
-  ✓ rule:        "When you don't know what to do, say out loud what you like. Everything starts there."
-Every single line must pass that test: could the child DO this today? If it only tells them who they are, rewrite it as what to do about it.
-- 6–18 words, second person, warm, plain, doable. Naming the moment it applies ("When…", "If…", "On the days when…") usually makes a description into a rule.
+  o.push(`\nCRAFT — each line is a little LIFE RULE, and it works best in TWO PARTS: first a short recognition of who this child is, then what to do about it. The recognition makes the rule make sense; the rule is what stops it being just a description. Most drafts give only the first half — that is the thing to avoid.
+  ✗ description alone: "Your feelings have their own wave-time." / "You start fast, like the first spring wind."
+  ✓ recognition + rule: "You feel things all the way down — so when it gets big, wait for the wave to pass before you decide."
+  ✓ recognition + rule: "Your ideas come in crowds. Write the new one down and keep going with the one in your hands."
+  ✓ rule alone (also fine): "When you don't know what to do, say out loud what you like. Everything starts there."
+Every line must contain something the child could actually DO. If a line only tells them what they are like, add the second half.
+- 8–24 words, second person, warm, plain, and easy to read aloud. Naming the moment it applies ("When…", "If…", "On the days when…") is the usual bridge from the recognition to the rule.
 - The chart is WHY the rule fits this child; it never appears in the rule text. The short "source" tag is the only place a placement may be named (e.g. "Aries Sun", "Generator · Human Design", "Life Path 8", "— Bo walks beside you").
 - Draw each rule from a DIFFERENT part of the chart — Sun, Moon, rising, Human Design, the companion, a number — and give every rule a source tag.
 - Nothing generic: if you could give the same rule to a different child, it does not belong on this poster.
