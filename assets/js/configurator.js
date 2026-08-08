@@ -75,7 +75,8 @@ function currentBand() { return AGE_BANDS.find(b => b.id === state.age) || AGE_B
 function syncMixShape() {
   const band = currentBand();
   document.getElementById('ageRegister').textContent = band.register;
-  document.getElementById('mixShape').textContent = MIXING_SHAPES[band.shape];
+  const names = state.bookLangs.map(c => (BOOK_LANGUAGES.find(l => l.code === c) || {}).name).filter(Boolean);
+  document.getElementById('mixShape').textContent = mixingShapeText(band, state.bookLangs.length, names);
   const formRow = document.getElementById('formRow');
   if (formRow) formRow.style.display = band.forms ? '' : 'none';
 }
@@ -142,6 +143,7 @@ function renderBookLanguages() {
     cb.addEventListener('change', () => {
       if (cb.checked && state.bookLangs.length >= 4) { cb.checked = false; flash('#langNote'); return; }
       state.bookLangs = [...wrap.querySelectorAll('input:checked')].map(i => i.value);
+      syncMixShape(); // the wording depends on how many languages are chosen
       updateSummary();
     }));
 }

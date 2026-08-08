@@ -22,13 +22,20 @@ const FORMS = [
   { id: 'letter', label: 'Letter', hint: 'addressed to them directly' },
 ];
 
-// ─── PRODUCT: language mixing shapes (LANGUAGES.md) ──────────────────────────
-const MIXING_SHAPES = {
-  'echo':              'Echo — every spread says one thing, once per language (lullaby repetition).',
-  'rotating-lead':     'Rotating lead — each scene led by one language, closed by a one-line echo in another; a chant recurs in all.',
-  'rotating-chapters': 'Rotating chapters — each chapter led by one language with bridge echoes; the refrain always in every language.',
-  'single-lead':       'Single lead — one language leads, with meaningful phrases from the others (family words stay family words).',
-};
+// ─── PRODUCT: how the chosen languages sit in the book ───────────────────────
+// The reader chooses the languages; the only rules are "exactly this set" and
+// "one language per chapter, never mixed inside one". How they are distributed
+// is the writer's craft decision, so the book reads as a flow. Describe what
+// will actually happen for THIS choice — not a fixed rotation.
+function mixingShapeText(band, langCount, langNames) {
+  if (langCount <= 1) {
+    return `One language — the whole book is written in ${langNames && langNames[0] ? langNames[0] : 'your chosen language'}.`;
+  }
+  if (band && band.shape === 'echo') {
+    return 'Echo — every spread says the same small image once in each language, so it can be read aloud in any of them.';
+  }
+  return 'One language per chapter — each of your languages leads at least one chapter, arranged so the story flows; the closing chant appears in all of them.';
+}
 
 const BOOK_LANGUAGES = [
   { code: 'LT', name: 'Lithuanian' },

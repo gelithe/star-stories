@@ -200,27 +200,23 @@ const MOTIFS_LIST = 'sea, mountain-sea, mountain, fog, sword, sun, moon, sky, co
 const ROMAN = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII'];
 const sceneCount = e => SCENE_COUNT[e] || 5;
 
-// Deterministic, per-scene language assignment — the model followed a loose
-// "rotate the languages" instruction unreliably (led in English, skipped or
-// added languages), so we compute the exact plan and hand it over as fixed rows.
-function languagePlan(s, n) {
+// The reader chooses the languages; the only fixed rules are "use exactly the
+// chosen set" and "one language per chapter, never mixed inside one". How they
+// are distributed is a craft decision left to the writer, so the book reads as
+// a flow rather than a mechanical rotation. One chosen language = no mixing at
+// all (the old fixed per-scene rotation made no sense for a single language).
+function languagePlan(s) {
   const names = s.langs.map(c => LANG_NAMES[c]);
-  const shape = SHAPE_FOR_AGE[s.edition];
-  if (shape === 'single-lead') {
-    const lead = names[0], others = names.slice(1);
-    return `Every one of the ${n} scenes is narrated in ${lead}${others.length ? `, with short meaningful phrases from ${others.join(' and ')} where they land naturally` : ''}. The narration language never switches between scenes; family words stay in their own language.`;
+  const isVerse = bandFormat(s.edition).fmt === 'verse';
+  if (names.length === 1) {
+    return `The whole book is written in ${names[0]}, and in no other language — no glosses, no translations, no second language anywhere.`;
   }
-  if (shape === 'echo') {
-    return `There are ${n} spreads. On EACH spread the single line is stated once in every language, always in this order: ${names.join(', ')}. Every language appears on every spread — none skipped, none added.`;
+  if (isVerse) {
+    return `On each spread, the one image is said once in every language, in this order: ${names.join(', ')}. Each is a re-telling of the same image in that language's own way, never a stiff literal translation.`;
   }
-  // rotating-lead / rotating-chapters
-  const rows = [];
-  for (let i = 0; i < n; i++) {
-    const lead = names[i % names.length];
-    const echo = names[(i + 1) % names.length];
-    rows.push(`  • Scene ${i + 1}: body written FULLY in ${lead}${names.length > 1 ? `; closing one-line echo in ${echo}` : ''}`);
-  }
-  return `Write EXACTLY ${n} scenes. Each scene's body is written fully in its assigned language — the assignments are fixed, obey them exactly:\n${rows.join('\n')}\nEvery language in the set leads at least once; introduce no language outside the set.`;
+  return `Use exactly these languages and no others: ${names.join(', ')}. Each one must lead at least one chapter.
+ONE LANGUAGE PER CHAPTER — a chapter's body is written wholly in its own language, never two mixed together (names and family words always keep their own language).
+You choose which chapter takes which language, so the book READS as one flowing story — not a mechanical rotation. Where it helps the flow, a chapter may close with a short one-line echo in another of the chosen languages.`;
 }
 
 function normalizeSpec(b) {
@@ -298,7 +294,7 @@ When the hero does something genuinely brave, ${comp.name} may grow into a fulle
     out.push(`\nLANGUAGES — the book is written ONLY in these, nothing else: ${langList}.${forbid}
 The MAIN narrative text must actually BE in these languages — not one language sprinkled with words of the others. Any language outside the set is forbidden except for names and family words.
 LANGUAGE PLAN (follow exactly — fixed assignments, not a suggestion):
-${languagePlan(s, n)}
+${languagePlan(s)}
 ${langTail}`);
     const bf = bandFormat(s.edition);
     const parentsName = LANG_NAMES[s.parentsLang];
@@ -333,6 +329,13 @@ Use ✦ not emoji.`);
     out.push(`\nLANGUAGE: lead in ${LANG_NAMES[s.langs[0]]}${s.langs.length > 1 ? `, with meaningful phrases from ${s.langs.slice(1).map(c=>LANG_NAMES[c]).join(', ')} where they land naturally` : ''}. Names and family words are never translated.`);
     out.push(`\nOUTPUT — return ONLY clean HTML (no markdown, no preamble), form = ${s.form}:` + adultOutput(s));
   }
+  // Last thing in the prompt, so it is the freshest instruction while writing:
+  // the two failure modes that would actually hurt a child reading this.
+  out.push(`\nBEFORE YOU WRITE, hold these two tests, and re-read your finished book against them:
+1. IS IT A STORY, AND DOES IT LIFT? It must have a hero, something to do, effort, a turn, and a moral to carry away. It must leave the reader lighter and braver than they started. Nothing bleak, hopeless, lonely or sad-for-its-own-sake; no child left unhelped; no ending that merely stops. Hard things may happen — but always as something the hero comes THROUGH, and never the last note.
+2. SEEN, NOT TRAPPED. Every line must reflect who this reader already is, never sentence them to who they must become.
+If a passage fails either test, rewrite it before returning the book.`);
+
   return out.join('\n');
 }
 
