@@ -90,38 +90,56 @@ export async function onRequestPost({ request, env }) {
   // The Fable/Mythos family rejects thinking:{disabled} with a 400 (thinking is
   // always on there) — same rule as /api/generate.
   const noThinking = /^claude-(fable|mythos)/.test(model);
-  const payload = {
-    model,
-    // Generous: a family compass can run to eight rules in a long language, and
-    // a truncated response is unparseable JSON, which used to surface as the
-    // unhelpful "came back empty".
-    max_tokens: Number(env.POSTER_MAX_TOKENS) || 4000,
-    system,
-    messages: [{ role: 'user', content: user }],
-    ...(noThinking ? {} : { thinking: { type: 'disabled' } }),
-  };
 
-  const upstream = await fetch(ANTHROPIC_URL, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01' },
-    body: JSON.stringify(payload),
-  });
-  if (!upstream.ok) {
-    const e = await upstream.json().catch(() => ({}));
-    return json({ error: e?.error?.message || `Anthropic HTTP ${upstream.status}` }, upstream.status || 502);
+  async function ask(userMsg) {
+    const upstream = await fetch(ANTHROPIC_URL, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01' },
+      body: JSON.stringify({
+        model,
+        // Generous: a family compass can run to ten rules in a long language,
+        // and a truncated reply is unparseable JSON, which used to surface as
+        // the unhelpful "came back empty".
+        max_tokens: Number(env.POSTER_MAX_TOKENS) || 4000,
+        system,
+        messages: [{ role: 'user', content: userMsg }],
+        ...(noThinking ? {} : { thinking: { type: 'disabled' } }),
+      }),
+    });
+    if (!upstream.ok) {
+      const e = await upstream.json().catch(() => ({}));
+      return { httpError: e?.error?.message || `Anthropic HTTP ${upstream.status}`, status: upstream.status || 502 };
+    }
+    const data = await upstream.json().catch(() => ({}));
+    const text = (data.content || []).filter(b => b.type === 'text').map(b => b.text).join('');
+    const parsed = extractJSON(text);
+    return { parsed, rules: parsed && normalizeRules(parsed), text, stop: data.stop_reason };
   }
-  const data = await upstream.json().catch(() => ({}));
-  const text = (data.content || []).filter(b => b.type === 'text').map(b => b.text).join('');
-  const parsed = extractJSON(text);
-  const rules = parsed && normalizeRules(parsed);
+
+  let r = await ask(user);
+  if (r.httpError) return json({ error: r.httpError }, r.status);
+
+  // An even split is promised on the sheet ("N rules for five people") and a
+  // child counts the lines that are theirs — but the instruction alone is not
+  // always obeyed. Verify it, and give one corrective retry when it drifts.
+  if (family && r.rules && r.rules.length) {
+    const split = splitOf(r.rules, people);
+    if (!isEvenSplit(split, people, perPerson)) {
+      const got = people.map(p => `${p.name}: ${split.get(p.name) || 0}`).join(', ');
+      const retry = await ask(user + `\n\nThe previous attempt did not divide the rules evenly — it produced ${got}. Every person must have EXACTLY ${perPerson}, no one more and no one fewer, plus EXACTLY ${shared} shared rules for the family, ${count} in total. Write it again with that split.`);
+      if (!retry.httpError && retry.rules && retry.rules.length && isEvenSplit(splitOf(retry.rules, people), people, perPerson)) r = retry;
+    }
+  }
+
+  const { parsed, rules, text } = r;
   if (!rules || !rules.length) {
     // Say WHY, so a failure is diagnosable instead of a shrug.
-    const why = data.stop_reason === 'max_tokens'
+    const why = r.stop === 'max_tokens'
       ? 'the compass was cut off before it finished (raise POSTER_MAX_TOKENS)'
-      : !text.trim() ? `the model "${model}" returned no text`
+      : !String(text || '').trim() ? `the model "${model}" returned no text`
       : 'the compass came back in a shape we could not read';
-    const peek = text.trim().slice(0, 180).replace(/\s+/g, ' ');
-    return json({ error: `Poster failed — ${why}.${peek ? ' Model said: “' + peek + '…”' : ''}` }, 502);
+    const peek = String(text || '').trim().slice(0, 180).replace(/\s+/g, ' ');
+    return json({ error: `Poster failed — ${why}.${peek ? ' Model said: \u201C' + peek + '\u2026\u201D' : ''}` }, 502);
   }
   parsed.rules = rules;
 
@@ -140,6 +158,23 @@ export async function onRequestPost({ request, env }) {
     companions: comps,
     family,
   });
+}
+
+// Which person each rule belongs to, read from the start of its source tag
+// ("Nova Emi · Cancer Sun" -> Nova Emi). Longest names first so "Nova Emi" is
+// not swallowed by a shorter "Nova".
+function splitOf(rules, people) {
+  const names = people.map(p => p.name).sort((a, b) => b.length - a.length);
+  const counts = new Map();
+  for (const r of rules) {
+    const tag = (r.source || '').trim();
+    const who = names.find(n => tag.toLowerCase().startsWith(n.toLowerCase()));
+    if (who) counts.set(who, (counts.get(who) || 0) + 1);
+  }
+  return counts;
+}
+function isEvenSplit(counts, people, perPerson) {
+  return people.every(p => (counts.get(p.name) || 0) === perPerson);
 }
 
 function buildPosterPrompt({ family, lead, others, count, perPerson, shared }) {

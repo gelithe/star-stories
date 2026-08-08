@@ -359,7 +359,7 @@ h1{text-align:center;font-size:${pt(34)};font-weight:normal;letter-spacing:.04em
 .rule{display:flex;gap:${mm(6)};align-items:flex-start}
 .rule .star{flex:0 0 auto;color:#c9a227;font-size:${pt(16)};line-height:1.4}
 .rule p{font-size:${pt(15)};line-height:1.5;color:#3a3020}
-.rule small{display:block;color:#9a8a6a;font-size:${pt(10)};font-style:italic;margin-top:${mm(1)}}
+.rule small{display:block;color:#8f7f60;font-size:${pt(11.5)};font-style:italic;margin-top:${mm(1)}}
 .foot{margin-top:auto;text-align:center;color:#8a7860;font-style:italic;font-size:${pt(11)};padding-top:${mm(8)}}
 .foot b{color:#9a7010;font-style:normal;letter-spacing:.05em}
 `;
