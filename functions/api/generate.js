@@ -262,8 +262,7 @@ Practical test for EVERY line: would it make this child feel TRAPPED by who they
 
 TONE — bright, warm, brave. This is a tale, not an assessment. The child must close the book gladder and stronger than they opened it. Never a diagnosis, never sadness for its own sake, never a lonely wander, nothing bleak. Challenge yes, effort yes, darkness only as something the hero comes through.`);
 
-  out.push(`\nORIGINALITY — every book must be unmistakably its own. The world, the opening, the mission, the images and the moral all come from THIS chart and this child's details; two different children must produce two books that share nothing but the house style. Never reach for a stock opening — no birthday party, no first day at a new school, no child standing apart from a crowd, no waking up in a bedroom. Do not reach for waves or the sea as a default picture for feelings either; use that image ONLY when this chart genuinely calls for it (an emotional authority in Human Design really does move in waves, and then it is the right and honest word). If a sentence could appear unchanged in another child's book, rewrite it.
-WHERE IT HAPPENS is wide open, and it is NOT required to be outdoors. Kitchens, workshops, stairwells, markets, classrooms, a bed at night, a street, a boat, a whole imagined kingdom — all are as good as woods and mountains, and a book set among people is usually warmer than one set in scenery. Nor must the hero be alone: bring in family, friends, neighbours, a whole village if the tale wants them. (The illustration tags are a small landscape vocabulary — ignore them entirely when choosing where the story lives.)`);
+  out.push(`\nORIGINALITY — every book must be unmistakably its own. The world, the opening, the mission, the images and the moral all come from THIS chart and this child's details; two different children must produce two books that share nothing but the house style. Never reach for a stock opening — no birthday party, no first day at a new school, no child standing apart from a crowd, no waking up in a bedroom. Do not reach for waves or the sea as a default picture for feelings either; use that image ONLY when this chart genuinely calls for it (an emotional authority in Human Design really does move in waves, and then it is the right and honest word). If a sentence could appear unchanged in another child's book, rewrite it.`);
 
   out.push(`\nTHE VOICE — plain, easy words, understood on the FIRST read and read aloud without stumbling. Short sentences, everyday words, one idea at a time. Say feelings plainly; keep images simple and almost literal, never compressed or stacked into something that must be decoded. Clarity is the beauty. (Adult editions may be a little more literary — still clear.)
 - NO ESSAY REFLEX. Never explain a feeling with the "not X — but Y" construction ("Not because nobody would help. Because she did not want anyone to see."; "Ne todėl, kad… Todėl, kad…"). It is the sound of an essay, and in every language it reads as machine-written. Say the true thing once, straight, in the scene.
@@ -366,8 +365,12 @@ function buildUserPrompt(s) {
     if (d.familyWords) bits.push(`family words to keep untranslated: ${d.familyWords}`);
     if (d.treasure) bits.push(`a treasured object: ${d.treasure}`);
     lines.push(`\nMode: DETAILS — weave in without overriding the chart: ${bits.join('; ') || '(none provided — treat as surprise)'}.`);
-  } else if (s.inputMode === 'theme' && s.theme) {
-    lines.push(`\nMode: CHOSEN THEME — set the story in this world/value: "${s.theme}". The chart still shapes the character and the lesson; the theme sets the setting/metaphor layer only.`);
+  } else if (s.inputMode === 'theme') {
+    // An empty theme used to emit no mode line at all — fall back explicitly,
+    // the way the details mode already does.
+    lines.push(s.theme
+      ? `\nMode: CHOSEN THEME — set the story in this world/value: "${s.theme}". The chart still shapes the character and the lesson; the theme sets the setting/metaphor layer only.`
+      : `\nMode: CHOSEN THEME — (none provided — treat as surprise: derive the whole story from the sky).`);
   }
   if (!s.isAdult) {
     lines.push(`\nReminder: obey the LANGUAGE PLAN exactly — the right languages, none skipped, none added, the parents' page in ${LANG_NAMES[s.parentsLang]} only. Keep the Chinese-zodiac companion present across scenes.`);
