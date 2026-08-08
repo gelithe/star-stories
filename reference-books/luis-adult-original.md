@@ -34,15 +34,31 @@ Metal Ox (2021). Languages LT-led, parents'/closing letter in Lithuanian.
    never tells him to stop wanting.
 5. **The wave is honest here.** Same as the 3–5 fable: it is Luis's real Human
    Design, not a stock feeling-image.
-6. **The numerology is built into the plot, not explained.** Nine starts, nine
-   piers. Life Path 8 (weight, carrying) and Expression 5 (movement, many forms)
-   are named only in the letter.
+6. **The count is built into the plot, not explained.** Nine starts become nine
+   piers; the number is never given a "meaning". Life Path 8 (weight, carrying)
+   and Expression 5 (movement, many forms) are named only in the letter.
 7. **The ending refuses to tidy up.** The bridge is crooked, because the piers
    were placed by a boy in a hurry — and it holds a whole town. Nothing about
    him needed correcting; it needed connecting.
 8. **The letter is addressed to him, not about him.** Written for the day he
    leaves home. It reads the chart back as character, and ends on the same line
    the story ends on.
+
+### The one flaw — do not copy it
+
+**The title contradicts the story.** *Tiltas iš Šimto Pradžių* means "the bridge
+of a HUNDRED beginnings", but the tale counts **nine** throughout — nine
+bridges, nine beginnings, nine piers, and the whole turn depends on that number
+being exact. "A hundred" is the more poetic-sounding phrase, and the model
+reached for it at the expense of the plot. The title this story earned is
+***Tiltas iš Devynių Pradžių***.
+
+Nor does nine come from the chart: Luis's Life Path is 8 and his Expression 5.
+The nine is invented, which is fine for a tale — but it means this book is an
+example of a count used *well as structure*, not of numerology driving the plot.
+
+Watch for this in review: **a number in the title must match the number in the
+story.**
 
 ---
 

@@ -338,7 +338,8 @@ Use ✦ not emoji.`);
   out.push(`\nBEFORE YOU WRITE, hold these two tests, and re-read your finished book against them:
 1. IS IT A STORY, AND DOES IT LIFT? It must have a hero, something to do, effort, a turn, and a moral to carry away. It must leave the reader lighter and braver than they started. Nothing bleak, hopeless, lonely or sad-for-its-own-sake; no child left unhelped; no ending that merely stops. Hard things may happen — but always as something the hero comes THROUGH, and never the last note.
 2. SEEN, NOT TRAPPED. Every line must reflect who this reader already is, never sentence them to who they must become.
-If a passage fails either test, rewrite it before returning the book.`);
+Also check the book agrees with itself: the title, the counts and the names must match what actually happens — a title promising a hundred must not sit on a story about nine.
+If a passage fails any of these, rewrite it before returning the book.`);
 
   return out.join('\n');
 }
