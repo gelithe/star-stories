@@ -71,7 +71,7 @@
 .pc-rule { display: flex; gap: 11px; align-items: flex-start; }
 .pc-rule .pc-star { flex: 0 0 auto; color: #c9a227; font-size: 13px; line-height: 1.5; }
 .pc-rule p { font-size: 14px; line-height: 1.5; color: #3a3020; }
-.pc-rule small { display: block; color: #8f7f60; font-size: 11px; font-style: italic; margin-top: 3px; }
+.pc-rule small { display: block; color: #87764f; font-size: 12px; font-style: italic; margin-top: 3px; }
 .pc-foot { margin-top: auto; text-align: center; color: #8a7860; font-style: italic; font-size: 11px; padding-top: 18px; }
 @media (max-width: 460px) { .pc-rule p { font-size: 13px; } .pc-rules { gap: 11px; } }
 .pc-foot b { color: #9a7010; font-style: normal; letter-spacing: 0.05em; }

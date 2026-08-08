@@ -338,7 +338,7 @@ function posterDocCSS(ruleCount = 6) {
   // short compass left a third of the page empty. The relationship is very
   // nearly inverse — measured against the layout, ~8.4/n lands every rule count
   // at roughly 85% of the column, with the rules spreading over the remainder.
-  const fit = Math.max(0.98, Math.min(1.45, 8.4 / Math.max(1, ruleCount)));
+  const fit = Math.max(0.94, Math.min(1.45, 8.0 / Math.max(1, ruleCount)));
   const mm = n => +(n * P.k).toFixed(2) + 'mm';
   const sm = n => +(n * P.k * fit).toFixed(2) + 'mm';   // spacing that breathes with the type
   const pt = n => +(n * P.k * fit).toFixed(2) + 'pt';
@@ -359,7 +359,7 @@ h1{text-align:center;font-size:${pt(34)};font-weight:normal;letter-spacing:.04em
 .rule{display:flex;gap:${mm(6)};align-items:flex-start}
 .rule .star{flex:0 0 auto;color:#c9a227;font-size:${pt(16)};line-height:1.4}
 .rule p{font-size:${pt(15)};line-height:1.5;color:#3a3020}
-.rule small{display:block;color:#8f7f60;font-size:${pt(11.5)};font-style:italic;margin-top:${mm(1)}}
+.rule small{display:block;color:#87764f;font-size:${pt(13.5)};font-style:italic;margin-top:${mm(1.4)}}
 .foot{margin-top:auto;text-align:center;color:#8a7860;font-style:italic;font-size:${pt(11)};padding-top:${mm(8)}}
 .foot b{color:#9a7010;font-style:normal;letter-spacing:.05em}
 `;
