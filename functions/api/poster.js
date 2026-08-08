@@ -71,8 +71,19 @@ export async function onRequestPost({ request, env }) {
   const shared = family ? (people.length <= 4 ? 2 : 3) : 0;
   const count = family ? people.length * perPerson + shared : 6;
 
-  const system = buildPosterPrompt({ family, people, lead, others, count, perPerson, shared });
-  const user = buildPosterUser({ family, people, place: body.birth && body.birth.place, date: body.birth && body.birth.date });
+  // Each person's companion, by name. Without this the model only sees
+  // "Chinese: Metal Ox" in the chart text and writes generic animals.
+  const comps = people
+    .map(p => { const c = companionFrom(p.chart); return c ? { person: p.name, ...c } : null; })
+    .filter(Boolean);
+
+  const system = buildPosterPrompt({ family, people, lead, others, count, perPerson, shared, comps });
+  const user = buildPosterUser({
+    family, people, comps,
+    place: body.birth && body.birth.place,
+    // A family poster must not be stamped with one person's birthday.
+    date: family ? '' : (body.birth && body.birth.date),
+  });
 
   const model = env.POSTER_MODEL || DEFAULT_MODEL;
   // The Fable/Mythos family rejects thinking:{disabled} with a 400 (thinking is
@@ -113,8 +124,6 @@ export async function onRequestPost({ request, env }) {
   }
   parsed.rules = rules;
 
-  // Attach the (first person's) companion so the poster can show it.
-  const comp = companionFrom(people[0].chart);
   return json({
     title: String(parsed.title || (family ? 'Our Little Compass' : `${people[0].name}’s Little Compass`)).slice(0, 120),
     subtitle: String(parsed.subtitle || '').slice(0, 200),
@@ -124,7 +133,10 @@ export async function onRequestPost({ request, env }) {
       source: String(r.source || r.for || '').slice(0, 80),
     })).filter(r => r.text),
     mirror: String(parsed.mirror || 'A story is a mirror — not a map of the future.').slice(0, 160),
-    companion: comp,
+    // Solo posters show one companion; a family poster shows everyone's, so no
+    // single person's animal stands in for the whole household.
+    companion: family ? null : (comps[0] || null),
+    companions: comps,
     family,
   });
 }
@@ -144,25 +156,30 @@ Every line must contain something the child could actually DO. If a line only te
 - The chart is WHY the rule fits this child; it never appears in the rule text. The short "source" tag is the only place a placement may be named (e.g. "Aries Sun", "Generator · Human Design", "Life Path 8", "— Bo walks beside you").
 - Draw each rule from a DIFFERENT part of the chart — Sun, Moon, rising, Human Design, the companion, a number — and give every rule a source tag.
 - Nothing generic: if you could give the same rule to a different child, it does not belong on this poster.
-- Say what TO do, not what to avoid. Kind, encouraging, never a warning or a verdict.`);
+- Say what TO do, not what to avoid. Kind, encouraging, never a warning or a verdict.
+- The companions have NAMES (given below) — if a rule mentions one, use its name, never the bare animal ("Bo goes slowly beside you", not "an Ox follows you"). And a rule about a companion still has to be doable and make plain sense; "name them when you go far" sounds lovely and means nothing.`);
   if (family) {
     o.push(`\nThis is a FAMILY compass, and it must be EVEN-HANDED — a child counts the lines that belong to them. Give EXACTLY ${perPerson} rule${perPerson > 1 ? 's' : ''} to EACH person, no one more and no one fewer, then EXACTLY ${shared} shared rules for the whole family at the end. ${count} rules in total, and the subtitle's number must match.
-Order them person by person (all of one person's rules together, in the order the charts are given), with the shared ones last. Start each source tag with that person's name ("Nova · Cancer Sun"); tag the shared ones for the family. A shared rule must be something the family DOES together, drawn from what their charts have in common.`);
+Order them person by person (all of one person's rules together, in the order the charts are given), with the shared ones last. Start each source tag with that person's name ("Nova · Cancer Sun"); tag the shared ones for the family. A shared rule must be something the family DOES together, drawn from what their charts have in common.
+This poster belongs to the whole household — do NOT make it one person's. No single birthday in the kicker (use the place, or the family), no title naming only one of them.`);
   } else {
     o.push(`\nThis is one child's compass: exactly ${count} rules.`);
   }
   o.push(`\nLANGUAGE: write the title, subtitle and rules in ${lead}${others.length ? `, and you may let a phrase or two land in ${others.join(' or ')} where it feels natural` : ''}. Names are never translated.`);
   o.push(`\nReturn STRICT JSON ONLY — no markdown, no prose around it — in exactly this shape:
-{"title":"a short warm title (may use the child's name)","subtitle":"one short line, e.g. six gentle truths written from her real stars","kicker":"from the sky of · DATE · PLACE","rules":[{"text":"the truth","source":"the quiet chart tag"}],"mirror":"A story is a mirror — not a map of the future."}`);
+{"title":${family ? '"a short warm title for the whole household — never one person\'s name alone"' : '"a short warm title (may use the child\'s name)"'},"subtitle":"one short line naming how many rules there are","kicker":${family ? '"from the skies of · PLACE — no single birthday"' : '"from the sky of · DATE · PLACE"'},"rules":[{"text":"the rule","source":"the quiet chart tag"}],"mirror":"A story is a mirror — not a map of the future."}`);
   return o.join('\n');
 }
 
-function buildPosterUser({ family, people, place, date }) {
+function buildPosterUser({ family, people, comps, place, date }) {
   const lines = [];
   lines.push(family
     ? `Write a family little-compass for ${people.map(p => p.name).join(', ')}.`
     : `Write ${people[0].name}'s little compass.`);
   if (date || place) lines.push(`\nKicker facts: ${[date, place].filter(Boolean).join(' · ')}`);
+  if (comps && comps.length) {
+    lines.push(`\nCompanions (use these NAMES, never the bare animal): ${comps.map(c => `${c.person} → ${c.name} the ${c.animal}`).join('; ')}`);
+  }
   for (const p of people) lines.push(`\n— ${p.name}'s chart:\n${p.chart}`);
   lines.push(`\nReturn only the JSON object as specified.`);
   return lines.join('\n');

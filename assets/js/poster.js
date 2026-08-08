@@ -156,10 +156,23 @@ function vectorCompanion(el) {
 // fails to load, wireCompanionFallback() swaps in the vector (done in JS to
 // avoid quoting an SVG inside an HTML attribute).
 function companionFigure(data, reg) {
-  const sheet = data.companion ? companionSheet(reg, data.companion.animal) : '';
+  // A family poster shows EVERY companion, so no one person's animal stands in
+  // for the household. If any sheet is missing we fall back to the single
+  // abstract vector rather than showing a partial cast.
+  const all = Array.isArray(data.companions) ? data.companions : [];
+  if (data.family && all.length > 1) {
+    const sheets = all.map(c => ({ c, url: companionSheet(reg, c.animal) }));
+    if (sheets.every(s => s.url)) {
+      return `<div class="pc-avatars">${sheets.map(s =>
+        `<img src="${escHtml(s.url)}" alt="${escHtml(s.c.name + ' the ' + s.c.animal)}" title="${escHtml(s.c.person + ' · ' + s.c.name)}">`
+      ).join('')}</div>`;
+    }
+    return vectorCompanion(posterElement(data));
+  }
+  const solo = data.companion || all[0];
+  const sheet = solo ? companionSheet(reg, solo.animal) : '';
   if (sheet) {
-    const alt = (data.companion.name || '') + ' the ' + data.companion.animal;
-    return `<img class="pc-avatar" id="pcAvatar" src="${escHtml(sheet)}" alt="${escHtml(alt)}">`;
+    return `<img class="pc-avatar" id="pcAvatar" src="${escHtml(sheet)}" alt="${escHtml(solo.name + ' the ' + solo.animal)}">`;
   }
   return vectorCompanion(posterElement(data));
 }
@@ -199,6 +212,8 @@ body{background:#4a4a5e;font-family:Georgia,'Times New Roman',serif}
 h1{text-align:center;font-size:34pt;font-weight:normal;letter-spacing:.04em;color:#2c2416;line-height:1.12}
 .sub{text-align:center;font-size:11pt;color:#8a7860;margin-top:4mm;font-style:italic}
 .avatar{display:block;width:44mm;height:auto;margin:7mm auto 4mm;filter:drop-shadow(0 8px 18px rgba(44,36,22,.25))}
+.avatars{display:flex;justify-content:center;align-items:flex-end;gap:4mm;margin:7mm auto 4mm;flex-wrap:wrap}
+.avatars img{width:26mm;height:auto;filter:drop-shadow(0 6px 14px rgba(44,36,22,.22))}
 .rules{margin:5mm auto 0;max-width:210mm;display:flex;flex-direction:column;gap:5mm}
 .rule{display:flex;gap:6mm;align-items:flex-start}
 .rule .star{flex:0 0 auto;color:#c9a227;font-size:15pt;line-height:1.4}
@@ -209,10 +224,18 @@ h1{text-align:center;font-size:34pt;font-weight:normal;letter-spacing:.04em;colo
 `;
 
 function posterAvatarForDoc(data, reg) {
-  const sheet = data.companion ? companionSheet(reg, data.companion.animal) : '';
-  if (sheet) return `<img class="avatar" src="${escHtml(sheet)}" alt="">`;
-  const el = (data.companion && data.companion.element) || (state && state.element) || 'Water';
-  const vec = (typeof ART !== 'undefined' && ART.motifSVG) ? ART.motifSVG('companion', el) : '';
+  const all = Array.isArray(data.companions) ? data.companions : [];
+  if (data.family && all.length > 1) {
+    const urls = all.map(c => companionSheet(reg, c.animal));
+    if (urls.every(Boolean)) {
+      return `<div class="avatars">${urls.map(u => `<img src="${escHtml(u)}" alt="">`).join('')}</div>`;
+    }
+  } else {
+    const solo = data.companion || all[0];
+    const sheet = solo ? companionSheet(reg, solo.animal) : '';
+    if (sheet) return `<img class="avatar" src="${escHtml(sheet)}" alt="">`;
+  }
+  const vec = (typeof ART !== 'undefined' && ART.motifSVG) ? ART.motifSVG('companion', posterElement(data)) : '';
   return vec ? `<div class="avatar">${vec}</div>` : '';
 }
 
