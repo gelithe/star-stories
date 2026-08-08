@@ -302,7 +302,7 @@ ${languagePlan(s, n)}
 ${langTail}`);
     const bf = bandFormat(s.edition);
     const parentsName = LANG_NAMES[s.parentsLang];
-    const parentsBlock = `<div class="parents"><h2>Title</h2><p>…2–4 short paragraphs, each naming ONE concrete chart feature (a placement, the Human Design type, the Chinese animal + companion, a Life Path number) and how it became a story beat. Name the ONE practical gift the story lands on — the repeatable, kind thing that helps…</p><p class="mirror">A story is a mirror, not a map of the future.</p></div>`;
+    const parentsBlock = `<div class="parents"><h2>Title</h2><p>…2–4 short paragraphs, each naming ONE concrete chart feature (a placement, the Human Design type, the Chinese animal + companion, a Life Path number) and how it became a story beat. Name the child's GIFT, the SHADOW that is its other face, and the MORAL the tale lands on…</p><p class="mirror">A story is a mirror, not a map of the future.</p></div>`;
     if (bf.fmt === 'verse') {
       out.push(`\nOUTPUT — return ONLY clean HTML (no markdown, no preamble, no <html>/<body> wrapper).
 This is a LULLABY, not a story. Write EXACTLY ${n} tiny spreads. NO chapter titles, NO paragraphs, NO plot — each spread is ONE image, said as a short couplet, once in every language of the set.
@@ -324,7 +324,7 @@ Use ✦ not emoji.`);
 <figure class="art" data-motif="KEY" data-scene="one short vivid visual line, in English, describing this scene for an illustrator"></figure>${titleLine}
 <div class="scene"><p>…</p>… <p class="echo">closing echo (rotating shapes only; omit for a single-lead book)</p></div>
 - ${brevity}
-- KEY is ONE word chosen (best fit per scene) from: ${MOTIFS_LIST}.${bf.titles ? '\n- The transformation beat, at each of the TWO evolutions (place it inside the scene where the courage happens): <div class="evolve">✦ NAME → NEWNAME ✦</div>' : ''}
+- KEY is only a picture-tag for the illustrator, chosen AFTER the scene is written — never let it shape the story. Pick the closest of: ${MOTIFS_LIST}.${bf.titles ? '\n- If the companion grows a fuller name, mark it inside that scene: <div class="evolve">✦ NAME → NEWNAME ✦</div>' : ''}
 - After the last ${unit.replace(/s$/, '')}, the shared chant: <div class="spell">line per language<br>…</div>
 - Then the parents' page, written ENTIRELY in ${parentsName} and in no other language: ${parentsBlock}
 Use ✦ not emoji.`);
@@ -336,9 +336,6 @@ Use ✦ not emoji.`);
   return out.join('\n');
 }
 
-function lengthGuide(edition) {
-  return { '0-2':'6 tiny spreads', '3-5':'5–6 short spreads', '6-8':'5 short chapters', '9-12':'6 short chapters', 'teen':'5 sections' }[edition] || '5–6 chapters';
-}
 function adultOutput(s) {
   if (s.form === 'poem')
     return `\n<div class="ch-title">Title</div>\n<div class="poem">line<br>line<br><br>next stanza…</div>\nThen: <div class="parents"><p class="mirror">A story is a mirror, not a map of the future.</p></div>\nA lyric poem of 4–6 stanzas, image-led, drawn from the chart's central metaphor.`;

@@ -41,14 +41,29 @@ inherits a poem, not a box.
 ## Layout
 
 ```
-index.html              landing + configurator
+index.html              landing + configurator + reader/poster overlays
 assets/
   styles.css            house style (gold/ink on warm white, Georgia serif)
+  reader.css            the on-screen book: paper, page-turn spreads, mode toggle
+  poster.css            the "little compass" poster add-on
   favicon.svg
+  data/
+    companions.json     canonical avatar registry — the 12 zodiac companions
   js/
     engine.js           natal + Human Design + Gene Keys + Chinese (browser)
     sky.js              product config (editions, language shapes) + preview copy + SVG
     configurator.js     form state, geocoding, timezone, live preview orchestration
+    illustrate.js       house-style vector art (motif → SVG, tinted by element)
+    reader.js           streams the book; page-turn (default) + scroll modes
+    bookexport.js       print-ready A5 book download (→ Save as PDF)
+    poster.js           the life-rules poster: calls /api/poster, A3 download
+functions/api/
+  generate.js           the book: chart → house-style HTML, streamed (the craft prompt)
+  illustrate.js         painted-mode scene renderer (opt-in, key-gated)
+  poster.js             the "little compass" life-rules generator
+reference-books/
+  lars-6-8-original.md  golden reference — the handcrafted book, annotated
+scripts/verify.js       validates the chart engine against Lars' known chart
 ```
 
 External services used by the browser (same as Chart Compass): the
@@ -77,13 +92,21 @@ Output matches the values printed on the book's parents' page.
 
 ## Next build steps (from HANDOFF.md)
 
-1. `/api/generate` Function — Claude (server-side key) writes the story from
-   the chart + age register + language mix; HTML template typesets it; PDF via
-   Cloudflare Browser Rendering. Mirrors `cloudflare-app/functions/api/chat.js`.
-2. **Stripe Checkout** — one function to create the session, a webhook to
+**Shipped since:** `/api/generate` (the book, streamed), the reader with
+page-turn + scroll modes, the A5 book download, the 12-companion avatar
+registry, painted mode (`/api/illustrate`, key-gated), and the life-rules
+poster add-on (`/api/poster`).
+
+**Next:**
+
+1. **Stripe Checkout** — one function to create the session, a webhook to
    trigger generation. Digital PDF first.
-3. Owner-approval queue (quality gate while prompts mature).
+2. Owner-approval queue (quality gate while prompts mature).
+3. Server-side PDF render (Cloudflare Browser Rendering) + email delivery, so
+   the buyer gets a PDF rather than an HTML file to print themselves.
 4. Gelato/Peecho print API for the printed-copy upgrade.
+5. Family compass — `/api/poster` already accepts multiple charts (`people[]`);
+   the UI only sends one.
 5. Automated illustration: Flux + trained LoRA (Replicate / fal.ai) for
    character-consistent pages, directed by the `ARTIST-BRIEF` style bible.
 ```
