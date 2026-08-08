@@ -413,6 +413,21 @@ document.addEventListener('DOMContentLoaded', () => {
     if (on && !_family.length) addFamilyMember();
   });
   bind('#ssFamilyAdd', 'click', addFamilyMember);
+  // Restore the family and the poster choices from the saved draft (read by
+  // configurator.js, which boots first) so a refresh doesn't cost five people.
+  const draft = window.__ssDraft;
+  if (draft) {
+    if (Array.isArray(draft.family) && draft.family.length) {
+      _family = draft.family;
+      renderFamilyRows();
+      const box = document.getElementById('ssFamily');
+      const tog = document.getElementById('ssFamilyToggle');
+      if (box) box.style.display = '';
+      if (tog) tog.textContent = '– just this child';
+    }
+    if (draft.posterStyle) _posterStyle = draft.posterStyle;
+    if (draft.posterSize) _posterSize = draft.posterSize;
+  }
   renderPosterStyles();
   renderPosterSizes();
   bind('#pbClose', 'click', closePoster);

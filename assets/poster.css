@@ -82,3 +82,10 @@
 .ss-chips-sm .ss-chip { padding: 7px 10px; }
 .ss-chips-sm .ss-chip-t { font-size: 12.5px; }
 .ss-chips-sm .ss-chip-s { font-size: 10.5px; }
+
+/* inline text button (e.g. "Forget it") */
+.ss-linkbtn {
+  background: none; border: none; padding: 0; cursor: pointer; font: inherit;
+  color: #9a8a5a; text-decoration: underline;
+}
+.ss-linkbtn:hover { color: #cdb964; }

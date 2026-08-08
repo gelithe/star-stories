@@ -28,8 +28,57 @@ const state = {
   chartText: '', hasTime: false, hasPlace: false,
 };
 
+// ─── DRAFT (localStorage) ────────────────────────────────────────────────────
+// Everything typed here is kept in the browser so a page refresh doesn't cost
+// you the whole family again. It never leaves the device — no draft is sent
+// anywhere; only pressing Create or Make a poster sends anything. "Forget"
+// wipes it.
+const DRAFT_KEY = 'starstories.draft.v1';
+const DRAFT_FIELDS = ['name', 'fullName', 'birthDate', 'birthTime', 'place', 'lat', 'lon', 'tz',
+  'homeCity', 'age', 'bookLangs', 'parentsLang', 'form', 'inputMode', 'details', 'theme',
+  'artStyle', 'accessCode'];
+let _saveTimer = null;
+
+function readDraft() {
+  try { return JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null'); } catch { return null; }
+}
+function saveDraft() {
+  try {
+    const d = {};
+    for (const k of DRAFT_FIELDS) d[k] = state[k];
+    // owned by poster.js, saved here so one key holds the whole form
+    if (typeof _family !== 'undefined') d.family = _family;
+    if (typeof _posterStyle !== 'undefined') d.posterStyle = _posterStyle;
+    if (typeof _posterSize !== 'undefined') d.posterSize = _posterSize;
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(d));
+  } catch { /* private mode / quota — losing a draft must never break the page */ }
+}
+function scheduleSave() { clearTimeout(_saveTimer); _saveTimer = setTimeout(saveDraft, 400); }
+
+function applyDraft(d) {
+  for (const k of DRAFT_FIELDS) if (d[k] !== undefined && d[k] !== null) state[k] = d[k];
+  const setVal = (sel, v) => { const el = document.querySelector(sel); if (el && v) el.value = v; };
+  setVal('#fName', state.name);       setVal('#fFullName', state.fullName);
+  setVal('#fDate', state.birthDate);  setVal('#fTime', state.birthTime);
+  setVal('#fPlace', state.place);     setVal('#fHome', state.homeCity);
+  setVal('#fAccess', state.accessCode);
+  setVal('#dCrew', state.details && state.details.crew);
+  setVal('#dWords', state.details && state.details.familyWords);
+  setVal('#dTreasure', state.details && state.details.treasure);
+  setVal('#fTheme', state.theme);
+}
+
+function forgetDraft() {
+  try { localStorage.removeItem(DRAFT_KEY); } catch {}
+  location.reload();
+}
+
 // ─── BOOT ────────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
+  // Restore BEFORE the chips render — they read state to decide what's selected.
+  const draft = readDraft();
+  if (draft) { window.__ssDraft = draft; applyDraft(draft); }
+
   renderAgeBands();
   renderForms();
   renderStoryShape();
@@ -49,9 +98,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   bind('#fAccess', 'input', e => state.accessCode = e.target.value.trim());
   bind('#ssCreate', 'click', onCreate);
+  bind('#ssForget', 'click', forgetDraft);
+
+  // Catch every edit — typed fields, chips, checkboxes, the family rows — in
+  // one place, rather than threading a save call through each handler.
+  for (const ev of ['input', 'change', 'click']) document.addEventListener(ev, scheduleSave, true);
+  window.addEventListener('beforeunload', saveDraft);
 
   syncMixShape();
   updateSummary();
+  if (draft && state.birthDate) computeAndPreview(); // bring the sky straight back
 });
 
 function bind(sel, ev, fn) { const el = document.querySelector(sel); if (el) el.addEventListener(ev, fn); }
