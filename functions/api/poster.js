@@ -154,7 +154,8 @@ function buildPosterPrompt({ family, lead, others, count, perPerson, shared }) {
 Every line must contain something the child could actually DO. If a line only tells them what they are like, add the second half.
 - 8–24 words, second person, warm, plain, and easy to read aloud. Naming the moment it applies ("When…", "If…", "On the days when…") is the usual bridge from the recognition to the rule.
 - BOTH HALVES MUST BE ABOUT THE SAME THING. Whatever the line opens with, it must finish on that same subject — do not swap in a new image at the end. ✗ "When you want a new friend, ask someone a question out loud — a question opens doors." (starts on a friend, ends on doors). ✓ "When you want a new friend, ask them one question out loud — that is how it starts." Answer the situation you raised, plainly, and stop.
-- The chart is WHY the rule fits this child; it never appears in the rule text. The short "source" tag is the only place a placement may be named (e.g. "Aries Sun", "Generator · Human Design", "Life Path 8", "Metal Ox").
+- The chart is WHY the rule fits this child; it never appears in the rule text. The short "source" tag is the only place a placement may be named.
+- KEEP THE TAGS READABLE BY SOMEONE WHO KNOWS NO ASTROLOGY. Prefer the things anyone recognises: the Sun, Moon and rising signs ("Aries Sun", "Scorpio Moon", "Libra rising") and the Chinese sign ("Metal Ox"). Never print bare technical codes — no profile numbers ("5/1", "4/6"), no "Generator Emotivo · Human Design", no gate numbers. If a rule comes from Human Design, say what it means in two or three plain words instead ("decides with the body", "clear after the wave", "moves when invited"). A parent should understand every tag at a glance.
 - Draw each rule from a DIFFERENT part of the chart — Sun, Moon, rising, Human Design, the Chinese sign, a number — and give every rule a source tag.
 - Nothing generic: if you could give the same rule to a different child, it does not belong on this poster.
 - Say what TO do, not what to avoid. Kind, encouraging, never a warning or a verdict.
@@ -177,12 +178,19 @@ function buildPosterUser({ family, people, comps, place, date, home }) {
   lines.push(family
     ? `Write a family little-compass for ${people.map(p => p.name).join(', ')}.`
     : `Write ${people[0].name}'s little compass.`);
-  // The chart always comes from the birthplace; `home` is simply where the
-  // poster will hang, which is often a different city — or country — now.
-  const moved = home && place && home.toLowerCase() !== place.toLowerCase();
-  if (date || place || home) {
-    lines.push(`\nKicker facts — born${date ? ' ' + date : ''}${place ? ' in ' + place : ''}${moved ? `, living now in ${home}` : ''}.`
-      + (moved ? ` Write the kicker so it holds both: the sky they were born under, and the home the poster hangs in.` : ''));
+  if (family) {
+    // A household's members were born in different cities, so no birthplace
+    // belongs in the kicker — the names, and the home they share, are what
+    // they actually have in common.
+    lines.push(`\nKicker: name the household — ${people.map(p => p.name).join(', ')}${home ? ` — and that it hangs in ${home}` : ''}. Put NO birthplace and NO birth date in it: they were not all born in the same city, so one place would be wrong for everyone else.`);
+  } else {
+    // The chart always comes from the birthplace; `home` is simply where the
+    // poster will hang, which is often a different city — or country — now.
+    const moved = home && place && home.toLowerCase() !== place.toLowerCase();
+    if (date || place || home) {
+      lines.push(`\nKicker facts — born${date ? ' ' + date : ''}${place ? ' in ' + place : ''}${moved ? `, living now in ${home}` : ''}.`
+        + (moved ? ` Write the kicker so it holds both: the sky they were born under, and the home the poster hangs in.` : ''));
+    }
   }
   if (comps && comps.length) {
     lines.push(`\nChinese signs (refer to them exactly like this — element + animal): ${comps.map(c => `${c.person} → ${c.element} ${c.animal}`).join('; ')}`);
