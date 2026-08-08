@@ -11,6 +11,8 @@ const state = {
   birthDate: '',
   birthTime: '',
   place: '',
+  homeCity: '',            // optional — where they live NOW; the chart still comes
+                           // from the birthplace, this is only for the poster's line
   lat: null,
   lon: null,
   tz: null,
@@ -43,6 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const place = document.getElementById('fPlace');
   place.addEventListener('input', () => { state.place = place.value; onPlaceInput(place); });
   place.addEventListener('blur', () => setTimeout(hidePlaceSuggestions, 150));
+  bind('#fHome', 'input', e => { state.homeCity = e.target.value; });
 
   bind('#fAccess', 'input', e => state.accessCode = e.target.value.trim());
   bind('#ssCreate', 'click', onCreate);

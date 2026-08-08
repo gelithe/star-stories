@@ -83,6 +83,7 @@ export async function onRequestPost({ request, env }) {
     place: body.birth && body.birth.place,
     // A family poster must not be stamped with one person's birthday.
     date: family ? '' : (body.birth && body.birth.date),
+    home: String(body.home || '').slice(0, 80).trim(),
   });
 
   const model = env.POSTER_MODEL || DEFAULT_MODEL;
@@ -171,12 +172,18 @@ This poster belongs to the whole household — do NOT make it one person's. No s
   return o.join('\n');
 }
 
-function buildPosterUser({ family, people, comps, place, date }) {
+function buildPosterUser({ family, people, comps, place, date, home }) {
   const lines = [];
   lines.push(family
     ? `Write a family little-compass for ${people.map(p => p.name).join(', ')}.`
     : `Write ${people[0].name}'s little compass.`);
-  if (date || place) lines.push(`\nKicker facts: ${[date, place].filter(Boolean).join(' · ')}`);
+  // The chart always comes from the birthplace; `home` is simply where the
+  // poster will hang, which is often a different city — or country — now.
+  const moved = home && place && home.toLowerCase() !== place.toLowerCase();
+  if (date || place || home) {
+    lines.push(`\nKicker facts — born${date ? ' ' + date : ''}${place ? ' in ' + place : ''}${moved ? `, living now in ${home}` : ''}.`
+      + (moved ? ` Write the kicker so it holds both: the sky they were born under, and the home the poster hangs in.` : ''));
+  }
   if (comps && comps.length) {
     lines.push(`\nChinese signs (refer to them exactly like this — element + animal): ${comps.map(c => `${c.person} → ${c.element} ${c.animal}`).join('; ')}`);
   }

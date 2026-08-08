@@ -74,6 +74,7 @@ async function posterPayload() {
   return {
     people: await posterPeople(),
     birth: { name: state.name.trim(), date: state.birthDate, place: state.place },
+    home: (state.homeCity || '').trim(), // where the poster will actually hang
     languages: state.bookLangs,
     parentsLang: state.parentsLang,
     accessCode: state.accessCode || undefined,
