@@ -28,12 +28,22 @@ const state = {
   chartText: '', hasTime: false, hasPlace: false,
 };
 
-// ─── DRAFT (localStorage) ────────────────────────────────────────────────────
-// Everything typed here is kept in the browser so a page refresh doesn't cost
-// you the whole family again. It never leaves the device — no draft is sent
-// anywhere; only pressing Create or Make a poster sends anything. "Forget"
-// wipes it.
+// ─── DRAFT (localStorage) — OPT-IN, OFF BY DEFAULT ───────────────────────────
+// Saving the form spares you re-typing a whole family, but this form holds
+// children's birth data, so it is never stored unless the box is ticked.
+//
+// What storing it does and does not mean:
+//  · localStorage is not a cookie — it is never attached to requests and is
+//    never sent to our server or anyone else's.
+//  · It is origin-scoped: no other website can read it.
+//  · But ANY script running on this page could read it, so the page carries no
+//    third-party scripts at all (astronomy-engine is served from this origin
+//    rather than a CDN precisely for this reason).
+//  · It survives on the machine, so it is the wrong choice on a shared or
+//    public computer — hence off by default, and "Forget" wipes it.
 const DRAFT_KEY = 'starstories.draft.v1';
+const REMEMBER_KEY = 'starstories.remember';
+let _remember = false;
 const DRAFT_FIELDS = ['name', 'fullName', 'birthDate', 'birthTime', 'place', 'lat', 'lon', 'tz',
   'homeCity', 'age', 'bookLangs', 'parentsLang', 'form', 'inputMode', 'details', 'theme',
   'artStyle', 'accessCode'];
@@ -43,6 +53,7 @@ function readDraft() {
   try { return JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null'); } catch { return null; }
 }
 function saveDraft() {
+  if (!_remember) return; // nothing is written unless the reader asked for it
   try {
     const d = {};
     for (const k of DRAFT_FIELDS) d[k] = state[k];
@@ -69,14 +80,31 @@ function applyDraft(d) {
 }
 
 function forgetDraft() {
-  try { localStorage.removeItem(DRAFT_KEY); } catch {}
+  try { localStorage.removeItem(DRAFT_KEY); localStorage.removeItem(REMEMBER_KEY); } catch {}
   location.reload();
+}
+
+function setRemember(on) {
+  _remember = !!on;
+  try {
+    if (_remember) { localStorage.setItem(REMEMBER_KEY, '1'); saveDraft(); }
+    else { localStorage.removeItem(REMEMBER_KEY); localStorage.removeItem(DRAFT_KEY); }
+  } catch {}
+  const row = document.getElementById('ssForgetRow');
+  if (row) row.style.display = _remember ? '' : 'none';
 }
 
 // ─── BOOT ────────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
+  // Only look for a draft if the reader previously opted in.
+  try { _remember = localStorage.getItem(REMEMBER_KEY) === '1'; } catch { _remember = false; }
+  const cb = document.getElementById('ssRemember');
+  if (cb) { cb.checked = _remember; cb.addEventListener('change', () => setRemember(cb.checked)); }
+  const forgetRow = document.getElementById('ssForgetRow');
+  if (forgetRow) forgetRow.style.display = _remember ? '' : 'none';
+
   // Restore BEFORE the chips render — they read state to decide what's selected.
-  const draft = readDraft();
+  const draft = _remember ? readDraft() : null;
   if (draft) { window.__ssDraft = draft; applyDraft(draft); }
 
   renderAgeBands();

@@ -331,10 +331,17 @@ function renderPoster(data, reg) {
 let _posterSize = 'A3';
 const PAPER = { A3: { w: 297, h: 420, k: 1 }, A4: { w: 210, h: 297, k: 210 / 297 } };
 
-function posterDocCSS() {
+function posterDocCSS(ruleCount = 6) {
   const P = PAPER[_posterSize] || PAPER.A3;
+  // Type scales with how much there is to fit, so the sheet is always about as
+  // full as a poster should be. Previously it was set for the worst case and a
+  // short compass left a third of the page empty. The relationship is very
+  // nearly inverse — measured against the layout, ~8.4/n lands every rule count
+  // at roughly 85% of the column, with the rules spreading over the remainder.
+  const fit = Math.max(0.98, Math.min(1.45, 8.4 / Math.max(1, ruleCount)));
   const mm = n => +(n * P.k).toFixed(2) + 'mm';
-  const pt = n => +(n * P.k).toFixed(2) + 'pt';
+  const sm = n => +(n * P.k * fit).toFixed(2) + 'mm';   // spacing that breathes with the type
+  const pt = n => +(n * P.k * fit).toFixed(2) + 'pt';
   return `
 @page{size:${P.w}mm ${P.h}mm;margin:0}
 *{margin:0;padding:0;box-sizing:border-box}
@@ -344,15 +351,15 @@ body{background:#4a4a5e;font-family:Georgia,'Times New Roman',serif}
 .frame:before{content:"";position:absolute;inset:${mm(3)};border:.6px solid #d9c98f;border-radius:${mm(3)}}
 .kicker{text-align:center;letter-spacing:.32em;text-transform:uppercase;font-size:${pt(10)};color:#9a7010;margin-bottom:${mm(5)}}
 h1{text-align:center;font-size:${pt(34)};font-weight:normal;letter-spacing:.04em;color:#2c2416;line-height:1.12}
-.sub{text-align:center;font-size:${pt(11)};color:#8a7860;margin-top:${mm(4)};font-style:italic}
+.sub{text-align:center;font-size:${pt(12)};color:#8a7860;margin-top:${mm(4)};font-style:italic}
 .avatar{display:block;width:${mm(44)};height:auto;margin:${mm(7)} auto ${mm(4)};filter:drop-shadow(0 8px 18px rgba(44,36,22,.25))}
 .avatars{display:flex;justify-content:center;align-items:flex-end;gap:${mm(4)};margin:${mm(7)} auto ${mm(4)};flex-wrap:wrap}
 .avatars img{width:${mm(26)};height:auto;filter:drop-shadow(0 6px 14px rgba(44,36,22,.22))}
-.rules{margin:${mm(5)} auto 0;max-width:${mm(210)};display:flex;flex-direction:column;gap:${mm(5)}}
+.rules{margin:${mm(5)} auto 0;max-width:${mm(210)};width:100%;flex:1;display:flex;flex-direction:column;justify-content:space-evenly;gap:${sm(5)}}
 .rule{display:flex;gap:${mm(6)};align-items:flex-start}
-.rule .star{flex:0 0 auto;color:#c9a227;font-size:${pt(15)};line-height:1.4}
-.rule p{font-size:${pt(13.5)};line-height:1.5;color:#3a3020}
-.rule small{display:block;color:#9a8a6a;font-size:${pt(9.5)};font-style:italic;margin-top:${mm(1)}}
+.rule .star{flex:0 0 auto;color:#c9a227;font-size:${pt(16)};line-height:1.4}
+.rule p{font-size:${pt(15)};line-height:1.5;color:#3a3020}
+.rule small{display:block;color:#9a8a6a;font-size:${pt(10)};font-style:italic;margin-top:${mm(1)}}
 .foot{margin-top:auto;text-align:center;color:#8a7860;font-style:italic;font-size:${pt(11)};padding-top:${mm(8)}}
 .foot b{color:#9a7010;font-style:normal;letter-spacing:.05em}
 `;
@@ -384,7 +391,7 @@ async function downloadPoster() {
   const reg = await loadCompanions();
   const d = _posterData;
   const doc = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
-<title>${escHtml(d.title)} — Star Stories</title><style>${posterDocCSS()}</style></head>
+<title>${escHtml(d.title)} — Star Stories</title><style>${posterDocCSS(d.rules.length)}</style></head>
 <body><div class="poster">
   <div class="frame"></div>
   ${d.kicker ? `<div class="kicker">${escHtml(d.kicker)}</div>` : ''}

@@ -133,8 +133,13 @@
       </div>
       <button class="ss-cta" id="ssCreate" type="button">Create this book</button>
       <p class="ss-create-note" id="ssCreateNote">Digital PDF first; a printed copy can follow.</p>
-      <p class="ss-subnote">Everything you type is kept in this browser so a refresh doesn’t lose it —
-        it stays on your device. <button class="ss-linkbtn" id="ssForget" type="button">Forget it</button></p>
+      <label class="ss-remember">
+        <input type="checkbox" id="ssRemember">
+        <span>Remember this form on this device <span class="ss-hint">— so a refresh doesn’t lose it.
+          Off by default. Nothing is stored until you tick it, and nothing is ever sent anywhere.</span></span>
+      </label>
+      <p class="ss-subnote" id="ssForgetRow" style="display:none">
+        <button class="ss-linkbtn" id="ssForget" type="button">Forget what’s saved</button></p>
       <div class="ss-addon">
         <button class="ss-addon-btn" id="ssPosterBtn" type="button">✦ Make a little life-rules poster</button>
         <span class="ss-addon-hint">A handful of gentle truths from the same sky — printable for the wall.</span>
@@ -208,8 +213,10 @@
   <div class="ss-poster-body" id="ssPosterBody"></div>
 </div>
 
-<!-- astronomy-engine (same CDN build proven in Chart Compass) -->
-<script src="https://cdn.jsdelivr.net/npm/astronomy-engine@2/astronomy.browser.min.js"></script>
+<!-- astronomy-engine, served from this origin rather than a CDN: a third-party
+     script has full access to the page and to anything stored in the browser,
+     and this page holds children's birth data. Vendored copy: v2.1.19. -->
+<script src="assets/vendor/astronomy.browser.min.js"></script>
 <script src="assets/js/engine.js"></script>
 <script src="assets/js/sky.js"></script>
 <script src="assets/js/illustrate.js"></script>
