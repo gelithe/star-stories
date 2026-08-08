@@ -24,9 +24,55 @@ function companionSheet(reg, animal) {
   return c && c.assets && c.assets.sheet ? c.assets.sheet : '';
 }
 
-function posterPayload() {
+// ── family compass: extra people, each with their own computed chart ────────
+// They share the birthplace from the main form (siblings usually do, and the
+// place only affects the rising sign); name + date are what matter.
+let _family = []; // [{ name, date, time }]
+
+function renderFamilyRows() {
+  const wrap = document.getElementById('ssFamilyRows');
+  if (!wrap) return;
+  wrap.innerHTML = _family.map((p, i) => `
+    <div class="ss-family-row" data-i="${i}">
+      <input class="ss-input" data-f="name" type="text" placeholder="Name" value="${escHtml(p.name)}">
+      <input class="ss-input" data-f="date" type="date" value="${escHtml(p.date)}">
+      <input class="ss-input" data-f="time" type="time" value="${escHtml(p.time)}">
+      <button class="ss-family-del" type="button" data-del="${i}" aria-label="Remove">×</button>
+    </div>`).join('');
+  wrap.querySelectorAll('input').forEach(inp => {
+    inp.addEventListener('input', e => {
+      const row = e.target.closest('.ss-family-row');
+      _family[+row.dataset.i][e.target.dataset.f] = e.target.value;
+    });
+  });
+  wrap.querySelectorAll('[data-del]').forEach(b => {
+    b.addEventListener('click', () => { _family.splice(+b.dataset.del, 1); renderFamilyRows(); });
+  });
+}
+
+function addFamilyMember() {
+  if (_family.length >= 5) return; // the server caps at 6 people including the child
+  _family.push({ name: '', date: '', time: '' });
+  renderFamilyRows();
+}
+
+// Build people[] — the child first, then any family member with a name+date,
+// each with their own chart computed through the same engine.
+async function posterPeople() {
+  const people = [{ name: state.name.trim() || 'the child', chart: state.chartText }];
+  for (const p of _family) {
+    if (!p.name.trim() || !p.date) continue;
+    try {
+      const chart = await chartSummaryFor({ name: p.name.trim(), date: p.date, time: p.time, lat: state.lat, lon: state.lon });
+      if (chart) people.push({ name: p.name.trim(), chart });
+    } catch { /* skip a member whose sky can't be read rather than fail the poster */ }
+  }
+  return people;
+}
+
+async function posterPayload() {
   return {
-    people: [{ name: state.name.trim() || 'the child', chart: state.chartText }],
+    people: await posterPeople(),
     birth: { name: state.name.trim(), date: state.birthDate, place: state.place },
     languages: state.bookLangs,
     parentsLang: state.parentsLang,
@@ -58,12 +104,14 @@ async function openPoster() {
   status.textContent = 'reading the sky…';
 
   try {
+    const payload = await posterPayload(); // computes each family member's chart
+    if (payload.people.length > 1) status.textContent = `reading ${payload.people.length} skies…`;
     const [reg, res] = await Promise.all([
       loadCompanions(),
       fetch('/api/poster', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify(posterPayload()),
+        body: JSON.stringify(payload),
       }),
     ]);
     if (!res.ok) {
@@ -194,6 +242,14 @@ async function downloadPoster() {
 
 document.addEventListener('DOMContentLoaded', () => {
   bind('#ssPosterBtn', 'click', openPoster);
+  bind('#ssFamilyToggle', 'click', () => {
+    const box = document.getElementById('ssFamily');
+    const on = box.style.display === 'none';
+    box.style.display = on ? '' : 'none';
+    document.getElementById('ssFamilyToggle').textContent = on ? '– just this child' : '+ make it a family compass';
+    if (on && !_family.length) addFamilyMember();
+  });
+  bind('#ssFamilyAdd', 'click', addFamilyMember);
   bind('#pbClose', 'click', closePoster);
   bind('#pbRetry', 'click', openPoster);
   bind('#pbDownload', 'click', downloadPoster);

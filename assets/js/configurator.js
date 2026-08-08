@@ -303,6 +303,27 @@ async function computeAndPreview() {
   }
 }
 
+// Compute a compact chart summary for ANY person — the same pipeline as
+// computeAndPreview, but it returns the text instead of rendering the preview.
+// Used by the family poster, where each member needs their own chart.
+async function chartSummaryFor({ name, fullName, date, time, lat, lon }) {
+  if (!date || typeof Astronomy === 'undefined') return null;
+  const tz = lat != null ? await fetchTimezone(lat, lon) : null;
+  const hasTime = !!time;
+  const hasPlace = lat != null;
+  const utc = localToUTC(date, time, tz, lon);
+  const chart = computeChart(utc, lat, lon, hasTime && hasPlace);
+  let hd = null, gk = null;
+  try {
+    const sunLon = chart.planets[0].lon;
+    const design = Astronomy.SearchSunLongitude((sunLon - 88 + 360) % 360, new Date(utc.getTime() - 120 * 86400e3), 60);
+    if (design) { hd = computeHD(utc, design.date); gk = computeGK(hd); }
+  } catch {}
+  const chinese = chineseSign(date);
+  const num = numerology(date, fullName || name || '');
+  return buildChartSummary(chart, hd, gk, chinese, num, hasTime, hasPlace);
+}
+
 function setPreviewEmpty(msg) {
   document.getElementById('skyPreview').innerHTML =
     `<div class="ss-preview-empty"><div class="ss-empty-orb"></div><p>${esc(msg)}</p></div>`;

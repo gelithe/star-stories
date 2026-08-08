@@ -1,5 +1,13 @@
 # Star Stories — storefront
 
+> *"If I was a child, finding myself in a story truly there — it would have been
+> magical."*
+>
+> That is the brief. Everything in this repo is measured against it: a child
+> meets themselves in a real tale, with a hero, a mission, effort, a shadow they
+> come through, and a moral to carry. Simple enough for a small reader, true
+> enough for a curious adult. Story as a **mirror**, never prediction as destiny.
+
 A personalized children's book generated from a child's **real birth chart**,
 retold as a story in the register of their age. This repo is the storefront
 (frontend + backend), built on the stack proven by the sibling project
