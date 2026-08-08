@@ -421,7 +421,17 @@ function buildChartSummary(chart, hd, gk, chinese, num, hasTime, hasPlace) {
   if (chart.angles) { L.push(`ASC      ${fmtLon(chart.angles.asc)}`); L.push(`MC       ${fmtLon(chart.angles.mc)}`); }
   L.push(`Elements: ${EL.map(e => `${e} ${tally[e]}`).join(' · ')}`);
   if (hd) L.push(`Human Design: ${hd.type} · ${hd.authority} · ${hd.profile}`);
-  if (gk) L.push(`Gene Keys: LW ${gk.lifesWork} · Ev ${gk.evolution} · Ra ${gk.radiance} · Pu ${gk.purpose}`);
+  if (gk) {
+    L.push(`Gene Keys: LW ${gk.lifesWork} · Ev ${gk.evolution} · Ra ${gk.radiance} · Pu ${gk.purpose}`);
+    // Named spectrum. GIFT words are the warmest, plainest vocabulary in the
+    // whole chart and are safe to print; SHADOW words describe the story's
+    // shadow beat but must never be shown to the reader as a label.
+    const k = gk.keys || {};
+    if (k.lifesWork) {
+      L.push(`  Gifts (printable): Life's Work ${k.lifesWork.gift} · Evolution ${k.evolution.gift} · Radiance ${k.radiance.gift} · Purpose ${k.purpose.gift}`);
+      L.push(`  Shadows (NEVER print — for shaping the story's shadow only): ${k.lifesWork.shadow} · ${k.evolution.shadow} · ${k.radiance.shadow} · ${k.purpose.shadow}`);
+    }
+  }
   L.push(`Chinese: ${chinese.element} ${chinese.animal} (${chinese.year})  ← recurring companion/talisman`);
   if (num && num.lifePath != null) {
     const extra = num.expression != null ? ` · Expression ${num.expression} · Soul ${num.soul}` : ' (Life Path from birth date only — add a full name for Expression/Soul)';

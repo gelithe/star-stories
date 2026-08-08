@@ -174,12 +174,70 @@ function computeHD(birthUTC, designUTC) {
   return { type, authority, profile, defined: [...defined], channels, pers, des };
 }
 
+// ─── GENE KEYS ──────────────────────────────────────────────────────────────
+// The 64 keys as Shadow → Gift → Siddhi.
+//
+// PRINTABLE: the GIFT only. Gift words are mostly plain and warm ("Patience",
+// "Teamwork", "Delight") and are the friendliest vocabulary in the whole chart
+// — far kinder than "Aries Sun" for a poster tag.
+// NOT PRINTABLE TO A CHILD: the SHADOW words are diagnostic language
+// ("Mediocrity", "Failure", "Inadequacy"). They are here because they describe
+// the story's shadow beat precisely, but must never be shown to a reader as a
+// label for who they are. The SIDDHI words are mystical and often obscure
+// ("Opalescence", "Synarchy", "Godhead") — adult editions at most, never a
+// child's poster.
+// Even among the gifts a few are a mouthful ("Transmutation", "Discrimination")
+// — say those in plain words instead of printing the term.
+const GENE_KEYS = {
+  1:  ['Entropy', 'Freshness', 'Beauty'],              2:  ['Dislocation', 'Orientation', 'Unity'],
+  3:  ['Chaos', 'Innovation', 'Innocence'],            4:  ['Intolerance', 'Understanding', 'Forgiveness'],
+  5:  ['Impatience', 'Patience', 'Timelessness'],      6:  ['Conflict', 'Diplomacy', 'Peace'],
+  7:  ['Division', 'Guidance', 'Virtue'],              8:  ['Mediocrity', 'Style', 'Exquisiteness'],
+  9:  ['Inertia', 'Determination', 'Invincibility'],   10: ['Self-Obsession', 'Naturalness', 'Being'],
+  11: ['Obscurity', 'Idealism', 'Light'],              12: ['Vanity', 'Discrimination', 'Purity'],
+  13: ['Discord', 'Discernment', 'Empathy'],           14: ['Compromise', 'Competence', 'Bounteousness'],
+  15: ['Dullness', 'Magnetism', 'Opalescence'],        16: ['Indifference', 'Versatility', 'Mastery'],
+  17: ['Opinion', 'Far-Sightedness', 'Omniscience'],   18: ['Judgment', 'Integrity', 'Perfection'],
+  19: ['Co-Dependence', 'Sensitivity', 'Sacrifice'],   20: ['Superficiality', 'Presence', 'Presence'],
+  21: ['Control', 'Authority', 'Authority'],           22: ['Dishonour', 'Graciousness', 'Grace'],
+  23: ['Complexity', 'Simplicity', 'Simplicity'],      24: ['Addiction', 'Invention', 'Silence'],
+  25: ['Constriction', 'Acceptance', 'Universal Love'],26: ['Pride', 'Artfulness', 'Godhead'],
+  27: ['Selfishness', 'Altruism', 'Altruism'],         28: ['Purposelessness', 'Totality', 'Totality'],
+  29: ['Half-Heartedness', 'Commitment', 'Devotion'],  30: ['Desire', 'Lightness', 'Rapture'],
+  31: ['Arrogance', 'Leadership', 'Humility'],         32: ['Failure', 'Preservation', 'Veneration'],
+  33: ['Forgetting', 'Mindfulness', 'Revelation'],     34: ['Force', 'Strength', 'Majesty'],
+  35: ['Hunger', 'Adventure', 'Boundlessness'],        36: ['Turbulence', 'Humanity', 'Compassion'],
+  37: ['Weakness', 'Equality', 'Tenderness'],          38: ['Struggle', 'Perseverance', 'Honour'],
+  39: ['Provocation', 'Dynamism', 'Liberation'],       40: ['Exhaustion', 'Resolve', 'Divine Will'],
+  41: ['Fantasy', 'Anticipation', 'Emanation'],        42: ['Expectation', 'Detachment', 'Celebration'],
+  43: ['Deafness', 'Insight', 'Epiphany'],             44: ['Interference', 'Teamwork', 'Synarchy'],
+  45: ['Dominance', 'Synergy', 'Communion'],           46: ['Seriousness', 'Delight', 'Ecstasy'],
+  47: ['Oppression', 'Transmutation', 'Transfiguration'], 48: ['Inadequacy', 'Resourcefulness', 'Wisdom'],
+  49: ['Reaction', 'Revolution', 'Rebirth'],           50: ['Corruption', 'Equilibrium', 'Harmony'],
+  51: ['Agitation', 'Initiative', 'Supreme Giving'],   52: ['Stress', 'Restraint', 'Stillness'],
+  53: ['Immaturity', 'Expansion', 'Superabundance'],   54: ['Greed', 'Drive', 'Ascent'],
+  55: ['Victimization', 'Freedom', 'Freedom'],         56: ['Distraction', 'Enrichment', 'Intoxication'],
+  57: ['Unease', 'Intuition', 'Clarity'],              58: ['Dissatisfaction', 'Vitality', 'Bliss'],
+  59: ['Dishonesty', 'Intimacy', 'Transparency'],      60: ['Limitation', 'Realism', 'Justice'],
+  61: ['Psychosis', 'Sanctity', 'Sanctity'],           62: ['Intellect', 'Precision', 'Impeccability'],
+  63: ['Doubt', 'Inquiry', 'Truth'],                   64: ['Confusion', 'Imagination', 'Illumination'],
+};
+function geneKey(gate) {
+  const k = GENE_KEYS[gate];
+  return k ? { gate, shadow: k[0], gift: k[1], siddhi: k[2] } : null;
+}
+
 function computeGK(hd) {
   const pSun = hd.pers.find(a => a.body==='Sun'), pEarth = hd.pers.find(a => a.body==='Earth');
   const dSun = hd.des.find(a => a.body==='Sun'),  dEarth = hd.des.find(a => a.body==='Earth');
   return {
     lifesWork: `${pSun.gate}.${pSun.line}`, evolution: `${pEarth.gate}.${pEarth.line}`,
-    radiance: `${dSun.gate}.${dSun.line}`,  purpose: `${dEarth.gate}.${dEarth.line}`
+    radiance: `${dSun.gate}.${dSun.line}`,  purpose: `${dEarth.gate}.${dEarth.line}`,
+    // the named spectrum for each of the four — gift is the printable one
+    keys: {
+      lifesWork: geneKey(pSun.gate), evolution: geneKey(pEarth.gate),
+      radiance:  geneKey(dSun.gate), purpose:   geneKey(dEarth.gate),
+    },
   };
 }
 
