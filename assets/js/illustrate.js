@@ -26,6 +26,25 @@ const ART = (() => {
 
   // ── motif builders (each returns inner SVG for a 288×176 viewBox) ──
   const M = {
+    // A genuinely abstract mark for the poster: concentric rings and a compass
+    // star, tinted by the element. No creature, no landscape — the option that
+    // hangs quietly on any wall. (The old "abstract" reused `companion`, which
+    // is a little animal with eyes and a smile.)
+    abstract(a) {
+      const s = g('abs');
+      return `<defs><radialGradient id="${s}"><stop offset="0" stop-color="${a}" stop-opacity="0.30"/>
+        <stop offset="1" stop-color="${a}" stop-opacity="0"/></radialGradient></defs>
+        <rect width="288" height="176" rx="10" fill="#eef5f6"/>
+        <circle cx="144" cy="88" r="72" fill="url(#${s})"/>
+        <circle cx="144" cy="88" r="55" fill="none" stroke="${a}" stroke-width="1.6" opacity="0.9"/>
+        <circle cx="144" cy="88" r="39" fill="none" stroke="#2c2416" stroke-width="1" opacity="0.32"/>
+        <circle cx="144" cy="88" r="23" fill="none" stroke="${a}" stroke-width="1" opacity="0.6"/>
+        <g stroke="#2c2416" stroke-width="1" opacity="0.3" stroke-linecap="round">
+          <line x1="144" y1="18" x2="144" y2="33"/><line x1="144" y1="143" x2="144" y2="158"/>
+          <line x1="60" y1="88" x2="75" y2="88"/><line x1="213" y1="88" x2="228" y2="88"/></g>
+        ${goldStar(144, 88, 1.6)}
+        ${stars([[52, 32, 1], [238, 38, 1.1], [40, 142, 0.9], [246, 136, 1]])}`;
+    },
     sea(a) {
       const s = g('sea'), n = uid;
       return `<defs><linearGradient id="${s}" x1="0" y1="0" x2="0" y2="1">

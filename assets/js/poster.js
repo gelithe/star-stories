@@ -20,6 +20,26 @@ const POSTER_STYLES = [
 ];
 let _posterStyle = 'abstract';
 
+const POSTER_SIZES = [
+  { id: 'A3', label: 'A3', hint: '297×420 — a print shop' },
+  { id: 'A4', label: 'A4', hint: '210×297 — prints at home' },
+];
+
+function renderPosterSizes() {
+  const wrap = document.getElementById('posterSize');
+  if (!wrap) return;
+  wrap.innerHTML = POSTER_SIZES.map(s => `
+    <button type="button" class="ss-chip${s.id === _posterSize ? ' is-on' : ''}" data-psize="${s.id}">
+      <span class="ss-chip-t">${s.label}</span>
+      <span class="ss-chip-s">${s.hint}</span>
+    </button>`).join('');
+  wrap.querySelectorAll('[data-psize]').forEach(btn =>
+    btn.addEventListener('click', () => {
+      _posterSize = btn.dataset.psize;
+      wrap.querySelectorAll('.ss-chip').forEach(c => c.classList.toggle('is-on', c.dataset.psize === _posterSize));
+    }));
+}
+
 function renderPosterStyles() {
   const wrap = document.getElementById('posterStyle');
   if (!wrap) return;
@@ -240,12 +260,20 @@ function vectorCompanion(el) {
 // house-style vector companion so the poster is never empty. If the CDN image
 // fails to load, wireCompanionFallback() swaps in the vector (done in JS to
 // avoid quoting an SVG inside an HTML attribute).
+// Nature shouldn't always be the same mountain — pick the landscape from the
+// element (which may be a Chinese element or an astrological one).
+const NATURE_MOTIF = {
+  Wood: 'forest', Fire: 'sun', Earth: 'mountain', Metal: 'sky', Water: 'sea', Air: 'sky',
+};
+function posterMotif(data) {
+  if (_posterStyle === 'nature') return NATURE_MOTIF[posterElement(data)] || 'mountain-sea';
+  return 'abstract';
+}
+
 function companionFigure(data, reg) {
   if (_posterStyle === 'minimal') return '';
-  if (_posterStyle === 'abstract') return vectorCompanion(posterElement(data));
-  if (_posterStyle === 'nature') {
-    // a landscape motif in the chart's element, from the same house vector set
-    const vec = (typeof ART !== 'undefined' && ART.motifSVG) ? ART.motifSVG('mountain-sea', posterElement(data)) : '';
+  if (_posterStyle === 'abstract' || _posterStyle === 'nature') {
+    const vec = (typeof ART !== 'undefined' && ART.motifSVG) ? ART.motifSVG(posterMotif(data), posterElement(data)) : '';
     return vec ? `<div class="pc-avatar pc-vec">${vec}</div>` : '';
   }
   // 'animals' — the drawn zodiac creatures.
@@ -296,33 +324,44 @@ function renderPoster(data, reg) {
 }
 
 // ── Print-ready download: a self-contained A3 poster document ────────────────
-const POSTER_DOC_CSS = `
-@page{size:297mm 420mm;margin:0}
+// Print CSS, generated for the chosen paper. A3 (297×420) is the poster size a
+// print shop expects; A4 (210×297) is what most people can actually run at
+// home. A4 is exactly A3 scaled by 1/√2, so every length is multiplied by k and
+// the sheet is identical, just smaller.
+let _posterSize = 'A3';
+const PAPER = { A3: { w: 297, h: 420, k: 1 }, A4: { w: 210, h: 297, k: 210 / 297 } };
+
+function posterDocCSS() {
+  const P = PAPER[_posterSize] || PAPER.A3;
+  const mm = n => +(n * P.k).toFixed(2) + 'mm';
+  const pt = n => +(n * P.k).toFixed(2) + 'pt';
+  return `
+@page{size:${P.w}mm ${P.h}mm;margin:0}
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:#4a4a5e;font-family:Georgia,'Times New Roman',serif}
-.poster{width:297mm;height:420mm;margin:0 auto;background:#faf6ec;color:#2c2416;position:relative;padding:30mm 26mm;display:flex;flex-direction:column;overflow:hidden}
-.frame{position:absolute;inset:14mm;border:1.5px solid #c9a227;border-radius:4mm;pointer-events:none}
-.frame:before{content:"";position:absolute;inset:3mm;border:.6px solid #d9c98f;border-radius:3mm}
-.kicker{text-align:center;letter-spacing:.32em;text-transform:uppercase;font-size:10pt;color:#9a7010;margin-bottom:5mm}
-h1{text-align:center;font-size:34pt;font-weight:normal;letter-spacing:.04em;color:#2c2416;line-height:1.12}
-.sub{text-align:center;font-size:11pt;color:#8a7860;margin-top:4mm;font-style:italic}
-.avatar{display:block;width:44mm;height:auto;margin:7mm auto 4mm;filter:drop-shadow(0 8px 18px rgba(44,36,22,.25))}
-.avatars{display:flex;justify-content:center;align-items:flex-end;gap:4mm;margin:7mm auto 4mm;flex-wrap:wrap}
-.avatars img{width:26mm;height:auto;filter:drop-shadow(0 6px 14px rgba(44,36,22,.22))}
-.rules{margin:5mm auto 0;max-width:210mm;display:flex;flex-direction:column;gap:5mm}
-.rule{display:flex;gap:6mm;align-items:flex-start}
-.rule .star{flex:0 0 auto;color:#c9a227;font-size:15pt;line-height:1.4}
-.rule p{font-size:13.5pt;line-height:1.5;color:#3a3020}
-.rule small{display:block;color:#9a8a6a;font-size:9.5pt;font-style:italic;margin-top:1mm}
-.foot{margin-top:auto;text-align:center;color:#8a7860;font-style:italic;font-size:11pt;padding-top:8mm}
+.poster{width:${P.w}mm;height:${P.h}mm;margin:0 auto;background:#faf6ec;color:#2c2416;position:relative;padding:${mm(30)} ${mm(26)};display:flex;flex-direction:column;overflow:hidden}
+.frame{position:absolute;inset:${mm(14)};border:1.5px solid #c9a227;border-radius:${mm(4)};pointer-events:none}
+.frame:before{content:"";position:absolute;inset:${mm(3)};border:.6px solid #d9c98f;border-radius:${mm(3)}}
+.kicker{text-align:center;letter-spacing:.32em;text-transform:uppercase;font-size:${pt(10)};color:#9a7010;margin-bottom:${mm(5)}}
+h1{text-align:center;font-size:${pt(34)};font-weight:normal;letter-spacing:.04em;color:#2c2416;line-height:1.12}
+.sub{text-align:center;font-size:${pt(11)};color:#8a7860;margin-top:${mm(4)};font-style:italic}
+.avatar{display:block;width:${mm(44)};height:auto;margin:${mm(7)} auto ${mm(4)};filter:drop-shadow(0 8px 18px rgba(44,36,22,.25))}
+.avatars{display:flex;justify-content:center;align-items:flex-end;gap:${mm(4)};margin:${mm(7)} auto ${mm(4)};flex-wrap:wrap}
+.avatars img{width:${mm(26)};height:auto;filter:drop-shadow(0 6px 14px rgba(44,36,22,.22))}
+.rules{margin:${mm(5)} auto 0;max-width:${mm(210)};display:flex;flex-direction:column;gap:${mm(5)}}
+.rule{display:flex;gap:${mm(6)};align-items:flex-start}
+.rule .star{flex:0 0 auto;color:#c9a227;font-size:${pt(15)};line-height:1.4}
+.rule p{font-size:${pt(13.5)};line-height:1.5;color:#3a3020}
+.rule small{display:block;color:#9a8a6a;font-size:${pt(9.5)};font-style:italic;margin-top:${mm(1)}}
+.foot{margin-top:auto;text-align:center;color:#8a7860;font-style:italic;font-size:${pt(11)};padding-top:${mm(8)}}
 .foot b{color:#9a7010;font-style:normal;letter-spacing:.05em}
 `;
+}
 
 function posterAvatarForDoc(data, reg) {
   if (_posterStyle === 'minimal') return '';
   if (_posterStyle === 'abstract' || _posterStyle === 'nature') {
-    const motif = _posterStyle === 'nature' ? 'mountain-sea' : 'companion';
-    const vec = (typeof ART !== 'undefined' && ART.motifSVG) ? ART.motifSVG(motif, posterElement(data)) : '';
+    const vec = (typeof ART !== 'undefined' && ART.motifSVG) ? ART.motifSVG(posterMotif(data), posterElement(data)) : '';
     return vec ? `<div class="avatar">${vec}</div>` : '';
   }
   const all = Array.isArray(data.companions) ? data.companions : [];
@@ -345,7 +384,7 @@ async function downloadPoster() {
   const reg = await loadCompanions();
   const d = _posterData;
   const doc = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
-<title>${escHtml(d.title)} — Star Stories</title><style>${POSTER_DOC_CSS}</style></head>
+<title>${escHtml(d.title)} — Star Stories</title><style>${posterDocCSS()}</style></head>
 <body><div class="poster">
   <div class="frame"></div>
   ${d.kicker ? `<div class="kicker">${escHtml(d.kicker)}</div>` : ''}
@@ -375,6 +414,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   bind('#ssFamilyAdd', 'click', addFamilyMember);
   renderPosterStyles();
+  renderPosterSizes();
   bind('#pbClose', 'click', closePoster);
   bind('#pbRetry', 'click', openPoster);
   bind('#pbDownload', 'click', downloadPoster);

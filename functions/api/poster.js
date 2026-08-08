@@ -79,7 +79,7 @@ export async function onRequestPost({ request, env }) {
 
   const system = buildPosterPrompt({ family, people, lead, others, count, perPerson, shared, comps });
   const user = buildPosterUser({
-    family, people, comps,
+    family, people, comps, lead,
     place: body.birth && body.birth.place,
     // A family poster must not be stamped with one person's birthday.
     date: family ? '' : (body.birth && body.birth.date),
@@ -131,7 +131,7 @@ export async function onRequestPost({ request, env }) {
     kicker: String(parsed.kicker || '').slice(0, 120),
     rules: parsed.rules.slice(0, count).map(r => ({
       text: String(r.text || r.rule || '').slice(0, 240),
-      source: String(r.source || r.for || '').slice(0, 80),
+      source: String(r.source || r.for || '').slice(0, 160), // a family tag can list five signs
     })).filter(r => r.text),
     mirror: String(parsed.mirror || 'A story is a mirror — not a map of the future.').slice(0, 160),
     // Solo posters show one companion; a family poster shows everyone's, so no
@@ -158,6 +158,7 @@ Every line must contain something the child could actually DO. If a line only te
 - KEEP THE TAGS READABLE BY SOMEONE WHO KNOWS NO ASTROLOGY. Prefer the things anyone recognises: the Sun, Moon and rising signs ("Aries Sun", "Scorpio Moon", "Libra rising"), the Chinese sign ("Metal Ox"), and best of all the GENE KEYS GIFT words given in the chart — plain, warm and self-explanatory ("Patience", "Teamwork", "Delight", "Insight"). Never print bare technical codes: no profile numbers ("5/1", "4/6"), no "Generator Emotivo · Human Design", no gate numbers like "25.3". If a rule comes from Human Design, say what it means in two or three plain words instead ("decides with the body", "clear after the wave", "moves when invited"). A parent should understand every tag at a glance.
 - NEVER print a Gene Keys SHADOW word ("Mediocrity", "Failure", "Inadequacy", "Self-Obsession", "Psychosis"). They are given only so you understand what the child struggles with; naming one on a poster would label a child with the worst word in their chart. Turn the shadow into the kind thing to DO about it, and tag the rule with the GIFT instead. Skip the mystical Siddhi words too ("Opalescence", "Synarchy", "Godhead") — they mean nothing to a family.
 - A few Gift words are still a mouthful ("Transmutation", "Discrimination", "Bounteousness"). If a child could not say it, put it in plain words rather than printing the term.
+- BE CONSISTENT ACROSS THE WHOLE POSTER. Whatever shape you choose for a tag, use it for every rule: if one reads "gift of Innovation", none may read a bare "Innovation" — a lone abstract noun looks like a stray word rather than something named. Same for capitalisation and for the separator.
 - Draw each rule from a DIFFERENT part of the chart — Sun, Moon, rising, Human Design, the Chinese sign, a number — and give every rule a source tag.
 - Nothing generic: if you could give the same rule to a different child, it does not belong on this poster.
 - Say what TO do, not what to avoid. Kind, encouraging, never a warning or a verdict.
@@ -175,7 +176,7 @@ This poster belongs to the whole household — do NOT make it one person's. No s
   return o.join('\n');
 }
 
-function buildPosterUser({ family, people, comps, place, date, home }) {
+function buildPosterUser({ family, people, comps, place, date, home, lead }) {
   const lines = [];
   lines.push(family
     ? `Write a family little-compass for ${people.map(p => p.name).join(', ')}.`
@@ -184,7 +185,8 @@ function buildPosterUser({ family, people, comps, place, date, home }) {
     // A household's members were born in different cities, so no birthplace
     // belongs in the kicker — the names, and the home they share, are what
     // they actually have in common.
-    lines.push(`\nKicker: name the household — ${people.map(p => p.name).join(', ')}${home ? ` — and that it hangs in ${home}` : ''}. Put NO birthplace and NO birth date in it: they were not all born in the same city, so one place would be wrong for everyone else.`);
+    lines.push(`\nKicker: name the household — ${people.map(p => p.name).join(', ')}${home ? `, and that the poster hangs at: ${home}` : ''}. Put NO birthplace and NO birth date in it: they were not all born in the same city, so one place would be wrong for everyone else.`
+      + (home ? ` Phrase the place naturally and grammatically in ${lead} — take care with the preposition and any article the language requires before that particular name.` : ''));
   } else {
     // The chart always comes from the birthplace; `home` is simply where the
     // poster will hang, which is often a different city — or country — now.
