@@ -68,12 +68,19 @@ export async function onRequestPost({ request, env }) {
   const system = buildPosterPrompt({ family, people, lead, others, count });
   const user = buildPosterUser({ family, people, place: body.birth && body.birth.place, date: body.birth && body.birth.date });
 
+  const model = env.POSTER_MODEL || DEFAULT_MODEL;
+  // The Fable/Mythos family rejects thinking:{disabled} with a 400 (thinking is
+  // always on there) — same rule as /api/generate.
+  const noThinking = /^claude-(fable|mythos)/.test(model);
   const payload = {
-    model: env.POSTER_MODEL || DEFAULT_MODEL,
-    max_tokens: 1600,
+    model,
+    // Generous: a family compass can run to eight rules in a long language, and
+    // a truncated response is unparseable JSON, which used to surface as the
+    // unhelpful "came back empty".
+    max_tokens: Number(env.POSTER_MAX_TOKENS) || 4000,
     system,
     messages: [{ role: 'user', content: user }],
-    thinking: { type: 'disabled' },
+    ...(noThinking ? {} : { thinking: { type: 'disabled' } }),
   };
 
   const upstream = await fetch(ANTHROPIC_URL, {
@@ -88,9 +95,17 @@ export async function onRequestPost({ request, env }) {
   const data = await upstream.json().catch(() => ({}));
   const text = (data.content || []).filter(b => b.type === 'text').map(b => b.text).join('');
   const parsed = extractJSON(text);
-  if (!parsed || !Array.isArray(parsed.rules) || !parsed.rules.length) {
-    return json({ error: 'The compass came back empty — please try again.' }, 502);
+  const rules = parsed && normalizeRules(parsed);
+  if (!rules || !rules.length) {
+    // Say WHY, so a failure is diagnosable instead of a shrug.
+    const why = data.stop_reason === 'max_tokens'
+      ? 'the compass was cut off before it finished (raise POSTER_MAX_TOKENS)'
+      : !text.trim() ? `the model "${model}" returned no text`
+      : 'the compass came back in a shape we could not read';
+    const peek = text.trim().slice(0, 180).replace(/\s+/g, ' ');
+    return json({ error: `Poster failed — ${why}.${peek ? ' Model said: “' + peek + '…”' : ''}` }, 502);
   }
+  parsed.rules = rules;
 
   // Attach the (first person's) companion so the poster can show it.
   const comp = companionFrom(people[0].chart);
@@ -141,17 +156,44 @@ function buildPosterUser({ family, people, place, date }) {
 }
 
 // The model is asked for strict JSON; be forgiving if it wraps it in fences or
-// stray text, and pull out the first balanced {...} object.
+// stray prose, and pull out the first balanced {...} object. Brace counting is
+// string-aware — a brace inside a rule's text must not end the object.
 function extractJSON(text) {
   if (!text) return null;
-  let t = text.trim().replace(/^```(?:json)?/i, '').replace(/```$/, '').trim();
+  const t = text.trim().replace(/^```(?:json)?/i, '').replace(/```$/, '').trim();
   try { return JSON.parse(t); } catch {}
   const start = t.indexOf('{');
   if (start < 0) return null;
-  let depth = 0;
+  let depth = 0, inStr = false, esc = false;
   for (let i = start; i < t.length; i++) {
-    if (t[i] === '{') depth++;
-    else if (t[i] === '}') { depth--; if (depth === 0) { try { return JSON.parse(t.slice(start, i + 1)); } catch { return null; } } }
+    const ch = t[i];
+    if (inStr) {
+      if (esc) esc = false;
+      else if (ch === '\\') esc = true;
+      else if (ch === '"') inStr = false;
+      continue;
+    }
+    if (ch === '"') inStr = true;
+    else if (ch === '{') depth++;
+    else if (ch === '}' && --depth === 0) {
+      try { return JSON.parse(t.slice(start, i + 1)); } catch { return null; }
+    }
   }
-  return null;
+  return null; // unbalanced → almost always a truncated response
+}
+
+// Accept the rules however they arrive: the agreed [{text, source}], bare
+// strings, {rule,…}/{for,…} key variants, or nested one level down.
+function normalizeRules(parsed) {
+  let raw = parsed.rules;
+  if (!Array.isArray(raw)) {
+    const nested = Object.values(parsed).find(v => v && typeof v === 'object' && Array.isArray(v.rules));
+    if (nested) { Object.assign(parsed, nested); raw = nested.rules; }
+  }
+  if (!Array.isArray(raw)) return null;
+  return raw
+    .map(r => (typeof r === 'string'
+      ? { text: r, source: '' }
+      : { text: String((r && (r.text || r.rule || r.truth)) || ''), source: String((r && (r.source || r.for || r.tag)) || '') }))
+    .filter(r => r.text.trim());
 }

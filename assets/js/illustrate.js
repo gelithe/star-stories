@@ -171,9 +171,19 @@ const ART = (() => {
       return `<g stroke="${a}" stroke-width="1.8" stroke-linecap="round" opacity="0.8">${rays}</g><circle cx="${x}" cy="${y}" r="11" fill="#c9a227"/>`;
     },
   };
-  const ALIASES = { water: 'sea', ocean: 'sea', wave: 'sea', fire: 'sun', light: 'sun', night: 'moon',
+  // The motif set is all landscape/fantasy, so indoor and everyday scenes are
+  // routed to the nearest human-world art (door-home) rather than falling
+  // through to a mountain — otherwise the art quietly pushes every book outdoors.
+  const ALIASES = { water: 'sea', ocean: 'sea', wave: 'sea', fire: 'sun', light: 'sun', lamp: 'sun',
+    lantern: 'sun', candle: 'sun', night: 'moon',
     creature: 'companion', cat: 'companion', bird: 'companion', animal: 'companion', hero: 'companion',
-    home: 'door-home', door: 'door-home', tree: 'forest', wood: 'forest', flower: 'garden' };
+    family: 'companion', friends: 'companion', crew: 'companion', team: 'companion', game: 'companion',
+    ball: 'companion', toy: 'companion', play: 'companion',
+    home: 'door-home', door: 'door-home', house: 'door-home', room: 'door-home', bedroom: 'door-home',
+    bed: 'door-home', kitchen: 'door-home', table: 'door-home', window: 'door-home', stairs: 'door-home',
+    school: 'door-home', street: 'door-home', city: 'door-home', town: 'door-home', village: 'door-home',
+    workshop: 'door-home', market: 'door-home',
+    tree: 'forest', wood: 'forest', flower: 'garden', field: 'garden' };
 
   function motifSVG(key, element) {
     uid++;

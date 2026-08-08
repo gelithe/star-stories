@@ -320,7 +320,9 @@ async function chartSummaryFor({ name, fullName, date, time, lat, lon }) {
     if (design) { hd = computeHD(utc, design.date); gk = computeGK(hd); }
   } catch {}
   const chinese = chineseSign(date);
-  const num = numerology(date, fullName || name || '');
+  // Only a real full name yields Expression/Soul; a first name alone would
+  // produce a confidently wrong number, so pass nothing rather than guess.
+  const num = numerology(date, fullName || '');
   return buildChartSummary(chart, hd, gk, chinese, num, hasTime, hasPlace);
 }
 
