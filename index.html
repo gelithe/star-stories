@@ -63,11 +63,6 @@
         <input class="ss-input" id="fPlace" type="text" placeholder="City, Country" autocomplete="off">
         <div id="placeSuggestions"></div>
       </div>
-
-      <div class="ss-field">
-        <label for="fHome">Where they live now <span class="ss-hint">— optional, if you've moved since</span></label>
-        <input class="ss-input" id="fHome" type="text" placeholder="City, Country" autocomplete="off">
-      </div>
     </section>
 
     <section class="ss-card">
@@ -141,6 +136,10 @@
       <div class="ss-addon">
         <button class="ss-addon-btn" id="ssPosterBtn" type="button">✦ Make a little life-rules poster</button>
         <span class="ss-addon-hint">A handful of gentle truths from the same sky — printable for the wall.</span>
+        <div class="ss-field ss-addon-field">
+          <label for="fHome">Where the poster will hang <span class="ss-hint">— optional, if you've moved since</span></label>
+          <input class="ss-input" id="fHome" type="text" placeholder="City, Country" autocomplete="off">
+        </div>
         <button class="ss-addon-link" id="ssFamilyToggle" type="button">+ make it a family compass</button>
         <div class="ss-family" id="ssFamily" style="display:none">
           <div id="ssFamilyRows"></div>
