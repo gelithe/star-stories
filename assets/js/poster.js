@@ -9,6 +9,37 @@
 let _posterData = null;
 let _companionsCache = null;
 
+// ── poster style ────────────────────────────────────────────────────────────
+// A poster hangs in someone's home, so the art has to suit the room. Abstract
+// is the default: the house-style vector, which sits quietly in any interior.
+const POSTER_STYLES = [
+  { id: 'abstract', label: 'Abstract',  hint: 'the house mark, quiet in any room' },
+  { id: 'nature',   label: 'Nature',    hint: 'a landscape in the chart’s element' },
+  { id: 'animals',  label: 'Animals',   hint: 'the drawn zodiac creatures' },
+  { id: 'minimal',  label: 'Words only', hint: 'no picture at all' },
+];
+let _posterStyle = 'abstract';
+
+function renderPosterStyles() {
+  const wrap = document.getElementById('posterStyle');
+  if (!wrap) return;
+  wrap.innerHTML = POSTER_STYLES.map(s => `
+    <button type="button" class="ss-chip${s.id === _posterStyle ? ' is-on' : ''}" data-pstyle="${s.id}">
+      <span class="ss-chip-t">${s.label}</span>
+      <span class="ss-chip-s">${s.hint}</span>
+    </button>`).join('');
+  wrap.querySelectorAll('[data-pstyle]').forEach(btn =>
+    btn.addEventListener('click', () => {
+      _posterStyle = btn.dataset.pstyle;
+      wrap.querySelectorAll('.ss-chip').forEach(c => c.classList.toggle('is-on', c.dataset.pstyle === _posterStyle));
+      // restyle in place if a poster is already on screen
+      if (_posterData) loadCompanions().then(reg => {
+        const body = document.getElementById('ssPosterBody');
+        if (body && body.firstChild) { body.innerHTML = renderPoster(_posterData, reg); wireCompanionFallback(_posterData); }
+      });
+    }));
+}
+
 // Load the companion registry once so the poster can show the child's avatar.
 async function loadCompanions() {
   if (_companionsCache) return _companionsCache;
@@ -210,6 +241,14 @@ function vectorCompanion(el) {
 // fails to load, wireCompanionFallback() swaps in the vector (done in JS to
 // avoid quoting an SVG inside an HTML attribute).
 function companionFigure(data, reg) {
+  if (_posterStyle === 'minimal') return '';
+  if (_posterStyle === 'abstract') return vectorCompanion(posterElement(data));
+  if (_posterStyle === 'nature') {
+    // a landscape motif in the chart's element, from the same house vector set
+    const vec = (typeof ART !== 'undefined' && ART.motifSVG) ? ART.motifSVG('mountain-sea', posterElement(data)) : '';
+    return vec ? `<div class="pc-avatar pc-vec">${vec}</div>` : '';
+  }
+  // 'animals' — the drawn zodiac creatures.
   // A family poster shows EVERY companion, so no one person's animal stands in
   // for the household. If any sheet is missing we fall back to the single
   // abstract vector rather than showing a partial cast.
@@ -280,6 +319,12 @@ h1{text-align:center;font-size:34pt;font-weight:normal;letter-spacing:.04em;colo
 `;
 
 function posterAvatarForDoc(data, reg) {
+  if (_posterStyle === 'minimal') return '';
+  if (_posterStyle === 'abstract' || _posterStyle === 'nature') {
+    const motif = _posterStyle === 'nature' ? 'mountain-sea' : 'companion';
+    const vec = (typeof ART !== 'undefined' && ART.motifSVG) ? ART.motifSVG(motif, posterElement(data)) : '';
+    return vec ? `<div class="avatar">${vec}</div>` : '';
+  }
   const all = Array.isArray(data.companions) ? data.companions : [];
   if (data.family && all.length > 1) {
     const urls = all.map(c => companionSheet(reg, c.animal));
@@ -329,6 +374,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (on && !_family.length) addFamilyMember();
   });
   bind('#ssFamilyAdd', 'click', addFamilyMember);
+  renderPosterStyles();
   bind('#pbClose', 'click', closePoster);
   bind('#pbRetry', 'click', openPoster);
   bind('#pbDownload', 'click', downloadPoster);

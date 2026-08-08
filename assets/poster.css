@@ -76,3 +76,9 @@
 /* poster-only inputs live inside the add-on, not in the birth-data form */
 .ss-addon-field { margin-top: 10px; text-align: left; }
 .ss-addon-field .ss-input { padding: 8px 10px; font-size: 13px; }
+
+/* compact chips for the poster's style choice */
+.ss-chips-sm { display: flex; flex-wrap: wrap; gap: 6px; }
+.ss-chips-sm .ss-chip { padding: 7px 10px; }
+.ss-chips-sm .ss-chip-t { font-size: 12.5px; }
+.ss-chips-sm .ss-chip-s { font-size: 10.5px; }
