@@ -231,6 +231,26 @@ function selectPlace(i) {
 function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c])); }
 
 // ─── TIMEZONE + UTC (ported from Chart Compass) ─────────────────────────────
+// Resolve a place string to coordinates (first Nominatim match), for places
+// entered without the autocomplete — the family compass, where each person may
+// be born in a different country. The birthplace sets the UTC conversion, not
+// just the rising sign, so one shared place would put a Moon hours out.
+async function geocodeOne(q) {
+  const query = String(q || '').trim();
+  if (query.length < 2) return null;
+  try {
+    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1&addressdetails=1&accept-language=en`;
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const raw = await res.json();
+    if (!Array.isArray(raw) || !raw.length) return null;
+    const r = raw[0];
+    const a = r.address || {};
+    const city = a.city || a.town || a.village || a.municipality || a.county || r.name;
+    return { lat: +r.lat, lon: +r.lon, label: [city, a.country].filter(Boolean).join(', ') };
+  } catch { return null; }
+}
+
 async function fetchTimezone(lat, lon) {
   try {
     const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&timezone=auto`);

@@ -18,8 +18,13 @@
 }
 .ss-addon-link:hover { color: #cdb964; }
 .ss-family { margin-top: 6px; text-align: left; }
-.ss-family-row { display: grid; grid-template-columns: 1fr 1fr 84px 28px; gap: 6px; margin-bottom: 6px; align-items: center; }
+.ss-family-row { display: grid; grid-template-columns: 1fr 1fr 84px 28px; gap: 6px; margin-bottom: 12px; align-items: center; }
 .ss-family-row .ss-input { padding: 7px 8px; font-size: 13px; }
+/* each member's own birthplace, on its own line under their name/date/time */
+.ss-family-row .ss-family-place { grid-column: 1 / 5; }
+.ss-family-row .ss-geo { grid-column: 1 / 5; font-size: 11px; color: #8a8272; line-height: 1.4; }
+.ss-family-row .ss-geo.ok { color: #7d9a6a; }
+.ss-family-row .ss-geo.warn { color: #c9884a; }
 .ss-family-del {
   background: none; border: none; cursor: pointer; color: #8a8272; font-size: 19px; line-height: 1; padding: 0;
 }

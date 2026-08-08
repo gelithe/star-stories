@@ -25,24 +25,38 @@ function companionSheet(reg, animal) {
 }
 
 // ── family compass: extra people, each with their own computed chart ────────
-// They share the birthplace from the main form (siblings usually do, and the
-// place only affects the rising sign); name + date are what matter.
-let _family = []; // [{ name, date, time }]
+// Each member carries their OWN birthplace: a family can be born in Mexico,
+// Australia and Germany, and the birthplace sets the UTC conversion, so a
+// shared place would compute the wrong sky (not merely the wrong rising sign).
+let _family = []; // [{ name, date, time, place, lat, lon, geo }]
+const _geoTimers = {};
 
-function renderFamilyRows() {
-  const wrap = document.getElementById('ssFamilyRows');
-  if (!wrap) return;
-  wrap.innerHTML = _family.map((p, i) => `
+function familyRowHTML(p, i) {
+  const geo = p.geo === 'ok' ? `<span class="ss-geo ok">✓ ${escHtml(p.placeLabel || '')}</span>`
+    : p.geo === 'busy' ? '<span class="ss-geo">finding…</span>'
+    : p.geo === 'fail' ? '<span class="ss-geo warn">place not found — the sky needs it</span>'
+    : '';
+  return `
     <div class="ss-family-row" data-i="${i}">
       <input class="ss-input" data-f="name" type="text" placeholder="Name" value="${escHtml(p.name)}">
       <input class="ss-input" data-f="date" type="date" value="${escHtml(p.date)}">
       <input class="ss-input" data-f="time" type="time" value="${escHtml(p.time)}">
       <button class="ss-family-del" type="button" data-del="${i}" aria-label="Remove">×</button>
-    </div>`).join('');
+      <input class="ss-input ss-family-place" data-f="place" type="text" placeholder="Birthplace — city, country" value="${escHtml(p.place || '')}">
+      ${geo}
+    </div>`;
+}
+
+function renderFamilyRows() {
+  const wrap = document.getElementById('ssFamilyRows');
+  if (!wrap) return;
+  wrap.innerHTML = _family.map(familyRowHTML).join('');
   wrap.querySelectorAll('input').forEach(inp => {
     inp.addEventListener('input', e => {
-      const row = e.target.closest('.ss-family-row');
-      _family[+row.dataset.i][e.target.dataset.f] = e.target.value;
+      const i = +e.target.closest('.ss-family-row').dataset.i;
+      const f = e.target.dataset.f;
+      _family[i][f] = e.target.value;
+      if (f === 'place') resolveFamilyPlace(i);
     });
   });
   wrap.querySelectorAll('[data-del]').forEach(b => {
@@ -50,9 +64,42 @@ function renderFamilyRows() {
   });
 }
 
+// Geocode one member's birthplace, debounced, without re-rendering the row the
+// user is typing in (that would steal focus) — only its status chip.
+function resolveFamilyPlace(i) {
+  const p = _family[i];
+  p.lat = p.lon = null;
+  p.geo = p.place && p.place.trim().length >= 2 ? 'busy' : '';
+  paintGeoStatus(i);
+  clearTimeout(_geoTimers[i]);
+  if (!p.geo) return;
+  _geoTimers[i] = setTimeout(async () => {
+    const asked = p.place;
+    const hit = await geocodeOne(asked);
+    if (_family[i] !== p || p.place !== asked) return; // typed on, or row removed
+    if (hit) { p.lat = hit.lat; p.lon = hit.lon; p.placeLabel = hit.label; p.geo = 'ok'; }
+    else { p.geo = 'fail'; }
+    paintGeoStatus(i);
+  }, 600);
+}
+
+function paintGeoStatus(i) {
+  const row = document.querySelector(`.ss-family-row[data-i="${i}"]`);
+  if (!row) return;
+  const old = row.querySelector('.ss-geo');
+  if (old) old.remove();
+  const p = _family[i];
+  if (!p.geo) return;
+  const span = document.createElement('span');
+  span.className = 'ss-geo' + (p.geo === 'ok' ? ' ok' : p.geo === 'fail' ? ' warn' : '');
+  span.textContent = p.geo === 'ok' ? `✓ ${p.placeLabel || ''}`
+    : p.geo === 'busy' ? 'finding…' : 'place not found — the sky needs it';
+  row.appendChild(span);
+}
+
 function addFamilyMember() {
   if (_family.length >= 5) return; // the server caps at 6 people including the child
-  _family.push({ name: '', date: '', time: '' });
+  _family.push({ name: '', date: '', time: '', place: '', lat: null, lon: null, geo: '' });
   renderFamilyRows();
 }
 
@@ -62,8 +109,14 @@ async function posterPeople() {
   const people = [{ name: state.name.trim() || 'the child', chart: state.chartText }];
   for (const p of _family) {
     if (!p.name.trim() || !p.date) continue;
+    // Their own birthplace. If it hasn't resolved yet, try once now rather than
+    // silently borrowing someone else's city — that would compute a false sky.
+    if (p.lat == null && p.place && p.place.trim()) {
+      const hit = await geocodeOne(p.place);
+      if (hit) { p.lat = hit.lat; p.lon = hit.lon; p.placeLabel = hit.label; p.geo = 'ok'; paintGeoStatus(_family.indexOf(p)); }
+    }
     try {
-      const chart = await chartSummaryFor({ name: p.name.trim(), date: p.date, time: p.time, lat: state.lat, lon: state.lon });
+      const chart = await chartSummaryFor({ name: p.name.trim(), date: p.date, time: p.time, lat: p.lat, lon: p.lon });
       if (chart) people.push({ name: p.name.trim(), chart });
     } catch { /* skip a member whose sky can't be read rather than fail the poster */ }
   }
