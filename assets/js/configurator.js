@@ -128,6 +128,11 @@ document.addEventListener('DOMContentLoaded', () => {
   bind('#ssCreate', 'click', onCreate);
   bind('#ssForget', 'click', forgetDraft);
 
+  document.querySelectorAll('#ssNav .ss-nav-btn').forEach(b =>
+    b.addEventListener('click', () => setView(b.dataset.view)));
+  window.addEventListener('hashchange', () => setView(location.hash === '#compass' ? 'compass' : 'book'));
+  setView(location.hash === '#compass' ? 'compass' : 'book');
+
   // Catch every edit — typed fields, chips, checkboxes, the family rows — in
   // one place, rather than threading a save call through each handler.
   for (const ev of ['input', 'change', 'click']) document.addEventListener(ev, scheduleSave, true);
@@ -139,6 +144,22 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function bind(sel, ev, fn) { const el = document.querySelector(sel); if (el) el.addEventListener(ev, fn); }
+
+// ─── VIEWS: the book | the compass ───────────────────────────────────────────
+// Two products from one sky. The birth data, the languages and the preview are
+// shared; only the product-specific cards swap, so nothing has to be typed
+// twice and neither page carries the other's controls.
+function setView(v) {
+  const view = v === 'compass' ? 'compass' : 'book';
+  document.body.classList.toggle('view-compass', view === 'compass');
+  document.body.classList.toggle('view-book', view === 'book');
+  document.querySelectorAll('#ssNav .ss-nav-btn').forEach(b =>
+    b.classList.toggle('is-on', b.dataset.view === view));
+  const hash = view === 'compass' ? '#compass' : '';
+  if ((location.hash === '#compass') !== (view === 'compass')) {
+    history.replaceState(null, '', location.pathname + location.search + hash);
+  }
+}
 
 // ─── AGE BANDS ───────────────────────────────────────────────────────────────
 function renderAgeBands() {

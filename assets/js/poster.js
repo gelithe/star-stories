@@ -185,16 +185,21 @@ async function posterPayload() {
   };
 }
 
+const POSTER_NOTE_DEFAULT = 'Printable A4 or A3; download and print at home or at a shop.';
+
 async function openPoster() {
-  const note = document.getElementById('ssCreateNote');
+  // The compass has its own note line — the book's is on a card that is hidden
+  // in this view, so a warning written there would never be seen.
+  const note = document.getElementById('ssPosterNote');
+  const say = (msg, warn) => { if (note) { note.className = 'ss-create-note' + (warn ? ' is-warn' : ''); note.textContent = msg; } };
   if (!state.name.trim() || !state.chartText) {
-    if (!state.chartText && state.birthDate) { if (note) { note.className = 'ss-create-note'; note.textContent = 'Reading the sky…'; } await computeAndPreview(); }
+    if (!state.chartText && state.birthDate) { say('Reading the sky…'); await computeAndPreview(); }
     if (!state.name.trim() || !state.chartText) {
-      if (note) { note.className = 'ss-create-note is-warn'; note.textContent = 'Add the child’s name and birth date first, then make the poster.'; }
+      say('Add the name and birth date first, then make the poster.', true);
       return;
     }
   }
-  if (note) { note.className = 'ss-create-note'; note.textContent = ''; }
+  say(POSTER_NOTE_DEFAULT);
 
   const overlay = document.getElementById('ssPoster');
   const bodyEl = document.getElementById('ssPosterBody');

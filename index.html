@@ -21,21 +21,32 @@
     </svg>
     <span class="ss-brand">Star Stories</span>
   </div>
-  <span class="ss-tag">a book about the child, for the child</span>
+  <nav class="ss-nav" id="ssNav">
+    <button type="button" class="ss-nav-btn is-on" data-view="book">The book</button>
+    <button type="button" class="ss-nav-btn" data-view="compass">The compass</button>
+  </nav>
 </header>
 
 <section class="ss-wrap ss-hero">
-  <h1>A book written from your child’s real sky.</h1>
-  <p class="ss-lede">Their true birth chart, retold as a story in the register of their age —
-    a gift you can re-give as they grow: the same sky, retold.</p>
-  <p>Enter the birth data and watch their sky appear. That preview is the beginning of their book.</p>
+  <div class="book-only">
+    <h1>A book written from your child’s real sky.</h1>
+    <p class="ss-lede">Their true birth chart, retold as a story in the register of their age —
+      a gift you can re-give as they grow: the same sky, retold.</p>
+    <p>Enter the birth data and watch their sky appear. That preview is the beginning of their book.</p>
+  </div>
+  <div class="compass-only">
+    <h1>A few rules to live by, from a real sky.</h1>
+    <p class="ss-lede">The same birth chart, distilled into a handful of gentle, doable rules —
+      set as a poster for the wall, for one person or the whole household.</p>
+    <p>Enter the birth data and watch their sky appear. It works on its own, with or without a book.</p>
+  </div>
 </section>
 
 <main class="ss-wrap ss-grid">
   <!-- LEFT: the configurator -->
   <div>
     <section class="ss-card">
-      <div class="ss-step"><span class="ss-step-n">1</span><h2>Who is the book for?</h2></div>
+      <div class="ss-step"><span class="ss-step-n">1</span><h2>Whose sky is it?</h2></div>
 
       <div class="ss-field">
         <label for="fName">Child’s name <span class="ss-hint">— stays as it is, in every language</span></label>
@@ -65,7 +76,7 @@
       </div>
     </section>
 
-    <section class="ss-card">
+    <section class="ss-card book-only">
       <div class="ss-step"><span class="ss-step-n">2</span><h2>Which edition?</h2></div>
       <div class="ss-chips" id="ageBands"></div>
       <p class="ss-register" id="ageRegister"></p>
@@ -75,7 +86,7 @@
       </div>
     </section>
 
-    <section class="ss-card">
+    <section class="ss-card book-only">
       <div class="ss-step"><span class="ss-step-n">3</span><h2>How is the story shaped?</h2></div>
       <div class="ss-chips" id="shapeChips"></div>
       <div class="ss-field" id="detailsFields" style="display:none; margin-top:14px">
@@ -124,15 +135,49 @@
       </div>
     </div>
 
-    <section class="ss-card">
+    <!-- BOOK: the order card -->
+    <section class="ss-card book-only">
       <div class="ss-step"><span class="ss-step-n">5</span><h2>Your book</h2></div>
       <div class="ss-summary" id="ssSummary"></div>
-      <div class="ss-field" id="accessField" style="margin-top:16px">
+      <button class="ss-cta" id="ssCreate" type="button">Create this book</button>
+      <p class="ss-create-note" id="ssCreateNote">Digital PDF first; a printed copy can follow.</p>
+    </section>
+
+    <!-- COMPASS: its own card, so it isn't stacked under the book -->
+    <section class="ss-card compass-only">
+      <div class="ss-step"><h2>Your little compass</h2></div>
+      <p class="ss-register">A handful of gentle life-rules from the same sky, set as a poster for the wall —
+        it stands on its own, with or without a book.</p>
+      <div class="ss-field ss-addon-field">
+        <label>Style</label>
+        <div class="ss-chips ss-chips-sm" id="posterStyle"></div>
+      </div>
+      <div class="ss-field ss-addon-field">
+        <label>Paper</label>
+        <div class="ss-chips ss-chips-sm" id="posterSize"></div>
+      </div>
+      <div class="ss-field ss-addon-field">
+        <label for="fHome">Where it will hang <span class="ss-hint">— optional, if you've moved since</span></label>
+        <input class="ss-input" id="fHome" type="text" placeholder="City, Country" autocomplete="off">
+      </div>
+      <button class="ss-addon-link" id="ssFamilyToggle" type="button">+ make it a family compass</button>
+      <div class="ss-family" id="ssFamily" style="display:none">
+        <div id="ssFamilyRows"></div>
+        <button class="ss-addon-link" id="ssFamilyAdd" type="button">+ add another person</button>
+        <p class="ss-family-note">Each person needs a name, a birth date and their own birthplace — a family can be born in three
+          different countries, and the city sets the sky. The time is optional (it adds their rising sign).
+          Everyone gets the same number of rules, plus a few that hold the family together.</p>
+      </div>
+      <button class="ss-cta" id="ssPosterBtn" type="button">Make the poster</button>
+      <p class="ss-create-note" id="ssPosterNote">Printable A4 or A3; download and print at home or at a shop.</p>
+    </section>
+
+    <!-- shared by both: access + the saved draft -->
+    <section class="ss-card">
+      <div class="ss-field" id="accessField">
         <label for="fAccess">Access code <span class="ss-hint">— only during private testing</span></label>
         <input class="ss-input" id="fAccess" type="text" placeholder="Your testing code" autocomplete="off">
       </div>
-      <button class="ss-cta" id="ssCreate" type="button">Create this book</button>
-      <p class="ss-create-note" id="ssCreateNote">Digital PDF first; a printed copy can follow.</p>
       <label class="ss-remember">
         <input type="checkbox" id="ssRemember">
         <span>Remember this form on this device <span class="ss-hint">— so a refresh doesn’t lose it.
@@ -140,30 +185,6 @@
       </label>
       <p class="ss-subnote" id="ssForgetRow" style="display:none">
         <button class="ss-linkbtn" id="ssForget" type="button">Forget what’s saved</button></p>
-      <div class="ss-addon">
-        <button class="ss-addon-btn" id="ssPosterBtn" type="button">✦ Make a little life-rules poster</button>
-        <span class="ss-addon-hint">A handful of gentle truths from the same sky — printable for the wall.</span>
-        <div class="ss-field ss-addon-field">
-          <label>Poster style</label>
-          <div class="ss-chips ss-chips-sm" id="posterStyle"></div>
-        </div>
-        <div class="ss-field ss-addon-field">
-          <label>Paper</label>
-          <div class="ss-chips ss-chips-sm" id="posterSize"></div>
-        </div>
-        <div class="ss-field ss-addon-field">
-          <label for="fHome">Where the poster will hang <span class="ss-hint">— optional, if you've moved since</span></label>
-          <input class="ss-input" id="fHome" type="text" placeholder="City, Country" autocomplete="off">
-        </div>
-        <button class="ss-addon-link" id="ssFamilyToggle" type="button">+ make it a family compass</button>
-        <div class="ss-family" id="ssFamily" style="display:none">
-          <div id="ssFamilyRows"></div>
-          <button class="ss-addon-link" id="ssFamilyAdd" type="button">+ add another person</button>
-          <p class="ss-family-note">Each person needs a name, a birth date and their own birthplace — a family can be born in three
-            different countries, and the city sets the sky. The time is optional (it adds their rising sign).
-            Everyone gets the same number of rules, plus a few that hold the family together.</p>
-        </div>
-      </div>
     </section>
   </aside>
 </main>

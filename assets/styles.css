@@ -201,3 +201,26 @@ select.ss-input { appearance: none; background-image: linear-gradient(45deg, tra
 /* ─── FOOTER ────────────────────────────────────────────────────── */
 .ss-foot { border-top: 1px solid var(--line); padding: 26px 0 48px; color: var(--ink-soft); font-size: 13px; }
 .ss-foot b { color: var(--ink); font-weight: normal; }
+
+/* ─── the two views: the book | the compass ─────────────────────────────────
+   One sky, two products. Birth data, languages and the preview are shared;
+   only the product-specific cards swap. */
+.ss-nav { display: flex; gap: 4px; margin-left: auto; background: rgba(201,162,39,0.10);
+  border-radius: 10px; padding: 3px; }
+.ss-nav-btn {
+  font-family: Georgia, serif; font-size: 13.5px; cursor: pointer; letter-spacing: 0.02em;
+  color: #cdb964; background: transparent; border: none; border-radius: 8px; padding: 7px 14px;
+}
+.ss-nav-btn.is-on { background: #e7dcae; color: #10101c; }
+.ss-nav-btn:not(.is-on):hover { color: #f2ead0; }
+
+body.view-compass .book-only { display: none; }
+body:not(.view-compass) .compass-only { display: none; }
+/* the compass has its own short flow, so the book's step numbers don't apply */
+body.view-compass .ss-step-n { display: none; }
+
+@media (max-width: 700px) {
+  .ss-top { flex-wrap: wrap; }
+  .ss-nav { margin-left: 0; width: 100%; }
+  .ss-nav-btn { flex: 1; }
+}
