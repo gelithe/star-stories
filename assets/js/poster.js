@@ -436,7 +436,7 @@ function fitFor(P, n) {
     const pt = x => x * P.k * f * 0.3528;          // pt -> mm
     const body = pt(15);
     const lines = Math.max(1, Math.ceil(95 * body * 0.5 / width)); // ~95 chars a rule
-    const rule = lines * body * 1.5 + pt(13.5) * 1.2 + mm(1.4);
+    const rule = lines * body * 1.5 + pt(10.5) * 1.2 + mm(1.4);
     const head = pt(10) + mm(5) + pt(34) * 1.12 + pt(12) + mm(4);
     const foot = pt(11) + mm(8);
     return (n * rule + (n - 1) * mm(5) * f + head + (hasArt ? mm(55) : 0) + foot) / usable;
@@ -474,7 +474,7 @@ h1{text-align:center;font-size:${pt(34)};font-weight:normal;letter-spacing:.04em
 .rule{display:flex;gap:${mm(6)};align-items:flex-start}
 .rule .star{flex:0 0 auto;color:#c9a227;font-size:${pt(16)};line-height:1.4}
 .rule p{font-size:${pt(15)};line-height:1.5;color:#3a3020}
-.rule small{display:block;color:#87764f;font-size:${pt(13.5)};font-style:italic;margin-top:${mm(1.4)}}
+.rule small{display:block;color:#87764f;font-size:${pt(10.5)};font-style:italic;margin-top:${mm(1.4)}}
 .foot{margin-top:auto;text-align:center;color:#8a7860;font-style:italic;font-size:${pt(11)};padding-top:${mm(8)}}
 .foot b{color:#9a7010;font-style:normal;letter-spacing:.05em}
 .pc-sky{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
