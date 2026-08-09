@@ -46,6 +46,10 @@ function renderPosterSizes() {
       _posterSize = btn.dataset.psize;
       wrap.querySelectorAll('.ss-chip').forEach(c => c.classList.toggle('is-on', c.dataset.psize === _posterSize));
       updatePosterSummary();
+      if (_posterData) loadCompanions().then(reg => {
+        const body = document.getElementById('ssPosterBody');
+        if (body && body.firstChild) { body.innerHTML = renderPoster(_posterData, reg); wireCompanionFallback(_posterData); }
+      });
     }));
 }
 
@@ -331,27 +335,27 @@ function skyBackdropSVG(skies) {
   };
   let out = '';
   // the ecliptic circle and the twelve sign divisions
-  out += `<circle cx="${cx}" cy="${cy}" r="${outer.toFixed(1)}" fill="none" stroke="#c9a227" stroke-width="1" opacity="0.30"/>`;
+  out += `<circle cx="${cx}" cy="${cy}" r="${outer.toFixed(1)}" fill="none" stroke="#c9a227" stroke-width="1" opacity="0.13"/>`;
   for (let i = 0; i < 12; i++) {
     const [x1, y1] = pt(i * 30, outer * 0.955), [x2, y2] = pt(i * 30, outer);
-    out += `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="#c9a227" stroke-width="1" opacity="0.35"/>`;
+    out += `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="#c9a227" stroke-width="1" opacity="0.16"/>`;
   }
   live.forEach((s, i) => {
     const r = outer * 0.86 - i * ring;
     const pts = [...s.points].sort((a, b) => a.lon - b.lon);
     const xy = pts.map(p => pt(p.lon, r));
     // join this person's bodies into one closed figure — their constellation
-    out += `<path d="M${xy.map(([x, y]) => `${x.toFixed(1)} ${y.toFixed(1)}`).join(' L')} Z" fill="none" stroke="#2c2416" stroke-width="0.9" opacity="0.22"/>`;
+    out += `<path d="M${xy.map(([x, y]) => `${x.toFixed(1)} ${y.toFixed(1)}`).join(' L')} Z" fill="none" stroke="#2c2416" stroke-width="0.8" opacity="0.10"/>`;
     xy.forEach(([x, y], k) => {
       const big = pts[k].big;
-      out += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${big ? 4.2 : 2.4}" fill="${big ? '#c9a227' : '#2c2416'}" opacity="${big ? 0.5 : 0.34}"/>`;
+      out += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${big ? 4.2 : 2.4}" fill="${big ? '#c9a227' : '#2c2416'}" opacity="${big ? 0.22 : 0.13}"/>`;
     });
     if (s.asc != null) {
       const [ax, ay] = pt(s.asc, outer);
-      out += `<circle cx="${ax.toFixed(1)}" cy="${ay.toFixed(1)}" r="3" fill="none" stroke="#1a9eae" stroke-width="1.4" opacity="0.5"/>`;
+      out += `<circle cx="${ax.toFixed(1)}" cy="${ay.toFixed(1)}" r="3" fill="none" stroke="#1a9eae" stroke-width="1.2" opacity="0.22"/>`;
     }
   });
-  return `<svg class="pc-sky" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice" aria-hidden="true">${out}</svg>`;
+  return `<svg class="pc-sky" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" aria-hidden="true">${out}</svg>`;
 }
 
 function companionFigure(data, reg) {
@@ -396,7 +400,10 @@ function rulesHTML(rules) {
 }
 
 function renderPoster(data, reg) {
-  return `<div class="pc-poster">
+  // the preview takes the chosen sheet's proportions, so a tall poster looks
+  // tall on screen rather than being previewed as an A3
+  const P = POSTER_SIZES.find(x => x.id === _posterSize) || POSTER_SIZES[1];
+  return `<div class="pc-poster" style="--par:${(P.h / P.w).toFixed(4)}">
     ${_posterStyle === 'sky' ? skyBackdropSVG(_skies) : ''}
     <div class="pc-frame"></div>
     ${data.kicker ? `<div class="pc-kicker">${escHtml(data.kicker)}</div>` : ''}
@@ -415,6 +422,30 @@ function renderPoster(data, reg) {
 // the sheet is identical, just smaller.
 let _posterSize = 'A3';
 
+// The largest type that still fits the sheet. Replaces a hand-tuned curve that
+// only ever suited A4/A3: a 40x120 sheet has a very tall, narrow column, and a
+// fixed multiplier made its text tiny on a metre-long poster. This measures the
+// actual geometry — column height and width, rule count, whether a centre motif
+// is present — and picks the biggest scale that keeps the page at ~88% full.
+function fitFor(P, n) {
+  const mm = x => x * P.k;
+  const usable = P.h - 2 * mm(30);
+  const width = P.w - 2 * mm(26);
+  const hasArt = !(_posterStyle === 'minimal' || _posterStyle === 'sky');
+  const est = f => {
+    const pt = x => x * P.k * f * 0.3528;          // pt -> mm
+    const body = pt(15);
+    const lines = Math.max(1, Math.ceil(95 * body * 0.5 / width)); // ~95 chars a rule
+    const rule = lines * body * 1.5 + pt(13.5) * 1.2 + mm(1.4);
+    const head = pt(10) + mm(5) + pt(34) * 1.12 + pt(12) + mm(4);
+    const foot = pt(11) + mm(8);
+    return (n * rule + (n - 1) * mm(5) * f + head + (hasArt ? mm(55) : 0) + foot) / usable;
+  };
+  let best = 0.6;
+  for (let f = 0.6; f <= 4.0; f += 0.02) if (est(f) <= 0.88) best = f;
+  return best;
+}
+
 function posterDocCSS(ruleCount = 6) {
   const P = POSTER_SIZES.find(x => x.id === _posterSize) || POSTER_SIZES[1];
   // Type scales with how much there is to fit, so the sheet is always about as
@@ -422,7 +453,7 @@ function posterDocCSS(ruleCount = 6) {
   // short compass left a third of the page empty. The relationship is very
   // nearly inverse — measured against the layout, ~8.4/n lands every rule count
   // at roughly 85% of the column, with the rules spreading over the remainder.
-  const fit = Math.max(0.94, Math.min(1.45, 8.0 / Math.max(1, ruleCount))) * (P.tall ? 0.78 : 1);
+  const fit = fitFor(P, ruleCount);
   const mm = n => +(n * P.k).toFixed(2) + 'mm';
   const sm = n => +(n * P.k * fit).toFixed(2) + 'mm';   // spacing that breathes with the type
   const pt = n => +(n * P.k * fit).toFixed(2) + 'pt';
@@ -452,7 +483,9 @@ h1{text-align:center;font-size:${pt(34)};font-weight:normal;letter-spacing:.04em
 }
 
 function posterAvatarForDoc(data, reg) {
-  if (_posterStyle === 'minimal') return '';
+  // 'sky' draws its figure as a backdrop, so it takes no centre motif either —
+  // without this it fell through to the animals and printed the whole cast.
+  if (_posterStyle === 'minimal' || _posterStyle === 'sky') return '';
   if (_posterStyle === 'abstract' || _posterStyle === 'nature') {
     const vec = (typeof ART !== 'undefined' && ART.motifSVG) ? ART.motifSVG(posterMotif(data), posterElement(data)) : '';
     return vec ? `<div class="avatar">${vec}</div>` : '';

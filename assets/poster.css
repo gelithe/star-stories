@@ -48,7 +48,7 @@
    the downloaded file is the print-exact one. */
 .pc-poster {
   --pw: min(94vw, 540px);
-  width: var(--pw); min-height: calc(var(--pw) * 420 / 297);
+  width: var(--pw); min-height: calc(var(--pw) * var(--par, 1.4141));
   background: #faf6ec; color: #2c2416; position: relative;
   padding: 8% 7.5%; display: flex; flex-direction: column; overflow: visible;
   border-radius: 6px; box-shadow: 0 30px 80px -20px rgba(0,0,0,0.6);
