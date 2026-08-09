@@ -17,6 +17,7 @@ const POSTER_STYLES = [
   { id: 'nature',   label: 'Nature',    hint: 'a landscape in the chart’s element' },
   { id: 'animals',  label: 'Animals',   hint: 'the drawn zodiac creatures' },
   { id: 'minimal',  label: 'Words only', hint: 'no picture at all' },
+  { id: 'sky',      label: 'Their sky',  hint: 'their real planets, behind the words' },
 ];
 let _posterStyle = 'abstract';
 
@@ -187,8 +188,11 @@ function addFamilyMember() {
 
 // Build people[] — the child first, then any family member with a name+date,
 // each with their own chart computed through the same engine.
+let _skies = []; // the real positions behind the poster, for the "their sky" style
+
 async function posterPeople() {
   const people = [{ name: state.name.trim() || 'the child', chart: state.chartText }];
+  _skies = state.skyPoints ? [state.skyPoints] : [];
   for (const p of _family) {
     if (!p.name.trim() || !p.date) continue;
     // Their own birthplace. If it hasn't resolved yet, try once now rather than
@@ -199,7 +203,11 @@ async function posterPeople() {
     }
     try {
       const chart = await chartSummaryFor({ name: p.name.trim(), date: p.date, time: p.time, lat: p.lat, lon: p.lon });
-      if (chart) people.push({ name: p.name.trim(), chart });
+      if (chart) {
+        people.push({ name: p.name.trim(), chart });
+        const sky = await skyPointsFor({ date: p.date, time: p.time, lat: p.lat, lon: p.lon });
+        if (sky) _skies.push(sky);
+      }
     } catch { /* skip a member whose sky can't be read rather than fail the poster */ }
   }
   return people;
@@ -306,8 +314,48 @@ function posterMotif(data) {
   return 'abstract';
 }
 
+// ── "their sky": the real chart drawn as a constellation ────────────────────
+// Not a decorative star field — each dot is a body at its true ecliptic
+// longitude, joined in order so a person's chart reads as their own figure.
+// Several people overlay on concentric rings, which is what a family's skies
+// literally look like laid over each other.
+function skyBackdropSVG(skies) {
+  const live = (skies || []).filter(s => s && s.points && s.points.length);
+  if (!live.length) return '';
+  const W = 600, H = 840, cx = W / 2, cy = H / 2;
+  const outer = Math.min(W, H) * 0.42;
+  const ring = live.length > 1 ? outer * 0.30 / live.length : 0;
+  const pt = (lonDeg, r) => {
+    const a = (lonDeg - 90) * Math.PI / 180; // 0° Aries at the left, rising anticlockwise
+    return [cx + Math.cos(a) * r, cy + Math.sin(a) * r];
+  };
+  let out = '';
+  // the ecliptic circle and the twelve sign divisions
+  out += `<circle cx="${cx}" cy="${cy}" r="${outer.toFixed(1)}" fill="none" stroke="#c9a227" stroke-width="1" opacity="0.30"/>`;
+  for (let i = 0; i < 12; i++) {
+    const [x1, y1] = pt(i * 30, outer * 0.955), [x2, y2] = pt(i * 30, outer);
+    out += `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="#c9a227" stroke-width="1" opacity="0.35"/>`;
+  }
+  live.forEach((s, i) => {
+    const r = outer * 0.86 - i * ring;
+    const pts = [...s.points].sort((a, b) => a.lon - b.lon);
+    const xy = pts.map(p => pt(p.lon, r));
+    // join this person's bodies into one closed figure — their constellation
+    out += `<path d="M${xy.map(([x, y]) => `${x.toFixed(1)} ${y.toFixed(1)}`).join(' L')} Z" fill="none" stroke="#2c2416" stroke-width="0.9" opacity="0.22"/>`;
+    xy.forEach(([x, y], k) => {
+      const big = pts[k].big;
+      out += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${big ? 4.2 : 2.4}" fill="${big ? '#c9a227' : '#2c2416'}" opacity="${big ? 0.5 : 0.34}"/>`;
+    });
+    if (s.asc != null) {
+      const [ax, ay] = pt(s.asc, outer);
+      out += `<circle cx="${ax.toFixed(1)}" cy="${ay.toFixed(1)}" r="3" fill="none" stroke="#1a9eae" stroke-width="1.4" opacity="0.5"/>`;
+    }
+  });
+  return `<svg class="pc-sky" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice" aria-hidden="true">${out}</svg>`;
+}
+
 function companionFigure(data, reg) {
-  if (_posterStyle === 'minimal') return '';
+  if (_posterStyle === 'minimal' || _posterStyle === 'sky') return '';
   if (_posterStyle === 'abstract' || _posterStyle === 'nature') {
     const vec = (typeof ART !== 'undefined' && ART.motifSVG) ? ART.motifSVG(posterMotif(data), posterElement(data)) : '';
     return vec ? `<div class="pc-avatar pc-vec">${vec}</div>` : '';
@@ -349,6 +397,7 @@ function rulesHTML(rules) {
 
 function renderPoster(data, reg) {
   return `<div class="pc-poster">
+    ${_posterStyle === 'sky' ? skyBackdropSVG(_skies) : ''}
     <div class="pc-frame"></div>
     ${data.kicker ? `<div class="pc-kicker">${escHtml(data.kicker)}</div>` : ''}
     <h1 class="pc-title">${escHtml(data.title)}</h1>
@@ -397,6 +446,8 @@ h1{text-align:center;font-size:${pt(34)};font-weight:normal;letter-spacing:.04em
 .rule small{display:block;color:#87764f;font-size:${pt(13.5)};font-style:italic;margin-top:${mm(1.4)}}
 .foot{margin-top:auto;text-align:center;color:#8a7860;font-style:italic;font-size:${pt(11)};padding-top:${mm(8)}}
 .foot b{color:#9a7010;font-style:normal;letter-spacing:.05em}
+.pc-sky{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
+.poster>*:not(.pc-sky){position:relative;z-index:1}
 `;
 }
 
@@ -428,6 +479,7 @@ async function downloadPoster() {
   const doc = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
 <title>${escHtml(d.title)} — Star Stories</title><style>${posterDocCSS(d.rules.length)}</style></head>
 <body><div class="poster">
+  ${_posterStyle === 'sky' ? skyBackdropSVG(_skies) : ''}
   <div class="frame"></div>
   ${d.kicker ? `<div class="kicker">${escHtml(d.kicker)}</div>` : ''}
   <h1>${escHtml(d.title)}</h1>

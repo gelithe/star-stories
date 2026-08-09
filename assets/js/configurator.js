@@ -25,7 +25,7 @@ const state = {
   theme: '',
   accessCode: '',           // only used while ACCESS_CODES gates the server
   // filled by computeAndPreview once a chart exists:
-  chartText: '', hasTime: false, hasPlace: false,
+  chartText: '', hasTime: false, hasPlace: false, skyPoints: null,
 };
 
 // ─── DRAFT (localStorage) — OPT-IN, OFF BY DEFAULT ───────────────────────────
@@ -424,6 +424,11 @@ async function computeAndPreview() {
     // Retain a compact chart summary + the element (illustration accent).
     state.element = sky.sunElement || 'Water';
     state.chartText = buildChartSummary(chart, hd, gk, chinese, num, hasTime, hasPlace);
+    // the real positions, for the poster's "their sky" background
+    state.skyPoints = {
+      points: chart.planets.map(p => ({ name: p.name, lon: p.lon, big: p.name === 'Sun' || p.name === 'Moon' })),
+      asc: chart.angles ? chart.angles.asc : null,
+    };
     state.hasTime = hasTime;
     state.hasPlace = hasPlace;
   } catch (e) {
@@ -434,6 +439,21 @@ async function computeAndPreview() {
 // Compute a compact chart summary for ANY person — the same pipeline as
 // computeAndPreview, but it returns the text instead of rendering the preview.
 // Used by the family poster, where each member needs their own chart.
+// The real positions behind a chart, for drawing someone's sky rather than a
+// decorative star field: ecliptic longitude per body, plus the rising degree.
+// Returned separately from the text summary because the poster draws it.
+async function skyPointsFor({ date, time, lat, lon }) {
+  if (!date || typeof Astronomy === 'undefined') return null;
+  const tz = lat != null ? await fetchTimezone(lat, lon) : null;
+  const utc = localToUTC(date, time, tz, lon);
+  const chart = computeChart(utc, lat, lon, !!time && lat != null);
+  const big = new Set(['Sun', 'Moon']);
+  return {
+    points: chart.planets.map(p => ({ name: p.name, lon: p.lon, big: big.has(p.name) })),
+    asc: chart.angles ? chart.angles.asc : null,
+  };
+}
+
 async function chartSummaryFor({ name, fullName, date, time, lat, lon }) {
   if (!date || typeof Astronomy === 'undefined') return null;
   const tz = lat != null ? await fetchTimezone(lat, lon) : null;
