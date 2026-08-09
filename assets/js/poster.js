@@ -20,9 +20,16 @@ const POSTER_STYLES = [
 ];
 let _posterStyle = 'abstract';
 
+// Paper. `k` scales every length and type size off the A3 layout, so each size
+// is the same sheet redrawn rather than a different design. `tall` formats are
+// narrower than A-series and take the type down a touch more so lines still
+// break well in a slim column.
 const POSTER_SIZES = [
-  { id: 'A3', label: 'A3', hint: '297×420 — a print shop' },
-  { id: 'A4', label: 'A4', hint: '210×297 — prints at home' },
+  { id: 'A4',    label: 'A4',      hint: '210×297 — prints at home',  w: 210, h: 297, k: 210 / 297 },
+  { id: 'A3',    label: 'A3',      hint: '297×420 — a print shop',    w: 297, h: 420, k: 1 },
+  { id: 'A2',    label: 'A2',      hint: '420×594 — a big wall',      w: 420, h: 594, k: 420 / 297 },
+  { id: '50x70', label: '50×70',   hint: 'the standard frame size',   w: 500, h: 700, k: 500 / 297 },
+  { id: 'tall',  label: 'Tall',    hint: '40×120 — a long vertical',  w: 400, h: 1200, k: 400 / 297, tall: true },
 ];
 
 function renderPosterSizes() {
@@ -37,6 +44,7 @@ function renderPosterSizes() {
     btn.addEventListener('click', () => {
       _posterSize = btn.dataset.psize;
       wrap.querySelectorAll('.ss-chip').forEach(c => c.classList.toggle('is-on', c.dataset.psize === _posterSize));
+      updatePosterSummary();
     }));
 }
 
@@ -52,6 +60,7 @@ function renderPosterStyles() {
     btn.addEventListener('click', () => {
       _posterStyle = btn.dataset.pstyle;
       wrap.querySelectorAll('.ss-chip').forEach(c => c.classList.toggle('is-on', c.dataset.pstyle === _posterStyle));
+      updatePosterSummary();
       // restyle in place if a poster is already on screen
       if (_posterData) loadCompanions().then(reg => {
         const body = document.getElementById('ssPosterBody');
@@ -108,10 +117,11 @@ function renderFamilyRows() {
       const f = e.target.dataset.f;
       _family[i][f] = e.target.value;
       if (f === 'place') resolveFamilyPlace(i);
+      updatePosterSummary();
     });
   });
   wrap.querySelectorAll('[data-del]').forEach(b => {
-    b.addEventListener('click', () => { _family.splice(+b.dataset.del, 1); renderFamilyRows(); });
+    b.addEventListener('click', () => { _family.splice(+b.dataset.del, 1); renderFamilyRows(); updatePosterSummary(); });
   });
 }
 
@@ -148,10 +158,31 @@ function paintGeoStatus(i) {
   row.appendChild(span);
 }
 
+// A short read-out beside the button, so the compass view has the same "here is
+// what you'll get" as the book's summary card.
+function updatePosterSummary() {
+  const el = document.getElementById('ssPosterSummary');
+  if (!el) return;
+  const named = _family.filter(p => p.name.trim() && p.date).map(p => p.name.trim());
+  const who = [state.name.trim() || '—', ...named];
+  const n = who.length;
+  const perPerson = n > 1 ? (n <= 4 ? 2 : 1) : 6;
+  const shared = n > 1 ? (n <= 4 ? 2 : 3) : 0;
+  const count = n > 1 ? n * perPerson + shared : 6;
+  const size = POSTER_SIZES.find(s => s.id === _posterSize) || POSTER_SIZES[1];
+  const style = POSTER_STYLES.find(s => s.id === _posterStyle) || POSTER_STYLES[0];
+  el.innerHTML = `
+    <div><span>For</span><strong>${escHtml(who.join(', '))}</strong></div>
+    <div><span>Rules</span><strong>${count}${n > 1 ? ` — ${perPerson} each, ${shared} shared` : ''}</strong></div>
+    <div><span>Paper</span><strong>${escHtml(size.label)}</strong></div>
+    <div><span>Style</span><strong>${escHtml(style.label)}</strong></div>`;
+}
+
 function addFamilyMember() {
   if (_family.length >= 5) return; // the server caps at 6 people including the child
   _family.push({ name: '', date: '', time: '', place: '', lat: null, lon: null, geo: '' });
   renderFamilyRows();
+  updatePosterSummary();
 }
 
 // Build people[] — the child first, then any family member with a name+date,
@@ -334,16 +365,15 @@ function renderPoster(data, reg) {
 // home. A4 is exactly A3 scaled by 1/√2, so every length is multiplied by k and
 // the sheet is identical, just smaller.
 let _posterSize = 'A3';
-const PAPER = { A3: { w: 297, h: 420, k: 1 }, A4: { w: 210, h: 297, k: 210 / 297 } };
 
 function posterDocCSS(ruleCount = 6) {
-  const P = PAPER[_posterSize] || PAPER.A3;
+  const P = POSTER_SIZES.find(x => x.id === _posterSize) || POSTER_SIZES[1];
   // Type scales with how much there is to fit, so the sheet is always about as
   // full as a poster should be. Previously it was set for the worst case and a
   // short compass left a third of the page empty. The relationship is very
   // nearly inverse — measured against the layout, ~8.4/n lands every rule count
   // at roughly 85% of the column, with the rules spreading over the remainder.
-  const fit = Math.max(0.94, Math.min(1.45, 8.0 / Math.max(1, ruleCount)));
+  const fit = Math.max(0.94, Math.min(1.45, 8.0 / Math.max(1, ruleCount))) * (P.tall ? 0.78 : 1);
   const mm = n => +(n * P.k).toFixed(2) + 'mm';
   const sm = n => +(n * P.k * fit).toFixed(2) + 'mm';   // spacing that breathes with the type
   const pt = n => +(n * P.k * fit).toFixed(2) + 'pt';
@@ -442,6 +472,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   renderPosterStyles();
   renderPosterSizes();
+  updatePosterSummary();
+  // the child's name/date live in the shared form, so refresh on any edit there
+  document.addEventListener('input', updatePosterSummary, true);
   bind('#pbClose', 'click', closePoster);
   bind('#pbRetry', 'click', openPoster);
   bind('#pbDownload', 'click', downloadPoster);
