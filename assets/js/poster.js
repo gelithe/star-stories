@@ -172,14 +172,14 @@ function updatePosterSummary() {
   const who = [state.name.trim() || '—', ...named];
   const n = who.length;
   // mirrors /api/poster: seven for one, otherwise one each plus a few shared
-  const perPerson = n > 1 ? 1 : 7;
+  const perPerson = n === 1 ? 7 : (n === 2 ? 2 : 1);
   const shared = n > 1 ? (n <= 5 ? 3 : 2) : 0;
   const count = n > 1 ? n * perPerson + shared : 7;
   const size = POSTER_SIZES.find(s => s.id === _posterSize) || POSTER_SIZES[1];
   const style = POSTER_STYLES.find(s => s.id === _posterStyle) || POSTER_STYLES[0];
   el.innerHTML = `
     <div><span>For</span><strong>${escHtml(who.join(', '))}</strong></div>
-    <div><span>Rules</span><strong>${count}${n > 1 ? ` — one each, ${shared} shared` : ''}</strong></div>
+    <div><span>Rules</span><strong>${count}${n > 1 ? ` — ${perPerson} each, ${shared} shared` : ''}</strong></div>
     <div><span>Paper</span><strong>${escHtml(size.label)}</strong></div>
     <div><span>Style</span><strong>${escHtml(style.label)}</strong></div>`;
 }
@@ -193,10 +193,12 @@ function addFamilyMember() {
 
 // Build people[] — the child first, then any family member with a name+date,
 // each with their own chart computed through the same engine.
-let _skies = []; // the real positions behind the poster, for the "their sky" style
+let _skies = [];   // the real positions behind the poster, for the "their sky" style
+let _people = []; // name + chart text per person, for the companion sheet
 
 async function posterPeople() {
   const people = [{ name: state.name.trim() || 'the child', chart: state.chartText }];
+  _people = people;
   _skies = state.skyPoints ? [state.skyPoints] : [];
   for (const p of _family) {
     if (!p.name.trim() || !p.date) continue;
@@ -255,6 +257,8 @@ async function openPoster() {
   errBox.classList.remove('is-on'); errBox.textContent = '';
   bodyEl.innerHTML = '';
   if (dl) dl.style.display = 'none';
+  const bh0 = document.getElementById('pbBehind');
+  if (bh0) bh0.style.display = 'none';
   status.textContent = 'reading the sky…';
 
   try {
@@ -281,6 +285,8 @@ async function openPoster() {
     wireCompanionFallback(data);
     status.textContent = 'ready to print';
     if (dl) dl.style.display = '';
+    const bh = document.getElementById('pbBehind');
+    if (bh) bh.style.display = data.behind ? '' : 'none';
   } catch (e) {
     showPosterError('Network error while writing the poster — please retry.');
   }
@@ -506,6 +512,74 @@ function posterAvatarForDoc(data, reg) {
   return vec ? `<div class="avatar">${vec}</div>` : '';
 }
 
+
+// ── the sheet behind it ─────────────────────────────────────────────────────
+// A separate A4 page for the grown reader: what in the real chart each rule
+// came from, plus the computed placements. It belongs to the poster, not to the
+// book — someone may own only this sheet and the wall piece.
+const BEHIND_DOC_CSS = `
+@page{size:210mm 297mm;margin:0}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#4a4a5e;font-family:Georgia,'Times New Roman',serif}
+.sheet{width:210mm;min-height:297mm;margin:0 auto;background:#faf6ec;color:#2c2416;padding:22mm 20mm 18mm;position:relative}
+.kicker{text-align:center;letter-spacing:.3em;text-transform:uppercase;font-size:8pt;color:#9a7010;margin-bottom:5mm}
+h1{text-align:center;font-size:20pt;font-weight:normal;letter-spacing:.03em;line-height:1.2}
+.lede{text-align:center;font-size:10pt;color:#8a7860;font-style:italic;margin:4mm auto 9mm;max-width:135mm;line-height:1.5}
+.person{margin-bottom:7mm;padding-bottom:6mm;border-bottom:.4pt solid #e2d8bd}
+.person:last-of-type{border-bottom:none}
+.person h2{font-size:12pt;color:#9a7010;font-weight:normal;letter-spacing:.05em;margin-bottom:2.5mm}
+.person p{font-size:10pt;line-height:1.62;color:#3a3020}
+.chart{font-family:'Courier New',monospace;font-size:7.5pt;line-height:1.75;white-space:pre-wrap;
+  background:#f4eeda;border:.4pt solid #e0d5bb;padding:3.5mm;margin-top:3mm;color:#5a4a30}
+.shared{margin-top:2mm;padding:5mm 6mm;background:#f4eeda;border-left:2pt solid #c9a227}
+.shared h2{font-size:11pt;color:#9a7010;font-weight:normal;letter-spacing:.05em;margin-bottom:2.5mm}
+.shared p{font-size:10pt;line-height:1.62;color:#3a3020}
+.foot{margin-top:9mm;text-align:center;color:#8a7860;font-style:italic;font-size:9.5pt}
+.foot b{color:#9a7010;font-style:normal;letter-spacing:.05em}
+`;
+
+// The placements are technical, so print only the lines a reader can use and
+// never the Gene Keys shadow words, which are diagnostic language.
+function chartBlock(text) {
+  return String(text || '').split('\n')
+    .filter(l => l.trim() && !/NEVER print|Shadows \(/i.test(l))
+    .join('\n').trim();
+}
+
+function behindDoc(d) {
+  const b = d.behind;
+  if (!b) return '';
+  const byName = new Map(_people.map(p => [p.name, p.chart]));
+  const people = (b.people || []).map(x => `
+  <div class="person">
+    <h2>${escHtml(x.name)}</h2>
+    <p>${escHtml(x.note)}</p>
+    ${byName.get(x.name) ? `<div class="chart">${escHtml(chartBlock(byName.get(x.name)))}</div>` : ''}
+  </div>`).join('');
+  const title = b.title || d.title || 'The sky behind these rules';
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
+<title>${escHtml(title)} — Star Stories</title><style>${BEHIND_DOC_CSS}</style></head>
+<body><div class="sheet">
+  ${d.kicker ? `<div class="kicker">${escHtml(d.kicker)}</div>` : ''}
+  <h1>${escHtml(title)}</h1>
+  ${d.subtitle ? `<div class="lede">${escHtml(d.subtitle)}</div>` : ''}
+  ${people}
+  ${b.shared ? `<div class="shared"><h2>${escHtml(d.family ? 'Together' : 'All of it together')}</h2><p>${escHtml(b.shared)}</p></div>` : ''}
+  <div class="foot"><b>${escHtml(d.mirror || 'A story is a mirror — not a map of the future.')}</b><br>Star Stories</div>
+</div></body></html>`;
+}
+
+async function downloadBehind() {
+  if (!_posterData || !_posterData.behind) return;
+  const doc = behindDoc(_posterData);
+  const blob = new Blob([doc], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `${slug(state.name || 'compass')}-the-sky-behind.html`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 4000);
+}
+
 async function downloadPoster() {
   if (!_posterData) return;
   const reg = await loadCompanions();
@@ -564,6 +638,7 @@ document.addEventListener('DOMContentLoaded', () => {
   bind('#pbClose', 'click', closePoster);
   bind('#pbRetry', 'click', openPoster);
   bind('#pbDownload', 'click', downloadPoster);
+  bind('#pbBehind', 'click', downloadBehind);
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape' && document.getElementById('ssPoster').classList.contains('is-open')) closePoster();
   });

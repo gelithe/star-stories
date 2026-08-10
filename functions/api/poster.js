@@ -67,7 +67,9 @@ export async function onRequestPost({ request, env }) {
   // keeps in their head runs to about seven. So: seven for one person, and for
   // a household exactly one rule each plus a few shared — a count that explains
   // itself ("one for each of us, and three we share") and never passes eight.
-  const perPerson = family ? 1 : 7;
+  // A pair can carry two each and still sit at seven; from three people up it
+  // is one each, or the sheet stops being memorable.
+  const perPerson = !family ? 7 : (people.length === 2 ? 2 : 1);
   const shared = family ? (people.length <= 5 ? 3 : 2) : 0;
   const count = family ? people.length * perPerson + shared : 7;
 
@@ -77,7 +79,8 @@ export async function onRequestPost({ request, env }) {
     .map(p => { const c = companionFrom(p.chart); return c ? { person: p.name, ...c } : null; })
     .filter(Boolean);
 
-  const system = buildPosterPrompt({ family, people, lead, others, count, perPerson, shared, comps });
+  const group = people.length === 1 ? 'one person' : people.length === 2 ? 'a pair' : 'a household';
+  const system = buildPosterPrompt({ family, people, lead, others, count, perPerson, shared, comps, group });
   const user = buildPosterUser({
     family, people, comps, lead,
     place: body.birth && body.birth.place,
@@ -157,6 +160,16 @@ export async function onRequestPost({ request, env }) {
     companion: family ? null : (comps[0] || null),
     companions: comps,
     family,
+    group,
+    // the companion page — same call, so it costs nothing extra
+    behind: parsed.behind && typeof parsed.behind === 'object' ? {
+      title: String(parsed.behind.title || '').slice(0, 140),
+      people: Array.isArray(parsed.behind.people) ? parsed.behind.people.slice(0, 6).map(x => ({
+        name: String((x && x.name) || '').slice(0, 60),
+        note: String((x && (x.note || x.text)) || '').slice(0, 1200),
+      })).filter(x => x.note) : [],
+      shared: String(parsed.behind.shared || '').slice(0, 1600),
+    } : null,
   });
 }
 
@@ -177,7 +190,7 @@ function isEvenSplit(counts, people, perPerson) {
   return people.every(p => (counts.get(p.name) || 0) === perPerson);
 }
 
-function buildPosterPrompt({ family, lead, others, count, perPerson, shared }) {
+function buildPosterPrompt({ family, lead, others, count, perPerson, shared, group, people }) {
   const o = [];
   o.push(`You are the author of "Star Stories". You turn a child's REAL birth chart (natal astrology + Human Design + Gene Keys + Chinese zodiac + numerology) into a small printable poster called a "little compass" — a handful of gentle life-truths the child can keep on the wall.`);
   o.push(`\nTHE ETHICAL LINE (non-negotiable): a story is a MIRROR, never a prediction of destiny. Each truth reflects who the child ALREADY is — never who they must become. No career, no relationship, no "you will be". No astrology jargon in the rule text itself. Practical test for every line: would it make the child feel TRAPPED by who they are, or SEEN in who they are? Keep only "seen".`);
@@ -206,9 +219,15 @@ This poster belongs to the whole household — do NOT make it one person's. No s
   } else {
     o.push(`\nThis is one child's compass: exactly ${count} rules.`);
   }
+  o.push(`\nTHE SHEET BEHIND IT — besides the poster, write a short companion page for the grown reader: what in the real chart each rule came from. This is the one place the astrology may be named openly, the way a book's parents' page does.
+- For EACH person: two to four sentences, in plain language, naming the actual placements (sign, house, Human Design, the Chinese sign, a Gene Keys gift) and saying which of their rules follows from what. Honest, warm, never flattering, never predictive.
+- Then a short paragraph on what these ${group === 'one person' ? 'chart' : 'charts'} have in common and where the shared rules come from${group === 'one person' ? ' — for one person, what the seven rules together add up to' : ''}.
+- Still the ethic: a mirror, never a map. Name the shadow honestly but never with a Gene Keys shadow word, and never as a label for who they are.
+- Write it in ${lead}.`);
+
   o.push(`\nLANGUAGE: write the title, subtitle and rules in ${lead}${others.length ? `, and you may let a phrase or two land in ${others.join(' or ')} where it feels natural` : ''}. Names are never translated.`);
   o.push(`\nReturn STRICT JSON ONLY — no markdown, no prose around it — in exactly this shape:
-{"title":${family ? '"a short warm title for the whole household — never one person\'s name alone"' : '"a short warm title (may use the child\'s name)"'},"subtitle":"one short line saying the arrangement, e.g. one for each of us and some shared","kicker":${family ? '"from the skies of · PLACE — no single birthday"' : '"from the sky of · DATE · PLACE"'},"rules":[{"text":"the rule","source":"the quiet chart tag"}],"mirror":"A story is a mirror — not a map of the future."}`);
+{"title":${family ? '"a short warm title for the whole household — never one person\'s name alone"' : '"a short warm title (may use the child\'s name)"'},"subtitle":"one short line saying the arrangement, e.g. one for each of us and some shared","kicker":${family ? '"from the skies of · PLACE — no single birthday"' : '"from the sky of · DATE · PLACE"'},"rules":[{"text":"the rule","source":"the quiet chart tag"}],"mirror":"A story is a mirror — not a map of the future.","behind":{"title":"a title for the companion page","people":[{"name":"…","note":"2-4 sentences naming their real placements and which rule follows"}],"shared":"a paragraph on what these charts share and where the shared rules come from"}}`);
   return o.join('\n');
 }
 
