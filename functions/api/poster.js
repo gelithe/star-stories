@@ -154,7 +154,7 @@ export async function onRequestPost({ request, env }) {
       text: String(r.text || r.rule || '').slice(0, 240),
       source: String(r.source || r.for || '').slice(0, 160), // a family tag can list five signs
     })).filter(r => r.text),
-    mirror: String(parsed.mirror || 'A story is a mirror — not a map of the future.').slice(0, 160),
+    mirror: String(parsed.mirror || '').slice(0, 160), // language-correct one comes from the model
     // Solo posters show one companion; a family poster shows everyone's, so no
     // single person's animal stands in for the whole household.
     companion: family ? null : (comps[0] || null),
@@ -210,7 +210,7 @@ Every line must contain something the child could actually DO. If a line only te
 - Draw each rule from a DIFFERENT part of the chart — Sun, Moon, rising, Human Design, the Chinese sign, a number — and give every rule a source tag.
 - Nothing generic: if you could give the same rule to a different child, it does not belong on this poster.
 - Say what TO do, not what to avoid. Kind, encouraging, never a warning or a verdict.
-- THIS IS A SET TO BE KNOWN BY HEART, not a list to consult — that is why there are so few. Each rule must be short and distinct enough to remember without reading: no two rules covering the same ground, nothing that needs the poster in front of you to recall.
+- THIS IS A SET TO BE KNOWN BY HEART, not a list to consult — that is why there are so few. Each rule must be short and distinct enough to remember without reading: no two rules covering the same ground, nothing that needs the poster in front of you to recall. In particular, never make a rule out of a LIST — "call the Wood Rat, the Water Dog, the Earth Pig, the Metal Ox and the Wood Dragon to the table" is five things to remember and therefore none. One image, one action, per rule.
 - THE POSTER MUST STAND ALONE. Many people will own only this sheet and no book, so it may never lean on anything from the stories — no character names, no invented creatures, nothing a stranger would not understand. When a rule uses someone's Chinese sign, name it plainly as element + animal ("your Wood Rat", "the Metal Ox in you"), exactly as given below. And such a rule still has to be doable and mean something on its face: "name them when you go far" sounds lovely and says nothing.`);
   if (family) {
     o.push(`\nThis is a FAMILY compass, and it must be EVEN-HANDED — a child counts the lines that belong to them. Give EXACTLY ${perPerson} rule${perPerson > 1 ? 's' : ''} to EACH person, no one more and no one fewer, then EXACTLY ${shared} shared rules for the whole family at the end. ${count} rules in total. The SUBTITLE must say the arrangement rather than only the total — "one rule for each of us, and ${shared} we share" in the poster's language — because that is what makes the number mean something instead of looking arbitrary.
@@ -227,7 +227,7 @@ This poster belongs to the whole household — do NOT make it one person's. No s
 
   o.push(`\nLANGUAGE: write the title, subtitle and rules in ${lead}${others.length ? `, and you may let a phrase or two land in ${others.join(' or ')} where it feels natural` : ''}. Names are never translated.`);
   o.push(`\nReturn STRICT JSON ONLY — no markdown, no prose around it — in exactly this shape:
-{"title":${family ? '"a short warm title for the whole household — never one person\'s name alone"' : '"a short warm title (may use the child\'s name)"'},"subtitle":"one short line saying the arrangement, e.g. one for each of us and some shared","kicker":${family ? '"from the skies of · PLACE — no single birthday"' : '"from the sky of · DATE · PLACE"'},"rules":[{"text":"the rule","source":"the quiet chart tag"}],"mirror":"A story is a mirror — not a map of the future.","behind":{"title":"a title for the companion page","people":[{"name":"…","note":"2-4 sentences naming their real placements and which rule follows"}],"shared":"a paragraph on what these charts share and where the shared rules come from"}}`);
+{"title":${family ? '"a short warm title for the whole household — never one person\'s name alone"' : '"a short warm title (may use the child\'s name)"'},"subtitle":"one short line saying the arrangement, e.g. one for each of us and some shared","kicker":${family ? '"from the skies of · PLACE — no single birthday"' : '"from the sky of · DATE · PLACE"'},"rules":[{"text":"the rule","source":"the quiet chart tag"}],"mirror":"the closing line — A story is a mirror, not a map of the future — WRITTEN IN ${lead}, not left in English","behind":{"title":"a title for the companion page","people":[{"name":"…","note":"2-4 sentences naming their real placements and which rule follows"}],"shared":"a paragraph on what these charts share and where the shared rules come from"}}`);
   return o.join('\n');
 }
 

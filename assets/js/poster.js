@@ -418,7 +418,7 @@ function renderPoster(data, reg) {
     ${data.subtitle ? `<div class="pc-sub">${escHtml(data.subtitle)}</div>` : ''}
     ${companionFigure(data, reg)}
     <div class="pc-rules">${rulesHTML(data.rules)}</div>
-    <div class="pc-foot"><b>${escHtml(data.mirror)}</b><br>Star Stories</div>
+    <div class="pc-foot">${data.mirror ? `<b>${escHtml(data.mirror)}</b><br>` : ''}Star Stories</div>
   </div>`;
 }
 
@@ -464,6 +464,9 @@ function posterDocCSS(ruleCount = 6) {
   const mm = n => +(n * P.k).toFixed(2) + 'mm';
   const sm = n => +(n * P.k * fit).toFixed(2) + 'mm';   // spacing that breathes with the type
   const pt = n => +(n * P.k * fit).toFixed(2) + 'pt';
+  // labels (kicker, footer) are not headlines — let them grow with the sheet
+  // but not with the rule type, or a tall poster shouts its own small print
+  const cap = n => +(n * P.k * Math.min(fit, 1.15)).toFixed(2) + 'pt';
   return `
 @page{size:${P.w}mm ${P.h}mm;margin:0}
 *{margin:0;padding:0;box-sizing:border-box}
@@ -471,7 +474,7 @@ body{background:#4a4a5e;font-family:Georgia,'Times New Roman',serif}
 .poster{width:${P.w}mm;height:${P.h}mm;margin:0 auto;background:#faf6ec;color:#2c2416;position:relative;padding:${mm(30)} ${mm(26)};display:flex;flex-direction:column;overflow:hidden}
 .frame{position:absolute;inset:${mm(14)};border:1.5px solid #c9a227;border-radius:${mm(4)};pointer-events:none}
 .frame:before{content:"";position:absolute;inset:${mm(3)};border:.6px solid #d9c98f;border-radius:${mm(3)}}
-.kicker{text-align:center;letter-spacing:.32em;text-transform:uppercase;font-size:${pt(10)};color:#9a7010;margin-bottom:${mm(5)}}
+.kicker{text-align:center;letter-spacing:.24em;text-transform:uppercase;font-size:${cap(10)};color:#9a7010;margin-bottom:${mm(5)}}
 h1{text-align:center;font-size:${pt(34)};font-weight:normal;letter-spacing:.04em;color:#2c2416;line-height:1.12}
 .sub{text-align:center;font-size:${pt(12)};color:#8a7860;margin-top:${mm(4)};font-style:italic}
 .avatar{display:block;width:${mm(44)};height:auto;margin:${mm(7)} auto ${mm(4)};filter:drop-shadow(0 8px 18px rgba(44,36,22,.25))}
@@ -482,7 +485,7 @@ h1{text-align:center;font-size:${pt(34)};font-weight:normal;letter-spacing:.04em
 .rule .star{flex:0 0 auto;color:#c9a227;font-size:${pt(16)};line-height:1.4}
 .rule p{font-size:${pt(15)};line-height:1.5;color:#3a3020}
 .rule small{display:block;color:#87764f;font-size:${pt(10.5)};font-style:italic;margin-top:${mm(1.4)}}
-.foot{margin-top:auto;text-align:center;color:#8a7860;font-style:italic;font-size:${pt(11)};padding-top:${mm(8)}}
+.foot{margin-top:auto;text-align:center;color:#8a7860;font-style:italic;font-size:${cap(11)};padding-top:${mm(8)}}
 .foot b{color:#9a7010;font-style:normal;letter-spacing:.05em}
 .pc-sky{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
 .poster>*:not(.pc-sky){position:relative;z-index:1}
@@ -534,21 +537,73 @@ h1{text-align:center;font-size:20pt;font-weight:normal;letter-spacing:.03em;line
 .shared{margin-top:2mm;padding:5mm 6mm;background:#f4eeda;border-left:2pt solid #c9a227}
 .shared h2{font-size:11pt;color:#9a7010;font-weight:normal;letter-spacing:.05em;margin-bottom:2.5mm}
 .shared p{font-size:10pt;line-height:1.62;color:#3a3020}
+.key{margin-top:3mm;padding:4.5mm 5.5mm;border:.4pt solid #e0d5bb;background:#fdfaf1}
+.key h2{font-size:10pt;color:#9a7010;font-weight:normal;letter-spacing:.05em;margin-bottom:2.5mm}
+.key p{font-size:8.5pt;line-height:1.55;color:#5a4a30;margin-bottom:1mm}
+.key b{color:#3a3020}
+.person,.key,.shared{break-inside:avoid;page-break-inside:avoid}
 .foot{margin-top:9mm;text-align:center;color:#8a7860;font-style:italic;font-size:9.5pt}
 .foot b{color:#9a7010;font-style:normal;letter-spacing:.05em}
 `;
 
-// The placements are technical, so print only the lines a reader can use and
-// never the Gene Keys shadow words, which are diagnostic language.
+// The chart summary is written for the model, not for a reader: it carries
+// diagnostic shadow words, internal pointers and notes addressed to whoever
+// filled the form. Strip all of that before it reaches a printed page.
 function chartBlock(text) {
   return String(text || '').split('\n')
     .filter(l => l.trim() && !/NEVER print|Shadows \(/i.test(l))
+    .map(l => l
+      .replace(/\s*←[^\n]*/g, '')                              // "← recurring companion/talisman"
+      .replace(/\s*\(Life Path from birth date only[^)]*\)/gi, '') // a note to the form-filler
+      .replace(/\s*\(printable\)/gi, '')                        // internal labelling
+      .trimEnd())
     .join('\n').trim();
+}
+
+// What the notation means. The placements are worth printing — they are the
+// evidence behind each rule — but a page of "H7", "5/1" and "LW 55.5" with no
+// key is a wall of code. This is the missing explanation.
+const NOTATION_KEY = {
+  English:    [['H1–H12', 'the twelve houses — which area of life a planet sits in'],
+               ['ASC / MC', 'the rising sign (how they meet the world) and the midheaven'],
+               ['Human Design', 'type · inner authority · profile (e.g. 4/6 — learns by trying, then teaches)'],
+               ['Gene Keys', "LW Life's Work · Ev Evolution · Ra Radiance · Pu Purpose, each shown as gate.line"],
+               ['Gifts', 'the name for what each of those four is at its best'],
+               ['Life Path', 'a number from the birth date; 11, 22 and 33 are the master numbers']],
+  Italian:    [['H1–H12', 'le dodici case — in quale area di vita si trova un pianeta'],
+               ['ASC / MC', "l'Ascendente (come si presenta al mondo) e il Medio Cielo"],
+               ['Human Design', 'tipo · autorità interiore · profilo (es. 4/6 — impara provando, poi insegna)'],
+               ['Gene Keys', 'LW Lavoro di Vita · Ev Evoluzione · Ra Irradiazione · Pu Scopo, indicati come porta.linea'],
+               ['Doni', 'il nome di ciascuno di quei quattro nella sua forma migliore'],
+               ['Life Path', 'un numero dalla data di nascita; 11, 22 e 33 sono i numeri maestri']],
+  Lithuanian: [['H1–H12', 'dvylika namų — kurioje gyvenimo srityje yra planeta'],
+               ['ASC / MC', 'Ascendentas (kaip sutinka pasaulį) ir dangaus vidurys'],
+               ['Human Design', 'tipas · vidinis autoritetas · profilis (pvz. 4/6 — mokosi bandydamas, paskui moko)'],
+               ['Gene Keys', 'LW Gyvenimo darbas · Ev Evoliucija · Ra Spindesys · Pu Paskirtis, žymima vartai.linija'],
+               ['Dovanos', 'kiekvieno iš tų keturių vardas geriausiu pavidalu'],
+               ['Life Path', 'skaičius iš gimimo datos; 11, 22 ir 33 — meistrų skaičiai']],
+  German:     [['H1–H12', 'die zwölf Häuser — in welchem Lebensbereich ein Planet steht'],
+               ['ASC / MC', 'der Aszendent (wie sie der Welt begegnen) und der Medium Coeli'],
+               ['Human Design', 'Typ · innere Autorität · Profil (z. B. 4/6 — lernt durch Versuchen, dann lehrt es)'],
+               ['Gene Keys', 'LW Lebenswerk · Ev Evolution · Ra Ausstrahlung · Pu Bestimmung, als Tor.Linie'],
+               ['Gaben', 'der Name für jede dieser vier in ihrer besten Form'],
+               ['Life Path', 'eine Zahl aus dem Geburtsdatum; 11, 22 und 33 sind die Meisterzahlen']],
+};
+
+function posterLangName() {
+  const NAMES = { LT: 'Lithuanian', IT: 'Italian', DE: 'German', EN: 'English' };
+  return NAMES[(state.bookLangs && state.bookLangs[0]) || 'EN'] || 'English';
 }
 
 function behindDoc(d) {
   const b = d.behind;
   if (!b) return '';
+  const key = NOTATION_KEY[posterLangName()] || NOTATION_KEY.English;
+  const keyHTML = `<div class="key"><h2>${escHtml({
+    Italian: 'Come leggere i dati', Lithuanian: 'Kaip skaityti duomenis',
+    German: 'Wie die Angaben zu lesen sind', English: 'How to read the figures',
+  }[posterLangName()] || 'How to read the figures')}</h2>` +
+    key.map(([t, d2]) => `<p><b>${escHtml(t)}</b> — ${escHtml(d2)}</p>`).join('') + '</div>';
   const byName = new Map(_people.map(p => [p.name, p.chart]));
   const people = (b.people || []).map(x => `
   <div class="person">
@@ -564,8 +619,9 @@ function behindDoc(d) {
   <h1>${escHtml(title)}</h1>
   ${d.subtitle ? `<div class="lede">${escHtml(d.subtitle)}</div>` : ''}
   ${people}
+  ${keyHTML}
   ${b.shared ? `<div class="shared"><h2>${escHtml(d.family ? 'Together' : 'All of it together')}</h2><p>${escHtml(b.shared)}</p></div>` : ''}
-  <div class="foot"><b>${escHtml(d.mirror || 'A story is a mirror — not a map of the future.')}</b><br>Star Stories</div>
+  <div class="foot">${d.mirror ? `<b>${escHtml(d.mirror)}</b><br>` : ''}Star Stories</div>
 </div></body></html>`;
 }
 
@@ -594,7 +650,7 @@ async function downloadPoster() {
   ${d.subtitle ? `<div class="sub">${escHtml(d.subtitle)}</div>` : ''}
   ${posterAvatarForDoc(d, reg)}
   <div class="rules">${d.rules.map(r => `<div class="rule"><span class="star">✦</span><p>${escHtml(r.text)}${r.source ? `<small>${escHtml(r.source)}</small>` : ''}</p></div>`).join('')}</div>
-  <div class="foot"><b>${escHtml(d.mirror)}</b><br>Star Stories</div>
+  ${d.mirror ? `<div class="foot"><b>${escHtml(d.mirror)}</b><br>Star Stories</div>` : '<div class="foot">Star Stories</div>'}
 </div></body></html>`;
 
   const blob = new Blob([doc], { type: 'text/html' });
