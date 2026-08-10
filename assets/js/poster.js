@@ -171,14 +171,15 @@ function updatePosterSummary() {
   const named = _family.filter(p => p.name.trim() && p.date).map(p => p.name.trim());
   const who = [state.name.trim() || '—', ...named];
   const n = who.length;
-  const perPerson = n > 1 ? (n <= 4 ? 2 : 1) : 6;
-  const shared = n > 1 ? (n <= 4 ? 2 : 3) : 0;
-  const count = n > 1 ? n * perPerson + shared : 6;
+  // mirrors /api/poster: seven for one, otherwise one each plus a few shared
+  const perPerson = n > 1 ? 1 : 7;
+  const shared = n > 1 ? (n <= 5 ? 3 : 2) : 0;
+  const count = n > 1 ? n * perPerson + shared : 7;
   const size = POSTER_SIZES.find(s => s.id === _posterSize) || POSTER_SIZES[1];
   const style = POSTER_STYLES.find(s => s.id === _posterStyle) || POSTER_STYLES[0];
   el.innerHTML = `
     <div><span>For</span><strong>${escHtml(who.join(', '))}</strong></div>
-    <div><span>Rules</span><strong>${count}${n > 1 ? ` — ${perPerson} each, ${shared} shared` : ''}</strong></div>
+    <div><span>Rules</span><strong>${count}${n > 1 ? ` — one each, ${shared} shared` : ''}</strong></div>
     <div><span>Paper</span><strong>${escHtml(size.label)}</strong></div>
     <div><span>Style</span><strong>${escHtml(style.label)}</strong></div>`;
 }

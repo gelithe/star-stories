@@ -63,13 +63,13 @@ export async function onRequestPost({ request, env }) {
     .filter(c => LANG_NAMES[c]);
   const lead = LANG_NAMES[langs[0]] || 'English';
   const others = langs.slice(1).map(c => LANG_NAMES[c]);
-  // Everyone gets the SAME number of rules — an "at least one each" instruction
-  // over a rounded total left one person with two and everyone else with one.
-  // Small families can carry two each; from five people it is one each plus a
-  // third shared line, so the sheet stays a readable length.
-  const perPerson = family ? (people.length <= 4 ? 2 : 1) : 6;
-  const shared = family ? (people.length <= 4 ? 2 : 3) : 0;
-  const count = family ? people.length * perPerson + shared : 6;
+  // A poster's job is to be KNOWN, not consulted, and a set someone actually
+  // keeps in their head runs to about seven. So: seven for one person, and for
+  // a household exactly one rule each plus a few shared — a count that explains
+  // itself ("one for each of us, and three we share") and never passes eight.
+  const perPerson = family ? 1 : 7;
+  const shared = family ? (people.length <= 5 ? 3 : 2) : 0;
+  const count = family ? people.length * perPerson + shared : 7;
 
   // Each person's Chinese sign. Without this the model only sees
   // "Chinese: Metal Ox" in the chart text and writes generic animals.
@@ -197,9 +197,10 @@ Every line must contain something the child could actually DO. If a line only te
 - Draw each rule from a DIFFERENT part of the chart — Sun, Moon, rising, Human Design, the Chinese sign, a number — and give every rule a source tag.
 - Nothing generic: if you could give the same rule to a different child, it does not belong on this poster.
 - Say what TO do, not what to avoid. Kind, encouraging, never a warning or a verdict.
+- THIS IS A SET TO BE KNOWN BY HEART, not a list to consult — that is why there are so few. Each rule must be short and distinct enough to remember without reading: no two rules covering the same ground, nothing that needs the poster in front of you to recall.
 - THE POSTER MUST STAND ALONE. Many people will own only this sheet and no book, so it may never lean on anything from the stories — no character names, no invented creatures, nothing a stranger would not understand. When a rule uses someone's Chinese sign, name it plainly as element + animal ("your Wood Rat", "the Metal Ox in you"), exactly as given below. And such a rule still has to be doable and mean something on its face: "name them when you go far" sounds lovely and says nothing.`);
   if (family) {
-    o.push(`\nThis is a FAMILY compass, and it must be EVEN-HANDED — a child counts the lines that belong to them. Give EXACTLY ${perPerson} rule${perPerson > 1 ? 's' : ''} to EACH person, no one more and no one fewer, then EXACTLY ${shared} shared rules for the whole family at the end. ${count} rules in total, and the subtitle's number must match.
+    o.push(`\nThis is a FAMILY compass, and it must be EVEN-HANDED — a child counts the lines that belong to them. Give EXACTLY ${perPerson} rule${perPerson > 1 ? 's' : ''} to EACH person, no one more and no one fewer, then EXACTLY ${shared} shared rules for the whole family at the end. ${count} rules in total. The SUBTITLE must say the arrangement rather than only the total — "one rule for each of us, and ${shared} we share" in the poster's language — because that is what makes the number mean something instead of looking arbitrary.
 Order them person by person (all of one person's rules together, in the order the charts are given), with the shared ones last. Start each source tag with that person's name ("Nova · Cancer Sun"); tag the shared ones for the family. A shared rule must be something the family DOES together, drawn from what their charts have in common.
 This poster belongs to the whole household — do NOT make it one person's. No single birthday in the kicker (use the place, or the family), no title naming only one of them.`);
   } else {
@@ -207,7 +208,7 @@ This poster belongs to the whole household — do NOT make it one person's. No s
   }
   o.push(`\nLANGUAGE: write the title, subtitle and rules in ${lead}${others.length ? `, and you may let a phrase or two land in ${others.join(' or ')} where it feels natural` : ''}. Names are never translated.`);
   o.push(`\nReturn STRICT JSON ONLY — no markdown, no prose around it — in exactly this shape:
-{"title":${family ? '"a short warm title for the whole household — never one person\'s name alone"' : '"a short warm title (may use the child\'s name)"'},"subtitle":"one short line naming how many rules there are","kicker":${family ? '"from the skies of · PLACE — no single birthday"' : '"from the sky of · DATE · PLACE"'},"rules":[{"text":"the rule","source":"the quiet chart tag"}],"mirror":"A story is a mirror — not a map of the future."}`);
+{"title":${family ? '"a short warm title for the whole household — never one person\'s name alone"' : '"a short warm title (may use the child\'s name)"'},"subtitle":"one short line saying the arrangement, e.g. one for each of us and some shared","kicker":${family ? '"from the skies of · PLACE — no single birthday"' : '"from the sky of · DATE · PLACE"'},"rules":[{"text":"the rule","source":"the quiet chart tag"}],"mirror":"A story is a mirror — not a map of the future."}`);
   return o.join('\n');
 }
 
