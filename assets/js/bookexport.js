@@ -66,6 +66,56 @@ function paginateStory(root) {
   return pages.map(p => p.startsWith('<div class="page parents"') ? p : `<div class="page">${p}<div class="spread-num"></div></div>`);
 }
 
+// The adult letter is not a book: no cover, no chapters, no parents' page —
+// one A4 sheet you can hold, with the provenance in the letterhead so the page
+// says who it is for and which sky it was read from.
+const LETTER_CSS = `
+@page { size: 210mm 297mm; margin: 0; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: Georgia, 'Times New Roman', serif; color: #2c2416; background: #fff; }
+.sheet { width: 210mm; min-height: 297mm; padding: 22mm 28mm 18mm; display: flex; flex-direction: column; }
+.mark { font-size: 7.5pt; letter-spacing: .22em; text-transform: uppercase; color: #b8a678; }
+.ch-title { font-size: 19pt; font-weight: normal; color: #9a7010; letter-spacing: .03em;
+  line-height: 1.3; margin: 6mm 0 3.5mm; }
+.who { font-size: 9pt; color: #8a7860; letter-spacing: .04em; line-height: 1.7; }
+.rule { border-top: .5pt solid #e0d5bb; margin: 6mm 0 7mm; }
+.scene { font-size: 11pt; line-height: 1.75; text-align: left; }
+.scene p { margin-bottom: 4.5mm; }
+.scene p:last-child { margin-top: 7mm; color: #6b5a3e; font-style: italic; }
+.poem { font-size: 12.5pt; line-height: 1.95; color: #3a3020; }
+.parents { margin-top: auto; padding-top: 10mm; }
+.parents .mirror { font-size: 9pt; font-style: italic; color: #8a7860; }
+.parents h2, .parents .chart { display: none; }
+`;
+
+// Date in the language the letter leads in — it is their date, on their page.
+const DATE_LOCALE = { LT: 'lt-LT', IT: 'it-IT', DE: 'de-DE', EN: 'en-GB' };
+function letterDate(iso, langCode) {
+  if (!iso) return '';
+  const d = new Date(iso + 'T12:00:00');
+  if (isNaN(d)) return iso;
+  try {
+    return d.toLocaleDateString(DATE_LOCALE[langCode] || 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+  } catch { return iso; }
+}
+
+function letterSheet(paper, name, meta, lang) {
+  // The written title heads the sheet; everything else is the letter itself.
+  const nodes = [...paper.children];
+  const titleNode = nodes.find(n => (n.className || '').includes('ch-title'));
+  const title = titleNode ? titleNode.outerHTML : `<div class="ch-title">${escHtml(name)}</div>`;
+  const body = nodes.filter(n => n !== titleNode && n.tagName !== 'FIGURE')
+    .map(n => n.outerHTML).join('\n');
+  const born = [letterDate(meta.date, lang), meta.time, meta.place].filter(Boolean).join(' · ');
+  return `<div class="sheet">
+  <div class="mark">Star Stories</div>
+  ${title}
+  <div class="who">for ${escHtml(name)}${born ? `<br>born ${escHtml(born)}` : ''}</div>
+  <div class="rule"></div>
+  ${body}
+</div>`;
+}
+
 function coverPage(name, meta, element) {
   const hero = (typeof ART !== 'undefined') ? ART.motifSVG('mountain-sea', element) : '';
   const sub = [meta.date, meta.place].filter(Boolean).join(' · ');
@@ -83,17 +133,23 @@ function exportBook() {
   const element = (typeof state !== 'undefined' && state.element) || 'Water';
   const meta = {
     date: (typeof state !== 'undefined' && state.birthDate) || '',
+    time: (typeof state !== 'undefined' && state.birthTime) || '',
     place: (typeof state !== 'undefined' && state.place) || '',
   };
-  const pages = [coverPage(name, meta, element), ...paginateStory(paper)].join('\n');
+  const isLetter = typeof state !== 'undefined' && state.age === 'ya';
+  const lang = (typeof state !== 'undefined' && state.bookLangs && state.bookLangs[0]) || 'EN';
+
+  const body = isLetter
+    ? letterSheet(paper, name, meta, lang)
+    : [coverPage(name, meta, element), ...paginateStory(paper)].join('\n');
   const doc = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
-<title>${escHtml(name)} — Star Stories</title><style>${BOOK_CSS}</style></head>
-<body>${pages}</body></html>`;
+<title>${escHtml(name)} — Star Stories</title><style>${isLetter ? LETTER_CSS : BOOK_CSS}</style></head>
+<body>${body}</body></html>`;
 
   const blob = new Blob([doc], { type: 'text/html' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url; a.download = `${slug(name)}-star-stories.html`;
+  a.href = url; a.download = `${slug(name)}-${isLetter ? 'letter' : 'star-stories'}.html`;
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 4000);
 }

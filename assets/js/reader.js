@@ -141,7 +141,12 @@ async function streamBook(payload) {
     paper.classList.remove('is-writing');
     status.textContent = 'done';
     const dl = document.getElementById('rbDownload');
-    if (dl && acc) dl.style.display = '';
+    if (dl && acc) {
+      dl.style.display = '';
+      dl.textContent = (typeof state !== 'undefined' && state.age === 'ya')
+        ? (state.form === 'poem' ? 'Download poem' : 'Download letter')
+        : 'Download book';
+    }
 
     // Painted mode (opt-in): replace the vector scenes with rendered art.
     if (typeof state !== 'undefined' && state.artStyle === 'painted') {
