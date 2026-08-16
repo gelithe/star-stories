@@ -9,7 +9,7 @@ A book declares its language mix, and the mix has a *shape*, chosen per age:
 | Age | Mixing shape |
 |---|---|
 | 0–2 | **Echo**: every spread says one thing, once per language (lullaby repetition) |
-| 2–5 | **Rotating lead**: each scene led by one language, closed by a one-line echo in another; recurring chant in all languages |
+| 3–5 | **Rotating lead**: each scene led by one language, closed by a one-line echo in another; recurring chant in all languages |
 | 6–8 | **Rotating chapters**: each chapter led by one language with bridge echoes; the spell/refrain always in all languages |
 | 9+  | Single lead language with meaningful phrases from the others (family words stay family words) |
 

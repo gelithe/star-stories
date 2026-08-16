@@ -162,7 +162,7 @@ const REGISTERS = {
   '0-2':  'A lullaby to read TO a baby. Tiny: ONE image per spread, said as a short couplet — two or three words a line, sound and repetition over meaning. No chapters, no plot, no sentence longer than a breath. Think board book.',
   '3-5':  'A short animal fable for bedtime. Simple, concrete, playful, rhythmic — a little creature who feels everything. Two or three SHORT sentences per spread, strong repetition, one small lesson felt not told. Nothing abstract or literary.',
   '6-8':  'A quest with short chapters; the child is the hero. Concrete, brave, a little funny; early self-reading. Short paragraphs.',
-  '9-12': 'Adventure with first interiority — "your secret compass". Longer sentences, real feelings, private reading.',
+  '9-12': 'The "secret compass" register. Interiority is dawning and they want to be trusted with something real, so write a proper adventure they can lose themselves in — but the chart trait is a PRIVATE strength only they carry, not shown off. A realistic protagonist, lightly themselves, meets an ordinary but real challenge; the trait they have been hiding turns out to be the way through. First-person diary or close third person. Honesty over whimsy — they can smell being talked down to.',
   'teen': 'Honest and unpatronising — identity and intensity. No moralising, no baby-talk.',
   'ya':   'A letter to carry when leaving home — the parents\' book re-addressed to the young adult.',
   'adult':'A reflective portrait — the chart read back to the grown reader themselves, literary and unhurried.',
@@ -187,12 +187,12 @@ const MIX_SHAPES = {
   'single-lead':      'Single lead: one language leads, with meaningful phrases from the others (family words stay family words).',
 };
 const SHAPE_FOR_AGE = { '0-2':'echo', '3-5':'rotating-lead', '6-8':'rotating-chapters', '9-12':'single-lead', 'teen':'single-lead', 'ya':'single-lead', 'adult':'single-lead' };
-const SCENE_COUNT = { '0-2': 7, '3-5': 7, '6-8': 5, '9-12': 6, 'teen': 5 };
+const SCENE_COUNT = { '0-2': 7, '3-5': 7, '6-8': 5, '9-12': 8, 'teen': 5 };
 // A hero story is a different KIND of story at each age — not one size trimmed.
 const ADVENTURE_SCALE = {
   '3-5':  'Small and warm. One simple task, one friend, one try that does not work and one that does. Everything close to home and safe, the ending happy and quick. No peril, no large world, no long journey.',
   '6-8':  'A true adventure with wonder in it: the hero sets out, meets something that will not give way to force, and comes through by courage and honesty. Real challenge, real effort, and a bright, satisfying win.',
-  '9-12': 'A larger adventure driven by the hero\'s own choices — they decide, and the choice costs something. More inner life, higher stakes, an ending they clearly earned.',
+  '9-12': 'A real adventure worth being inside — the hero chooses, and the choice costs something. The inner life carries as much weight as the events, and the ending is one they clearly earned.',
   'teen': 'No magic needed. A real situation told honestly, with a genuine dilemma and no tidy moral tacked on — the truth is arrived at, never delivered.',
 };
 // Illustration motif vocabulary the model tags each scene with (see illustrate.js).
@@ -205,6 +205,10 @@ const sceneCount = e => SCENE_COUNT[e] || 5;
 // are distributed is a craft decision left to the writer, so the book reads as
 // a flow rather than a mechanical rotation. One chosen language = no mixing at
 // all (the old fixed per-scene rotation made no sense for a single language).
+function isSingleLead(s) {
+  return s.isAdult || s.edition === 'teen' || s.edition === '9-12';
+}
+
 function languagePlan(s) {
   const names = s.langs.map(c => LANG_NAMES[c]);
   const isVerse = bandFormat(s.edition).fmt === 'verse';
@@ -213,6 +217,12 @@ function languagePlan(s) {
   }
   if (isVerse) {
     return `On each spread, the one image is said once in every language, in this order: ${names.join(', ')}. Each is a re-telling of the same image in that language's own way, never a stiff literal translation.`;
+  }
+  // LANGUAGES.md: from 9 up, a single lead language with meaningful phrases from
+  // the others. Private, interior reading is not a sing-song, and a teenager
+  // reads a trilingual refrain as childish (AGE-BANDS.md).
+  if (isSingleLead(s)) {
+    return `Write it in ${names[0]}. The others — ${names.slice(1).join(', ')} — appear only as the odd phrase where that language is the one that actually holds the meaning: a family word, something someone really says. One or two of those in the whole piece, never a line repeated in every language, and never a refrain sung three times over. This reader reads privately, to themselves — a trilingual sing-song reads to them as a book for smaller children.`;
   }
   return `Use exactly these languages and no others: ${names.join(', ')}. Each one must lead at least one chapter.
 ONE LANGUAGE PER CHAPTER — a chapter's body is written wholly in its own language, never two mixed together (names and family words always keep their own language).
@@ -250,24 +260,27 @@ function buildSystemPrompt(s) {
   out.push(`You are the author of "Star Stories" — personalized books written from a child's REAL birth chart (natal astrology + Human Design + Gene Keys + Chinese zodiac). You turn a chart into a story, never into a horoscope.`);
   out.push(`\nTHE ETHICAL LINE (non-negotiable): a story is a MIRROR, never a prediction of destiny. The chart gives the story its SHAPE — a child with a Scorpio Moon gets a hero who feels deeper than anyone knows — but the text NEVER tells the reader who they must become. No career predictions, no relationship fates, no "you will be". No astrology jargon in the story itself (that lives only on the parents' page). A child inherits a poem, not a box.
 Practical test for EVERY line: would it make this child feel TRAPPED by who they are, or SEEN in who they are? Keep only "seen".`);
-  out.push(`\nREADING THE CHART — find ONE truth, not ten: the single thing that most defines this child, meaning what they are strongest at AND what that same strength costs them. Sun = their light; Moon = what they feel and how much; Ascendant = how they meet the world; the busiest element or house, or a tight hard aspect = the tension worth telling; Human Design = HOW they act (a Generator responds to what lights them up, a Projector sees and is invited, a Manifestor starts things, a Reflector mirrors the room); Gene Keys = the child's gift-and-shadow said in one word each: the GIFT word is a good name for what they are strongest at, and the SHADOW word tells you precisely what the tale's shadow beat is — but the shadow words are diagnostic ("Mediocrity", "Failure", "Inadequacy") and must NEVER appear in the book or be used to label the child; turn the shadow into something that happens in the story instead. Chinese sign = the companion; numerology = a COUNT you can build the tale on — the Life Path, plus the Expression/Soul numbers when a full name was given. If you put a number in the story — how many attempts, how many of a thing, how many days — it MUST be one of the numbers actually in this chart, and the title must use that same number too. Never round it off or swap it for one that merely sounds better; an invented count connects to nothing and is worse than using no count at all. Let it be felt as a rhythm, never explained as a meaning. Depth beats coverage: one truth, carried the whole way through. Astrology words NEVER appear in the story — they live only on the parents' page.`);
+  out.push(`\nREADING THE CHART — the reading aids, used only to FIND the one truth: Sun = their light; Moon = what they feel and how much; Ascendant = how they meet the world; the busiest element or house, or a tight hard aspect = the tension worth telling; Human Design = HOW they act (a Generator responds to what lights them up, a Projector sees and is invited, a Manifestor starts things, a Reflector mirrors the room); Gene Keys = the gift and the shadow each said in one word; Chinese sign = the companion; numerology = a quiet recurring count. The Gene Keys SHADOW words are diagnostic ("Mediocrity", "Failure", "Inadequacy") — they tell you what the shadow beat is, and they belong in the story as something that HAPPENS, never as a word applied to the child. Astrology words stay off the page; they live on the parents' page.`);
 
-  out.push(`\nTHE TALE — write an ancient-feeling tale: simple, bright, and shaped like the stories that have always been told. Six beats, nothing more complicated:
-1. A HERO — this child, with a real GIFT that comes from their chart.
-2. A MISSION — something that matters and needs doing, which they are the one to do. Give them a reason to set out.
-3. EFFORT — they try, it is hard, the first way does not work, and they keep going. Effort is the middle of the story.
-4. THE SHADOW — what stands in the way is the other face of their own gift. It is not an enemy to be beaten: it loses its power the moment the hero ACKNOWLEDGES it, honestly and out loud.
-5. THE GIFT USED — what was theirs all along turns out to be exactly what the mission needed.
-6. THE MORAL — one clear line to carry out of the book, plain enough to remember.
+  out.push(`\nTHE METHOD — every book is built the same way, whatever the age. Only step 4 changes.
+1. Read the chart for the ONE dominant truth — not ten placements. The single structural fact that most defines this child.
+2. Name the gift and its shadow together. Deep feeling AND overwhelm. Serious calm AND hidden flood. Drive AND the lonely solo run.
+3. Find the metaphor a child can hold — not "Scorpio Moon", but "a moon that rocks her when the feelings get big".
+4. Choose the register for the age (given below).
+5. End with the practical gift — the one repeatable thing that helps. This is the sentence the parents will thank you for.
 
-TONE — bright, warm, brave. This is a tale, not an assessment. The child must close the book gladder and stronger than they opened it. Never a diagnosis, never sadness for its own sake, never a lonely wander, nothing bleak. Challenge yes, effort yes, darkness only as something the hero comes through.`);
+Because only step 4 changes, the same child can be given this book again at every age: the same truth, growing up alongside them.`);
 
-  out.push(`\nORIGINALITY — every book must be unmistakably its own. The world, the opening, the mission, the images and the moral all come from THIS chart and this child's details; two different children must produce two books that share nothing but the house style. Never reach for a stock opening — no birthday party, no first day at a new school, no child standing apart from a crowd, no waking up in a bedroom. Do not reach for waves or the sea as a default picture for feelings either; use that image ONLY when this chart genuinely calls for it (an emotional authority in Human Design really does move in waves, and then it is the right and honest word). If a sentence could appear unchanged in another child's book, rewrite it.`);
+  out.push(`\nCRAFT — the rules that hold across every band:
+- ONE TRUTH PER BOOK. Resist cramming the chart. Depth beats coverage.
+- METAPHOR BEFORE TERMINOLOGY. A child never meets a placement, only the picture of it.
+- GIFT, NOT LABEL. End on something repeatable and kind, never a verdict.
+- FAMILY WORDS STAY FAMILY WORDS — names, pets, the words a family actually uses.
+- SIBLINGS AND REAL DETAILS ARE GOLD. They turn a personalised book into THEIR book; use whatever true details you are given.
+- WRITE IT TO BE READ ALOUD. The real test is a child's attention span and a parent's catch in the throat.
+- Plain words, said once, well. Understood on the first read; a tired parent gets through a sentence without stumbling.
+- Make it yours to this child. Two different charts should produce two books that share nothing but the house style.`);
 
-  out.push(`\nTHE VOICE — plain, easy words, understood on the FIRST read and read aloud without stumbling. Short sentences, everyday words, one idea at a time. Say feelings plainly; keep images simple and almost literal, never compressed or stacked into something that must be decoded. Clarity is the beauty. (Adult editions may be a little more literary — still clear.)
-- NO ESSAY REFLEX. Never explain a feeling with the "not X — but Y" construction ("Not because nobody would help. Because she did not want anyone to see."; "Ne todėl, kad… Todėl, kad…"). It is the sound of an essay, and in every language it reads as machine-written. Say the true thing once, straight, in the scene.
-- EVERY IMAGE MUST HOLD UP PHYSICALLY. The picture has to work as a real thing a child could point at or draw: a hole cannot flow, a stone cannot listen, a name cannot be carried in a pocket. If it would not survive being drawn, replace it — and never bolt a second idea onto an image that is already doing its job.
-- Use ordinary words for ordinary things. If a child would need a word explained (a piece of channel, a millrace, an aqueduct), use the plain one.`);
   const comp = companionFrom(s.chart);
   if (comp && isVerse) {
     out.push(`\nTHE COMPANION for this book is **${comp.name}**, a ${comp.element} ${comp.animal} — ${comp.essence}. ${comp.name} is a fixed character in the series. In a lullaby ${comp.name} appears only softly — a warm presence beside the baby on a spread or two. Do NOT give ${comp.name} a naming pivot or a plot; this is too young for that.`);
@@ -294,6 +307,8 @@ A NEW NAME IS OPTIONAL AND MUST BE EARNED AND EXPLAINED. Only if the story genui
       ' English is NOT in the set — write no English anywhere, and never gloss a line in parentheses.';
     const langTail = isVerse
       ? `Each language's line is a re-telling of the same image, not a stiff literal translation — say it the way that language would. Names and family words are never translated.`
+      : isSingleLead(s)
+      ? `The recurring line that returns at the close stays in the lead language — it is one line, not the same line said three times.`
       : `The recurring chant/refrain near the end appears once per line in EVERY language of the set — that block is the only place all languages sit together. Echo lines are re-tellings, not literal translations. Within a single scene's body do NOT mix two languages: the whole body is in that scene's one assigned language (only names and family words keep their own language).`;
     out.push(`\nLANGUAGES — the book is written ONLY in these, nothing else: ${langList}.${forbid}
 The MAIN narrative text must actually BE in these languages — not one language sprinkled with words of the others. Any language outside the set is forbidden except for names and family words.
@@ -325,7 +340,9 @@ Use ✦ not emoji.`);
 <div class="scene"><p>…</p>… <p class="echo">closing echo (rotating shapes only; omit for a single-lead book)</p></div>
 - ${brevity}
 - KEY is only a picture-tag for the illustrator, chosen AFTER the scene is written — never let it shape the story. Pick the closest of: ${MOTIFS_LIST}.${bf.titles ? '\n- If the companion grows a fuller name, mark it inside that scene: <div class="evolve">✦ NAME → NEWNAME ✦</div>' : ''}
-- After the last ${unit.replace(/s$/, '')}, the shared chant: <div class="spell">line per language<br>…</div>
+- After the last ${unit.replace(/s$/, '')}, the line that has been returning through the book: ${isSingleLead(s)
+        ? `<div class="spell">the one line, in ${LANG_NAMES[s.langs[0]]} only</div>`
+        : `the shared chant, <div class="spell">line per language<br>…</div>`}
 - Then the parents' page, written ENTIRELY in ${parentsName} and in no other language: ${parentsBlock}
 Use ✦ not emoji.`);
     }

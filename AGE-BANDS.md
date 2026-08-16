@@ -49,7 +49,7 @@ growing up alongside them.
 | Band | Reader does | Cognitive/emotional frame | Form | Length |
 |---|---|---|---|---|
 | **0–2** | Listens, looks | Rhythm, sound, faces; no plot | Lullaby: image + one line, repeated | 6–8 spreads |
-| **2–5** | Bedtime with adult | Simple cause→effect; one feeling at a time; loves repetition | Animal/gentle fable, a recurring chant | 7–9 spreads |
+| **3–5** | Bedtime with adult | Simple cause→effect; one feeling at a time; loves repetition | Animal/gentle fable, a recurring chant | 7–9 spreads |
 | **6–8** | Early self-reading | Hero + problem + change; can hold a small arc | Quest with a companion who "evolves" | 5–7 short chapters |
 | **9–12** | Private reading | Interiority begins; wants to be taken seriously | Adventure + first inner life; a secret strength | 8–12 pages, chapters |
 | **13–17** | Skeptical reading | Identity, intensity, allergy to being patronized | Honest, spare, unpatronizing; questions over answers | short, potent |
@@ -65,7 +65,7 @@ feels everything, all the way down; needs feelings *held*, not fixed).
 
 - **0–2:** *"When the feelings are big, the moon rocks her."* (One image. The
   child hears safety, not a lesson.)
-- **2–5:** A little bear whose feelings come like weather. When the storm comes,
+- **3–5:** A little bear whose feelings come like weather. When the storm comes,
   Mama Bear doesn't chase it away — she sits in the cave until it passes.
   *Chant: "Storms pass. I am still here."*
 - **6–8:** A girl who discovers her feelings are a deep sea with treasure at the
@@ -92,7 +92,7 @@ One truth. Seven tellings. That is the whole company.
 These three exist, fully written, in `books/`. Study them as the reference
 implementations.
 
-### 2–5 — Luis, *The Magic Pass* (`books/luis-5.html`)
+### 3–5 — Luis, *The Magic Pass* (`books/luis-5.html`)
 - **Chart truth:** Aries Sun in the 7th house — fire that only becomes itself
   *with others*; plus Emotional authority (feelings arrive in waves).
 - **Register moves:** one feeling per scene; a physical problem (wants to score
