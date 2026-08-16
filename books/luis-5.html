@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="lt">
+<head>
+<meta charset="UTF-8">
+<title>Luis ir stebuklingas perdavimas</title>
+<style>
+@page { size: 154mm 216mm; margin: 0; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: Georgia, 'Times New Roman', serif; color: #2c2416; background: #fff; }
+.page { width: 154mm; height: 216mm; padding: 19mm; page-break-after: always; display: flex; flex-direction: column; justify-content: center; text-align: center; position: relative; overflow: hidden; }
+.page:last-child { page-break-after: auto; }
+.wash { position: absolute; inset: 0; background: #f8faf4; }
+h1 { font-size: 23pt; font-weight: normal; letter-spacing: 0.06em; line-height: 1.45; color: #9a7010; position: relative; }
+.cover-sub { font-size: 10pt; color: #8a7860; margin-top: 9mm; line-height: 1.9; position: relative; }
+.scene { font-size: 12.5pt; line-height: 1.85; text-align: left; position: relative; }
+.scene p { margin-bottom: 5mm; }
+.echo { font-style: italic; color: #6b5a3e; font-size: 11pt; }
+.chant { text-align: center; font-size: 14pt; color: #9a7010; letter-spacing: 0.05em; margin: 6mm 0; }
+.art { margin: 0 auto 8mm; position: relative; }
+.spread-num { position: absolute; bottom: 12mm; font-size: 8pt; color: #c9b98f; left: 0; right: 0; text-align: center; }
+.parents { text-align: left; justify-content: flex-start; padding-top: 22mm; }
+.parents h2 { font-size: 13pt; color: #9a7010; letter-spacing: 0.1em; margin-bottom: 6mm; text-transform: uppercase; font-weight: normal; }
+.parents p { font-size: 9.5pt; line-height: 1.7; margin-bottom: 4mm; color: #4a3d28; }
+.chart { font-family: 'Courier New', monospace; font-size: 8pt; line-height: 1.8; background: #faf7f0; border: 0.5pt solid #e0d5bb; padding: 5mm; margin: 4mm 0; color: #5a4a30; }
+svg { display: block; margin: 0 auto; }
+.gold { fill: #c9a227; } .goldln { stroke: #c9a227; fill: none; }
+.ink { fill: #2c2416; } .inkln { stroke: #2c2416; fill: none; }
+.grass { fill: #6a9a5c; } .grassln { stroke: #6a9a5c; fill: none; }
+</style>
+</head>
+<body>
+
+<!-- COVER : ball arcing into the goal on a star trail -->
+<div class="page">
+  <div class="wash"></div>
+  <svg class="art" width="92mm" viewBox="0 0 260 160">
+    <g class="inkln" stroke-width="1.6">
+      <path d="M170 60 L245 60 L245 130 L170 130"/>
+      <path d="M185 60 L185 130 M200 60 L200 130 M215 60 L215 130 M230 60 L230 130"/>
+      <path d="M170 78 L245 78 M170 96 L245 96 M170 114 L245 114"/>
+    </g>
+    <path class="goldln" stroke-width="1.6" stroke-dasharray="1 6" stroke-linecap="round" d="M20 130 Q90 20 200 88"/>
+    <circle cx="200" cy="88" r="16" fill="#fff" class="inkln" stroke-width="2"/>
+    <path class="inkln" stroke-width="1.4" d="M193 77 L200 88 L193 99 M200 88 L216 86"/>
+    <path class="gold" d="M52 96 C54 106 57 109 67 111 C57 113 54 116 52 126 C50 116 47 113 37 111 C47 109 50 106 52 96 Z"/>
+    <path class="gold" d="M96 56 C98 64 100 66 108 68 C100 70 98 72 96 80 C94 72 92 70 84 68 C92 66 94 64 96 56 Z"/>
+    <path class="grassln" stroke-width="2.4" stroke-linecap="round" d="M14 148 L246 148"/>
+  </svg>
+  <h1>LUIS<br>ir stebuklingas perdavimas</h1>
+  <div class="cover-sub">
+    Luis e il passaggio magico · Luis und der Zauberpass<br><br>
+    gimęs po Avino saule, Svarstyklių horizonte<br>
+    2021&nbsp;m. balandžio&nbsp;17&nbsp;d. · Frankfurt am Main
+  </div>
+</div>
+
+<!-- 1 LT : fast feet, cat on the fence -->
+<div class="page">
+  <svg class="art" width="76mm" viewBox="0 0 260 110">
+    <path class="grassln" stroke-width="2" stroke-linecap="round" d="M12 96 L248 96"/>
+    <circle cx="60" cy="82" r="12" fill="#fff" class="inkln" stroke-width="1.8"/>
+    <path class="inkln" stroke-width="1.2" d="M55 74 L60 82 L55 90 M60 82 L72 80"/>
+    <g class="goldln" stroke-width="1.8" stroke-linecap="round">
+      <path d="M84 88 L94 84"/><path d="M104 82 L114 78"/><path d="M124 76 L134 72"/>
+    </g>
+    <g class="ink">
+      <path d="M196 96 Q194 74 208 70 L210 62 L216 68 Q220 66 224 68 L230 62 L232 70 Q244 76 242 96 Z"/>
+      <path class="inkln" stroke-width="2" stroke-linecap="round" d="M242 92 Q254 88 250 76" fill="none"/>
+    </g>
+    <path class="inkln" stroke-width="1.4" d="M180 96 L256 96"/>
+  </svg>
+  <div class="scene">
+    <p>Luis pabunda anksčiau už saulę, o jo kojos pabunda dar anksčiau už jį. Trepu-trepu-trepu — kamuolys jau šoka po stalu, pro duris, per kiemą.</p>
+    <p>Ant tvoros sėdi katė Titty ir stebi. Katės visada viską mato.</p>
+    <p class="echo">I piedi di Luis si svegliano prima di lui. Titty osserva tutto.</p>
+  </div>
+  <div class="spread-num">1</div>
+</div>
+
+<!-- 2 IT : the tangled solo run -->
+<div class="page">
+  <svg class="art" width="72mm" viewBox="0 0 260 110">
+    <path class="goldln" stroke-width="1.6" stroke-dasharray="1 5" stroke-linecap="round"
+      d="M20 90 Q60 40 90 70 Q110 90 130 60 Q145 40 160 62 Q170 78 186 70"/>
+    <circle cx="222" cy="94" r="11" fill="#fff" class="inkln" stroke-width="1.8"/>
+    <path class="inkln" stroke-width="1.1" d="M217 87 L222 94 L217 101 M222 94 L233 92"/>
+    <path class="inkln" stroke-width="1.2" stroke-linecap="round" d="M196 76 Q206 84 210 90" opacity="0.6"/>
+  </svg>
+  <div class="scene">
+    <p>Oggi è il giorno della grande partita. Luis vuole fare il gol più bello del mondo — da solo, tutto da solo!</p>
+    <p>Corre come il vento, dribbla uno, dribbla due... ma tre gambe sono troppe, e il pallone rotola via.</p>
+    <p class="echo">Luis nori įmušti pats vienas. Bet kamuolys nurieda.</p>
+  </div>
+  <div class="spread-num">2</div>
+</div>
+
+<!-- 3 DE : the wave, Titty beside him -->
+<div class="page">
+  <svg class="art" width="72mm" viewBox="0 0 260 120">
+    <path class="grassln" stroke-width="2.4" d="M14 84 Q44 56 74 84 T134 84 T194 84 T254 84" stroke-linecap="round"/>
+    <path class="grassln" stroke-width="1.5" opacity="0.5" d="M30 100 Q60 76 90 100 T150 100 T210 100"/>
+    <g class="ink" transform="translate(150 12) scale(0.8)">
+      <path d="M20 84 Q18 62 32 58 L34 50 L40 56 Q44 54 48 56 L54 50 L56 58 Q68 64 66 84 Z"/>
+      <path class="inkln" stroke-width="2" stroke-linecap="round" d="M66 80 Q78 76 74 64" fill="none"/>
+    </g>
+  </svg>
+  <div class="scene">
+    <p>In Luis' Bauch steigt eine große Welle: erst heiß, dann traurig. Er setzt sich ans Spielfeld und schnauft.</p>
+    <p>Da kommt Titty, setzt sich daneben und sagt leise: <em>„Kämpfe nicht gegen die Welle. Warte auf sie. Wellen gehen vorbei — und dann siehst du wieder klar."</em></p>
+    <p class="echo">Palauk savo bangos, — sako Titty. — Bangos praeina.</p>
+  </div>
+  <div class="spread-num">3</div>
+</div>
+
+<!-- 4 LT : seeing the whole field -->
+<div class="page">
+  <svg class="art" width="76mm" viewBox="0 0 260 130">
+    <rect x="30" y="16" width="200" height="100" rx="6" class="grassln" stroke-width="2"/>
+    <path class="grassln" stroke-width="1.4" d="M130 16 L130 116"/>
+    <circle cx="130" cy="66" r="16" class="grassln" stroke-width="1.4"/>
+    <circle cx="80" cy="90" r="7" class="gold"/>
+    <circle cx="70" cy="36" r="6" class="inkln" stroke-width="1.8" fill="#fff"/>
+    <circle cx="196" cy="52" r="6" class="inkln" stroke-width="1.8" fill="#fff"/>
+    <path class="goldln" stroke-width="1.4" stroke-dasharray="1 5" stroke-linecap="round" d="M86 84 Q120 60 190 55"/>
+    <path class="goldln" stroke-width="1.4" stroke-dasharray="1 5" stroke-linecap="round" d="M80 83 Q68 62 70 44"/>
+  </svg>
+  <div class="scene">
+    <p>Luis kvėpuoja. Įkvėpt... iškvėpt. Banga nuslūgsta.</p>
+    <p>Ir staiga jis pamato tai, ko anksčiau nematė: visą aikštę. Draugą kairėje, kuris laisvas. Draugą dešinėje, kuris moja. Žaidimas — didesnis už vieną žaidėją.</p>
+    <p class="echo">All'improvviso Luis vede tutto il campo. Il gioco è più grande di un solo giocatore.</p>
+  </div>
+  <div class="spread-num">4</div>
+</div>
+
+<!-- 5 IT : the magic discovered -->
+<div class="page">
+  <svg class="art" width="72mm" viewBox="0 0 260 110">
+    <circle cx="60" cy="62" r="13" class="inkln" stroke-width="2" fill="#fff"/>
+    <circle cx="200" cy="62" r="13" class="inkln" stroke-width="2" fill="#fff"/>
+    <path class="goldln" stroke-width="1.8" stroke-dasharray="1 6" stroke-linecap="round" d="M76 58 Q130 30 184 58"/>
+    <circle cx="130" cy="44" r="8" fill="#fff" class="inkln" stroke-width="1.6"/>
+    <path class="inkln" stroke-width="1" d="M126 39 L130 44 L126 49 M130 44 L138 43"/>
+    <path class="gold" d="M60 18 C62 26 64 28 72 30 C64 32 62 34 60 42 C58 34 56 32 48 30 C56 28 58 26 60 18 Z"/>
+    <path class="gold" d="M200 18 C202 26 204 28 212 30 C204 32 202 34 200 42 C198 34 196 32 188 30 C196 28 198 26 200 18 Z"/>
+  </svg>
+  <div class="scene">
+    <p>E allora Luis scopre la magia. Non è il tiro. Non è la corsa.</p>
+    <p>È il passaggio: quando il pallone vola da un amico all'altro, la gioia si raddoppia. Uno passa, l'altro segna — e il gol è di tutti e due!</p>
+    <div class="chant">Perduok! · Passa! · Pass!</div>
+    <p class="echo">Perdavimas — tai burtai: džiaugsmas padvigubėja.</p>
+  </div>
+  <div class="spread-num">5</div>
+</div>
+
+<!-- 6 DE : two goals -->
+<div class="page">
+  <svg class="art" width="76mm" viewBox="0 0 260 120">
+    <g class="inkln" stroke-width="1.6">
+      <path d="M60 24 L200 24 L200 96 L60 96"/>
+      <path d="M80 24 L80 96 M100 24 L100 96 M120 24 L120 96 M140 24 L140 96 M160 24 L160 96 M180 24 L180 96"/>
+      <path d="M60 42 L200 42 M60 60 L200 60 M60 78 L200 78"/>
+    </g>
+    <circle cx="104" cy="66" r="10" fill="#fff" class="goldln" stroke-width="2.2"/>
+    <circle cx="156" cy="52" r="10" fill="#fff" class="goldln" stroke-width="2.2"/>
+    <path class="gold" d="M40 100 C42 108 44 110 52 112 C44 114 42 116 40 124 C38 116 36 114 28 112 C36 110 38 108 40 100 Z" transform="translate(0 -14)"/>
+    <path class="gold" d="M222 96 C224 104 226 106 234 108 C226 110 224 112 222 120 C220 112 218 110 210 108 C218 106 220 104 222 96 Z" transform="translate(0 -12)"/>
+  </svg>
+  <div class="scene">
+    <p>Das Spiel beginnt wieder. Luis läuft, aber jetzt sieht er alles. Er passt den Ball — sein Freund schießt — TOR!</p>
+    <p>Und gleich danach passt der Freund zurück, und Luis schießt — noch ein TOR! Die ganze Mannschaft springt in den Himmel.</p>
+    <p class="echo">Luis perduoda — draugas įmuša. Draugas perduoda — Luis įmuša!</p>
+  </div>
+  <div class="spread-num">6</div>
+</div>
+
+<!-- 7 ALL : home -->
+<div class="page">
+  <svg class="art" width="72mm" viewBox="0 0 260 120">
+    <path class="inkln" stroke-width="2" d="M85 56 L130 26 L175 56 L175 104 L85 104 Z"/>
+    <rect x="118" y="74" width="24" height="30" class="goldln" stroke-width="1.8" fill="#faf3dd"/>
+    <circle cx="104" cy="90" r="5" class="gold"/>
+    <circle cx="130" cy="88" r="6" class="gold"/>
+    <circle cx="156" cy="91" r="4" class="gold"/>
+    <g class="ink" transform="translate(196 68) scale(0.62)">
+      <path d="M20 60 Q18 38 32 34 L34 26 L40 32 Q44 30 48 32 L54 26 L56 34 Q68 40 66 60 Z"/>
+      <path class="inkln" stroke-width="2" stroke-linecap="round" d="M66 56 Q78 52 74 40" fill="none"/>
+    </g>
+    <path class="gold" d="M130 8 C131.5 15 133.5 17 140 18.5 C133.5 20 131.5 22 130 29 C128.5 22 126.5 20 120 18.5 C126.5 17 128.5 15 130 8 Z"/>
+  </svg>
+  <div class="scene">
+    <p>Namuose Lars iškelia Luisą ant pečių, o mažoji Nova ploja delniukais. Katė Titty murkia — taip katės sako „bravo".</p>
+    <p>La sera, nel letto, Luis sorride al soffitto.</p>
+    <p>Und bevor er einschläft, flüstert er das Geheimnis des Tages:</p>
+    <div class="chant">Gražiausias įvartis — kartu.<br>Il gol più bello è insieme.<br>Das schönste Tor ist gemeinsam.</div>
+  </div>
+  <div class="spread-num">7</div>
+</div>
+
+<!-- PARENTS (Italiano) -->
+<div class="page parents">
+  <h2>✦ Il cielo di Luis · Per i genitori</h2>
+  <p>Questa favola è il vero cielo di nascita di Luis, raccontato in forma di fiaba — calcolato per il 17 aprile 2021, ore 19:47, Frankfurt am Main.</p>
+  <div class="chart">Sole     Ariete 27°55′    Casa 7
+Luna     Gemelli 29°11′   Casa 9
+Marte    Gemelli 26°31′   Casa 9
+ASC      Bilancia 22°33′
+Venere   Toro 03°40′      Casa 7
+Human Design: Manifesting Generator · Autorità emotiva
+Segno cinese: Bue di Metallo (2021)</div>
+  <p><strong>«I piedi veloci»</strong> — Luna e Marte insieme in Gemelli: rapidità di piedi e di parola, due cose alla volta, gioia nel movimento.</p>
+  <p><strong>«Voler segnare da solo»</strong> — un Sole in Ariete brucia dal desiderio di essere il primo. Ma il suo Ariete abita la settima casa, la casa <em>degli altri</em>: il suo fuoco diventa se stesso solo nell'incontro. Da qui nasce tutta la storia.</p>
+  <p><strong>«L'onda»</strong> — il suo Human Design porta l'autorità emotiva: i sentimenti arrivano a ondate, e la sua verità è più chiara dopo l'onda, non durante. «Aspetta la tua onda» è forse la frase più utile che potrete mai dargli.</p>
+  <p><strong>Bue di Metallo</strong> — nel calendario cinese: volontà tenace sotto i piedi veloci. Quando sceglie una porta, ci arriva.</p>
+  <p><strong>«Vedere tutto il campo»</strong> — Ascendente in Bilancia: equilibrio, senso di giustizia, la bellezza del passaggio. Per lui il gioco sarà sempre più bello se condiviso.</p>
+  <p style="margin-top:6mm;color:#8a7860;">Una storia è uno specchio, non una mappa del destino. ✦</p>
+</div>
+
+</body>
+</html>

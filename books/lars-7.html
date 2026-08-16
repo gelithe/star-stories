@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="lt">
+<head>
+<meta charset="UTF-8">
+<title>Lars ir sapnų vandenynas</title>
+<style>
+@page { size: 154mm 216mm; margin: 0; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: Georgia, 'Times New Roman', serif; color: #2c2416; background: #fff; }
+.page { width: 154mm; height: 216mm; padding: 19mm; page-break-after: always; display: flex; flex-direction: column; justify-content: center; text-align: center; position: relative; overflow: hidden; }
+.page:last-child { page-break-after: auto; }
+.wash { position: absolute; inset: 0; background: #f4f8f8; }
+h1 { font-size: 23pt; font-weight: normal; letter-spacing: 0.06em; line-height: 1.45; color: #9a7010; position: relative; }
+.cover-sub { font-size: 10pt; color: #8a7860; margin-top: 9mm; line-height: 1.9; position: relative; }
+.ch-title { font-size: 15pt; color: #9a7010; letter-spacing: 0.08em; margin-bottom: 7mm; position: relative; }
+.scene { font-size: 11.5pt; line-height: 1.8; text-align: left; position: relative; }
+.scene p { margin-bottom: 4.5mm; }
+.echo { font-style: italic; color: #6b5a3e; font-size: 10.5pt; }
+.spell { text-align: center; font-size: 12.5pt; color: #9a7010; letter-spacing: 0.04em; margin: 6mm 0; line-height: 1.9; }
+.evolve { text-align: center; font-size: 13pt; color: #1a9eae; margin: 5mm 0; letter-spacing: 0.1em; }
+.art { margin: 0 auto 7mm; position: relative; }
+.spread-num { position: absolute; bottom: 12mm; font-size: 8pt; color: #c9b98f; left: 0; right: 0; text-align: center; }
+.parents { text-align: left; justify-content: flex-start; padding-top: 20mm; }
+.parents h2 { font-size: 13pt; color: #9a7010; letter-spacing: 0.1em; margin-bottom: 5mm; text-transform: uppercase; font-weight: normal; }
+.parents p { font-size: 9.5pt; line-height: 1.65; margin-bottom: 3.5mm; color: #4a3d28; }
+.chart { font-family: 'Courier New', monospace; font-size: 8pt; line-height: 1.8; background: #faf7f0; border: 0.5pt solid #e0d5bb; padding: 5mm; margin: 4mm 0; color: #5a4a30; }
+svg { display: block; margin: 0 auto; }
+.gold { fill: #c9a227; } .goldln { stroke: #c9a227; fill: none; }
+.ink { fill: #2c2416; } .inkln { stroke: #2c2416; fill: none; }
+.teal { fill: #1a9eae; } .tealln { stroke: #1a9eae; fill: none; }
+.fog { fill: #b9c2c6; }
+</style>
+</head>
+<body>
+
+<!-- COVER : the mountain with an ocean inside -->
+<div class="page">
+  <div class="wash"></div>
+  <svg class="art" width="88mm" viewBox="0 0 260 180">
+    <path class="inkln" stroke-width="2.6" d="M30 160 L130 30 L230 160 Z"/>
+    <clipPath id="mclip"><path d="M30 160 L130 30 L230 160 Z"/></clipPath>
+    <g clip-path="url(#mclip)">
+      <path class="tealln" stroke-width="2" d="M20 118 Q50 106 80 118 T140 118 T200 118 T260 118"/>
+      <path class="tealln" stroke-width="1.6" opacity="0.7" d="M20 134 Q50 123 80 134 T140 134 T200 134"/>
+      <path class="tealln" stroke-width="1.2" opacity="0.45" d="M20 150 Q50 140 80 150 T140 150 T200 150 T260 150"/>
+      <path class="gold" d="M130 88 C132 97 135 100 144 102 C135 104 132 107 130 116 C128 107 125 104 116 102 C125 100 128 97 130 88 Z"/>
+    </g>
+    <path class="gold" d="M130 6 C132.5 18 136 21.5 148 24 C136 26.5 132.5 30 130 42 C127.5 30 124 26.5 112 24 C124 21.5 127.5 18 130 6 Z"/>
+    <circle cx="52" cy="42" r="1.5" class="gold"/><circle cx="212" cy="52" r="1.5" class="gold"/>
+    <circle cx="234" cy="24" r="1.1" class="teal"/><circle cx="28" cy="80" r="1.2" class="teal"/>
+  </svg>
+  <h1>LARS<br>ir sapnų vandenynas</h1>
+  <div class="cover-sub">
+    Lars e l'oceano dei sogni · Lars und der Ozean der Träume<br><br>
+    gimęs po Avino saule ir Žuvų mėnuliu<br>
+    2019&nbsp;m. balandžio&nbsp;3&nbsp;d. · Frankfurt am Main
+  </div>
+</div>
+
+<!-- CH 1 · LT : the egg hatches — Aquari -->
+<div class="page">
+  <svg class="art" width="64mm" viewBox="0 0 240 130">
+    <path class="inkln" stroke-width="1.8" d="M78 96 Q78 46 108 46 Q138 46 138 96 Q138 118 108 118 Q78 118 78 96 Z" opacity="0.35"/>
+    <path class="inkln" stroke-width="1.6" d="M92 70 L100 78 L94 88 L104 96" opacity="0.35"/>
+    <g transform="translate(150 52)">
+      <path class="teal" d="M20 0 Q44 10 44 34 Q44 58 20 58 Q-4 58 -4 34 Q-4 12 20 0 Z" opacity="0.9"/>
+      <circle cx="14" cy="30" r="6.5" fill="#fff"/><circle cx="15.5" cy="31" r="3.4" class="ink"/>
+      <circle cx="32" cy="30" r="6.5" fill="#fff"/><circle cx="33.5" cy="31" r="3.4" class="ink"/>
+      <path class="inkln" stroke-width="1.6" stroke-linecap="round" d="M18 44 Q23 48 28 44"/>
+      <path class="gold" d="M46 40 C47.5 47 49.5 49 56 50.5 C49.5 52 47.5 54 46 61 C44.5 54 42.5 52 36 50.5 C42.5 49 44.5 47 46 40 Z"/>
+    </g>
+  </svg>
+  <div class="ch-title">I · Berniukas su vandenynu viduje</div>
+  <div class="scene">
+    <p>Iš išorės Lars atrodo rimtas ir tvirtas — kaip mažas kalnas. Bet Lars turi paslaptį: jo viduje gyvena ištisas vandenynas. Ten plaukioja sapnai, šviečia povandeninės žvaigždės, o jausmai — dideli kaip banginiai.</p>
+    <p>Vieną naktį ant jo pagalvės sušvinta perlamutrinis kiaušinis. TRRAKŠT! Iš jo išsirita mažas padarėlis mėlynom akim ir žvaigždės formos uodega.</p>
+    <p>— Aš esu <strong>Aquari</strong>, — pasako jis. — Aš šviečiu tada, kai tu jauti. O dabar man reikia tavo pagalbos, Lars. Vandenynas nyksta.</p>
+    <p class="echo">Dentro Lars vive un oceano intero. E dall'uovo nasce Aquari — che brilla quando Lars sente.</p>
+  </div>
+  <div class="spread-num">1</div>
+</div>
+
+<!-- CH 2 · IT : the grey fog -->
+<div class="page">
+  <svg class="art" width="70mm" viewBox="0 0 240 110">
+    <path class="gold" d="M50 78 C51.5 85 53.5 87 60 88.5 C53.5 90 51.5 92 50 99 C48.5 92 46.5 90 40 88.5 C46.5 87 48.5 85 50 78 Z" opacity="0.5"/>
+    <path class="gold" d="M120 84 C121.5 91 123.5 93 130 94.5 C123.5 96 121.5 98 120 105 C118.5 98 116.5 96 110 94.5 C116.5 93 118.5 91 120 84 Z" opacity="0.35"/>
+    <path class="gold" d="M188 80 C189.5 87 191.5 89 198 90.5 C191.5 92 189.5 94 188 101 C186.5 94 184.5 92 178 90.5 C184.5 89 186.5 87 188 80 Z" opacity="0.45"/>
+    <g>
+      <rect x="18" y="16" width="204" height="13" rx="6.5" class="fog" opacity="0.85"/>
+      <rect x="34" y="34" width="172" height="13" rx="6.5" class="fog" opacity="0.65"/>
+      <rect x="24" y="52" width="192" height="13" rx="6.5" class="fog" opacity="0.5"/>
+      <rect x="44" y="70" width="152" height="13" rx="6.5" class="fog" opacity="0.35"/>
+    </g>
+  </svg>
+  <div class="ch-title">II · La nebbia grigia</div>
+  <div class="scene">
+    <p>Aquari porta Lars in fondo ai suoi sogni. Ma l'oceano non brilla più: una nebbia grigia copre le stelle sottomarine, e le balene dei sentimenti nuotano lente e tristi.</p>
+    <p>— Che cos'è questa nebbia? — chiede Lars.</p>
+    <p>— Sono tutte le cose non dette, — risponde Aquari. — Ogni sentimento che nessuno chiama per nome diventa nebbia. Solo tu puoi scioglierla. Tu sei il capitano di questo oceano.</p>
+    <p>Lars stringe i pugni. È coraggioso — questo lo sa fare!</p>
+    <p class="echo">Rūkas — tai neišsakyti jausmai. Tik kapitonas gali jį išsklaidyti.</p>
+  </div>
+  <div class="spread-num">2</div>
+</div>
+
+<!-- CH 3 · DE : the sword that cuts nothing -->
+<div class="page">
+  <svg class="art" width="70mm" viewBox="0 0 240 110">
+    <rect x="18" y="26" width="204" height="13" rx="6.5" class="fog" opacity="0.8"/>
+    <rect x="34" y="46" width="172" height="13" rx="6.5" class="fog" opacity="0.55"/>
+    <rect x="26" y="66" width="190" height="13" rx="6.5" class="fog" opacity="0.35"/>
+    <g class="inkln" stroke-width="2.4" stroke-linecap="round">
+      <path d="M60 96 L150 22"/>
+      <path d="M74 76 L92 90"/>
+      <path d="M56 100 L50 105"/>
+    </g>
+    <g transform="translate(178 56) scale(0.72)">
+      <path class="teal" d="M20 0 Q44 10 44 34 Q44 58 20 58 Q-4 58 -4 34 Q-4 12 20 0 Z"/>
+      <circle cx="14" cy="30" r="6.5" fill="#fff"/><circle cx="15.5" cy="31" r="3.4" class="ink"/>
+      <circle cx="32" cy="30" r="6.5" fill="#fff"/><circle cx="33.5" cy="31" r="3.4" class="ink"/>
+      <path class="inkln" stroke-width="1.6" stroke-linecap="round" d="M18 44 Q23 48 28 44"/>
+      <path class="gold" d="M46 36 C47.5 43 49.5 45 56 46.5 C49.5 48 47.5 50 46 57 C44.5 50 42.5 48 36 46.5 C42.5 45 44.5 43 46 36 Z"/>
+      <path class="gold" d="M52 16 C53.5 23 55.5 25 62 26.5 C55.5 28 53.5 30 52 37 C50.5 30 48.5 28 42 26.5 C48.5 25 50.5 23 52 16 Z" opacity="0.8"/>
+    </g>
+  </svg>
+  <div class="ch-title">III · Das Schwert, das nichts schneidet</div>
+  <div class="scene">
+    <p>Lars zieht sein Traumschwert und stürmt auf die Nebelwand zu — HIEB! Aber das Schwert geht einfach durch den Nebel hindurch. Man kann Nebel nicht besiegen. Man kann ihn nicht schubsen, nicht fangen, nicht anschreien.</p>
+    <p>— Nenne ihn, — flüstert Aquari. — Nenne, was du fühlst. Das ist die einzige Magie, die hier wirkt.</p>
+    <p>Lars atmet tief. Und ganz leise sagt er: — <em>Ich habe manchmal Angst.</em></p>
+    <p>Da reißt der Nebel auf wie ein Vorhang. Und Aquari beginnt zu leuchten, heller und heller —</p>
+    <div class="evolve">✦ Aquari → MARELLI ✦</div>
+    <p class="echo">Lars ištaria: „Kartais aš bijau." Ir rūkas prasiskiria.</p>
+  </div>
+  <div class="spread-num">3</div>
+</div>
+
+<!-- CH 4 · LT : the crew -->
+<div class="page">
+  <svg class="art" width="76mm" viewBox="0 0 260 110">
+    <circle cx="46" cy="72" r="13" fill="#fff" class="inkln" stroke-width="2"/>
+    <path class="inkln" stroke-width="1.2" d="M40 64 L46 72 L40 80 M46 72 L58 70"/>
+    <path class="gold" d="M104 48 C106 58 109 61 119 63 C109 65 106 68 104 78 C102 68 99 65 89 63 C99 61 102 58 104 48 Z"/>
+    <g class="ink" transform="translate(140 44) scale(0.68)">
+      <path d="M20 60 Q18 38 32 34 L34 26 L40 32 Q44 30 48 32 L54 26 L56 34 Q68 40 66 60 Z"/>
+      <path class="inkln" stroke-width="2" stroke-linecap="round" d="M66 56 Q78 52 74 40" fill="none"/>
+    </g>
+    <g transform="translate(206 40) scale(0.68)">
+      <path class="teal" d="M20 0 Q44 10 44 34 Q44 58 20 58 Q-4 58 -4 34 Q-4 12 20 0 Z"/>
+      <circle cx="14" cy="30" r="6.5" fill="#fff"/><circle cx="15.5" cy="31" r="3.4" class="ink"/>
+      <circle cx="32" cy="30" r="6.5" fill="#fff"/><circle cx="33.5" cy="31" r="3.4" class="ink"/>
+      <path class="inkln" stroke-width="1.6" stroke-linecap="round" d="M18 44 Q23 48 28 44"/>
+      <path class="gold" d="M46 36 C47.5 43 49.5 45 56 46.5 C49.5 48 47.5 50 46 57 C44.5 50 42.5 48 36 46.5 C42.5 45 44.5 43 46 36 Z"/>
+      <path class="gold" d="M52 16 C53.5 23 55.5 25 62 26.5 C55.5 28 53.5 30 52 37 C50.5 30 48.5 28 42 26.5 C48.5 25 50.5 23 52 16 Z" opacity="0.8"/>
+    </g>
+  </svg>
+  <div class="ch-title">IV · Komanda</div>
+  <div class="scene">
+    <p>Staiga iš už koralų pasigirsta juokas. Tai Luis! Jis atsinešė kamuolį net į sapną ir spiria jį tiesiai į rūką — POKŠT! — rūke atsiranda skylė. Pasirodo, juokas irgi magija.</p>
+    <p>Šalia plaukia mažoji Nova, šviesdama kaip maža žvaigždutė jūroje. O katė Titty... katė Titty tiesiog eina per rūką sausom letenom, lyg jo nė nebūtų. Katės visada žino kelią.</p>
+    <p>— Kapitone, — sako Aquari-Marelli, — tavo komanda atplaukė.</p>
+    <p class="echo">Luis, Nova e la gatta Titty — la squadra del capitano è arrivata.</p>
+  </div>
+  <div class="spread-num">4</div>
+</div>
+
+<!-- CH 5 · IT/ALL : the sea shines again -->
+<div class="page">
+  <svg class="art" width="76mm" viewBox="0 0 260 130">
+    <path class="tealln" stroke-width="2" d="M14 24 Q44 12 74 24 T134 24 T194 24 T254 24"/>
+    <g class="ink">
+      <path class="teal" d="M52 84 Q78 58 122 66 Q142 70 152 62 L166 48 L162 68 L178 78 L158 80 Q140 96 108 94 Q70 92 52 84 Z" opacity="0.85"/>
+      <circle cx="80" cy="76" r="2.4" fill="#fff"/>
+    </g>
+    <path class="gold" d="M204 64 C206.5 76 210 79.5 222 82 C210 84.5 206.5 88 204 100 C201.5 88 198 84.5 186 82 C198 79.5 201.5 76 204 64 Z"/>
+    <path class="gold" d="M226 44 C227.5 51 229.5 53 236 54.5 C229.5 56 227.5 58 226 65 C224.5 58 222.5 56 216 54.5 C222.5 53 224.5 51 226 44 Z" opacity="0.85"/>
+    <path class="gold" d="M186 38 C187.5 45 189.5 47 196 48.5 C189.5 50 187.5 52 186 59 C184.5 52 182.5 50 176 48.5 C182.5 47 184.5 45 186 38 Z" opacity="0.7"/>
+    <circle cx="36" cy="110" r="2" class="gold"/><circle cx="120" cy="116" r="2" class="gold"/><circle cx="70" cy="118" r="1.5" class="gold"/>
+  </svg>
+  <div class="ch-title">V · Il mare torna a brillare</div>
+  <div class="scene">
+    <p>Resta un'ultima nuvola di nebbia, la più scura. Lars la guarda a lungo. Poi dice la cosa più coraggiosa di tutte:</p>
+    <p>— <em>A volte voglio essere piccolo anch'io.</em></p>
+    <p>E la nebbia... sparisce. Tutta. Le stelle sottomarine si accendono, le balene ballano, e Marelli esplode di luce —</p>
+    <div class="evolve">✦ MARELLI → STELLAMAR ✦</div>
+    <p>Ryte Lars pabunda su rimtu veidu — kaip visada. Bet dabar jis žino: rimtas veidas ir vandenynas viduje — abu yra jo. Ir abu yra stiprybė.</p>
+    <div class="spell">Aš jaučiu — vadinasi, aš galiu.<br>Sento — quindi posso.<br>Ich fühle — also kann ich.</div>
+  </div>
+  <div class="spread-num">5</div>
+</div>
+
+<!-- PARENTS (Italiano) -->
+<div class="page parents">
+  <h2>✦ Il cielo di Lars · Per i genitori</h2>
+  <p>Questa avventura è il vero cielo di nascita di Lars — calcolato per il 3 aprile 2019, ore 04:16, Frankfurt am Main.</p>
+  <div class="chart">Sole     Ariete 13°02′     Casa 2
+Luna     Pesci 17°35′      Casa 1
+Mercurio Pesci 17°26′ · Venere Pesci 08°45′ · Nettuno Pesci 17°09′ — tutti in Casa 1
+ASC      Capricorno 24°08′
+Saturno  Capricorno 19°55′  Casa 12
+Human Design: Generator · Autorità sacrale · 4/6
+Segno cinese: Maiale di Terra (2019)</div>
+  <p><strong>«La piccola montagna con dentro un oceano»</strong> — è la struttura vera e sorprendente del suo cielo: un Ascendente in Capricorno serio e solido, e dietro Luna, Mercurio, Venere e Nettuno, tutti in Pesci nella prima casa. Lui è davvero entrambi: l'esterno composto e l'immenso mare interiore. Nessuno dei due è una maschera; sono suoi tutti e due.</p>
+  <p><strong>«La nebbia delle cose non dette»</strong> — con così tanti Pesci a fior di pelle, i sentimenti senza nome non spariscono: diventano nebbia. L'unico incantesimo del libro — dare un nome a ciò che sente — è il vero regalo di queste pagine. Aquari «evolve» ogni volta che lui lo fa; e in silenzio, anche lui.</p>
+  <p><strong>«La spada che non taglia niente»</strong> — il suo Sole in Ariete vuole combattere ciò che fa male. La lezione del cielo, con dolcezza: alcune cose non si sconfiggono, si sciolgono.</p>
+  <p><strong>Maiale di Terra</strong> — nel calendario cinese: un cuore generoso e concreto, radici che tengono. La montagna della copertina lo sapeva.</p>
+  <p><strong>«La squadra»</strong> — Nodo Nord in Cancro: la sua strada passa per la cura e l'appartenenza. Lasciar entrare gli altri è l'eroismo.</p>
+  <p style="margin-top:5mm;color:#8a7860;">Una storia è uno specchio, non una mappa del destino. ✦</p>
+</div>
+
+</body>
+</html>
