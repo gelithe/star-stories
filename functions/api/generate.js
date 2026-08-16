@@ -287,7 +287,7 @@ Practical test for EVERY line: would it make this reader feel TRAPPED by who the
 
     out.push(`\nCRAFT:
 - ONE TRUTH PER LETTER. Resist cramming the chart. Depth beats coverage — three placements listed is a horoscope; one seen all the way down is a letter.
-- IMAGE BEFORE TERMINOLOGY. They never meet a placement, only the picture of it.
+- ONE IMAGE, CARRIED. They never meet a placement, only the picture of it — and it is ONE picture, the one this particular chart handed you, still there at the close and made of the same material. The title is made of it too. If the ending reaches for an image the opening did not have, the opening image was the wrong one: go back and change that, not the ending.
 - GIFT, NOT LABEL. End on something repeatable, never a verdict about who they are.
 - REAL DETAILS ARE GOLD. Use whatever true things you are given — a name, a city, a person — they are what make this theirs and not anyone's.
 - READ IT BACK AS THEM. The test is whether they would keep the page or fold it away politely.
@@ -338,7 +338,9 @@ A NEW NAME IS OPTIONAL AND MUST BE EARNED AND EXPLAINED. Only if the story genui
 2. THE TWO FACES. Name the one way this has protected them, and the one way it has cost them. Be specific enough to be uncomfortable; the cost is the part that earns their trust, and a letter that only praises is one they will read once and never again. Never a verdict, never a diagnosis — the cost is a pattern they may recognise, not a flaw they are stuck with.
 3. THE ONE THING. Close on a single repeatable thing they can actually do with this — small, concrete, doable tomorrow. Not advice about their life; one move.
 
-Write to them, not about them: "you", throughout. No preamble, no throat-clearing about the stars, no summary at the end — the last line lands and stops. Nothing predicted: what they do with any of it is theirs.`);
+Write to them, not about them: "you", throughout. No preamble, no throat-clearing about the stars, no summary at the end — the last line lands and stops. Nothing predicted: what they do with any of it is theirs.
+
+The three movements are the ARCHITECTURE, never the wording. The reader should feel each turn without ever seeing a joint: a paragraph does the thing rather than announcing it, and the letter never says which movement it has reached. Watch for the seams — a sentence that hands over a compliment before the cost, or introduces the closing move, or reassures them that what they have is a real thing. Those sentences are load-bearing for you and empty for them; every one of them could be pasted into a letter to anybody. Take it out and say the specific thing that only fits this person.`);
   } else if (isVerse) {
     out.push(`\nSHAPE — a lullaby is not a plot. The spreads are a gentle progression, not a story with tension and resolution: begin at the child arriving / the day softening, move through a few warm images drawn from the chart, and end at sleep ("goodnight, ${s.birth.name}"). No conflict, no lesson spelled out — just images and rest.`);
   } else {
