@@ -28,3 +28,7 @@ Hold these while you work:
 - On prompts: fewer rules beat more. Prohibitions make the model write
   defensively; a clear persona and positively-stated principles make it write
   well. If a brief is growing longer, it is probably getting worse.
+- Before editing the craft prompt in `functions/api/generate.js`, or diagnosing
+  a book or letter that came back wrong, load the **`prompt-craft`** skill. It
+  carries the lessons from previous sessions and a script that prints the exact
+  assembled brief without spending a credit.
