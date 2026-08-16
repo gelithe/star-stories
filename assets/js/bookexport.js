@@ -53,7 +53,12 @@ function paginateStory(root) {
       cur.push(node.outerHTML); continue;
     }
     if (cls.includes('spell')) { flush(); pages.push(node.outerHTML); continue; }
-    if (cls.includes('parents')) { flush(); pages.push(`<div class="page parents">${node.innerHTML}</div>`); continue; }
+    if (cls.includes('parents')) {
+      // A lone mirror line (the adult letter) closes the page it is on; a real
+      // parents' page gets its own sheet.
+      if (cur.length && node.children.length === 1 && node.querySelector('.mirror')) { cur.push(node.outerHTML); continue; }
+      flush(); pages.push(`<div class="page parents">${node.innerHTML}</div>`); continue;
+    }
     cur.push(node.outerHTML); // scene / evolve / stray nodes
   }
   flush();

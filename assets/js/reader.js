@@ -27,6 +27,11 @@ function buildSpreads() {
     const cls = node.className || '';
     if (node.tagName === 'FIGURE') { fresh(); cur.appendChild(node.cloneNode(true)); continue; }
     if (cls.includes('ch-title')) { if (!cur || cur.querySelector('.scene,.verse,.ch-title')) fresh(); cur.appendChild(node.cloneNode(true)); continue; }
+    // The adult letter's closing block is one italic line, not a parents' page —
+    // it belongs at the foot of the letter rather than alone on a turned page.
+    if (cls.includes('parents') && cur && node.children.length === 1 && node.querySelector('.mirror')) {
+      cur.appendChild(node.cloneNode(true)); continue;
+    }
     if (cls.includes('spell') || cls.includes('parents')) { fresh(); cur.appendChild(node.cloneNode(true)); continue; }
     if (!cur) fresh();
     cur.appendChild(node.cloneNode(true));

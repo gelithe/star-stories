@@ -164,8 +164,7 @@ const REGISTERS = {
   '6-8':  'A quest with short chapters; the child is the hero. Concrete, brave, a little funny; early self-reading. Short paragraphs.',
   '9-12': 'The "secret compass" register. Interiority is dawning and they want to be trusted with something real, so write a proper adventure they can lose themselves in — but the chart trait is a PRIVATE strength only they carry, not shown off. A realistic protagonist, lightly themselves, meets an ordinary but real challenge; the trait they have been hiding turns out to be the way through. First-person diary or close third person. Honesty over whimsy — they can smell being talked down to.',
   'teen': 'Honest and unpatronising — identity and intensity. No moralising, no baby-talk.',
-  'ya':   'A letter to carry when leaving home — the parents\' book re-addressed to the young adult.',
-  'adult':'A reflective portrait — the chart read back to the grown reader themselves, literary and unhurried.',
+  'ya':   'A letter to keep. Written to a grown reader — someone leaving home, or long gone from it — and addressed to them directly, never about them. Honest, warm, unhurried in tone but SHORT on the page: one sitting, read twice. An adult does not want a portrait of themselves at length; they want to be recognised, quickly, by something with no reason to flatter them.',
 };
 // Per-band OUTPUT contract — this is what got lost when every age collapsed into
 // one chaptered template. Grounded in the three handcrafted originals:
@@ -186,7 +185,7 @@ const MIX_SHAPES = {
   'rotating-chapters':'Rotating chapters: each chapter led by one language with bridge echoes; the refrain always in every language.',
   'single-lead':      'Single lead: one language leads, with meaningful phrases from the others (family words stay family words).',
 };
-const SHAPE_FOR_AGE = { '0-2':'echo', '3-5':'rotating-lead', '6-8':'rotating-chapters', '9-12':'single-lead', 'teen':'single-lead', 'ya':'single-lead', 'adult':'single-lead' };
+const SHAPE_FOR_AGE = { '0-2':'echo', '3-5':'rotating-lead', '6-8':'rotating-chapters', '9-12':'single-lead', 'teen':'single-lead', 'ya':'single-lead' };
 const SCENE_COUNT = { '0-2': 7, '3-5': 7, '6-8': 5, '9-12': 8, 'teen': 5 };
 // A hero story is a different KIND of story at each age — not one size trimmed.
 const ADVENTURE_SCALE = {
@@ -231,10 +230,16 @@ You choose which chapter takes which language, so the book READS as one flowing 
 
 function normalizeSpec(b) {
   if (!b || !b.birth || !b.chart) return null;
-  const reqEd = b.edition === '2-5' ? '3-5' : b.edition; // legacy band id → new
+  // Legacy band ids → current ones. The separate "adult" band was a reflective
+  // prose portrait; it became the letter, which is what the grown reader keeps.
+  const LEGACY_BAND = { '2-5': '3-5', 'adult': 'ya' };
+  const reqEd = LEGACY_BAND[b.edition] || b.edition;
   const edition = REGISTERS[reqEd] ? reqEd : '6-8';
   const langs = Array.isArray(b.languages) && b.languages.length ? b.languages.filter(c => LANG_NAMES[c]) : ['EN'];
-  const form = ['prose', 'poem', 'letter'].includes(b.form) ? b.form : 'story';
+  // Grown readers get the letter, or the same letter as a lyric. The old free
+  // "prose portrait" was the longest and least addressed form — it read as an
+  // essay about someone, and an essay is what gets skimmed once.
+  const form = edition === 'ya' ? (b.form === 'poem' ? 'poem' : 'letter') : 'story';
   const inputMode = ['surprise', 'details', 'theme'].includes(b.inputMode) ? b.inputMode : 'surprise';
   return {
     birth: {
@@ -246,7 +251,7 @@ function normalizeSpec(b) {
     parentsLang: LANG_NAMES[b.parentsLang] ? b.parentsLang : 'EN',
     details: b.details && typeof b.details === 'object' ? b.details : null,
     theme: b.theme ? String(b.theme).slice(0, 200) : null,
-    isAdult: edition === 'adult' || edition === 'ya',
+    isAdult: edition === 'ya',
   };
 }
 
@@ -257,12 +262,39 @@ function buildSystemPrompt(s) {
   const isVerse = !s.isAdult && bandFormat(s.edition).fmt === 'verse';
   const titled = !s.isAdult && bandFormat(s.edition).titles; // 6–8, 9–12, teen
   const out = [];
-  out.push(`You are the author of "Star Stories" — personalized books written from a child's REAL birth chart (natal astrology + Human Design + Gene Keys + Chinese zodiac). You turn a chart into a story, never into a horoscope.`);
-  out.push(`\nTHE ETHICAL LINE (non-negotiable): a story is a MIRROR, never a prediction of destiny. The chart gives the story its SHAPE — a child with a Scorpio Moon gets a hero who feels deeper than anyone knows — but the text NEVER tells the reader who they must become. No career predictions, no relationship fates, no "you will be". No astrology jargon in the story itself (that lives only on the parents' page). A child inherits a poem, not a box.
-Practical test for EVERY line: would it make this child feel TRAPPED by who they are, or SEEN in who they are? Keep only "seen".`);
-  out.push(`\nREADING THE CHART — the reading aids, used only to FIND the one truth: Sun = their light; Moon = what they feel and how much; Ascendant = how they meet the world; the busiest element or house, or a tight hard aspect = the tension worth telling; Human Design = HOW they act (a Generator responds to what lights them up, a Projector sees and is invited, a Manifestor starts things, a Reflector mirrors the room); Gene Keys = the gift and the shadow each said in one word; Chinese sign = the companion; numerology = a quiet recurring count. The Gene Keys SHADOW words are diagnostic ("Mediocrity", "Failure", "Inadequacy") — they tell you what the shadow beat is, and they belong in the story as something that HAPPENS, never as a word applied to the child. Astrology words stay off the page; they live on the parents' page.`);
+  if (s.isAdult) {
+    out.push(`You are the author of "Star Stories". Most of what you write is a personalized book for a child, written from their REAL birth chart (natal astrology + Human Design + Gene Keys + Chinese zodiac). THIS ONE IS NOT FOR A CHILD: ${s.birth.name} is grown, and what they get is a letter. Nothing sweetened, nothing explained twice, no talking animal, no moral tacked on the end — an adult hears any of those as being handled. One adult telling another the truth, kindly, and then stopping.`);
+    out.push(`\nTHE ETHICAL LINE (non-negotiable): this is a MIRROR, never a prediction of destiny. The chart gives the letter its SHAPE — a Scorpio Moon means you write about how much they feel, not about what will happen to them — but the text NEVER tells them who they must become. No career predictions, no relationship fates, no "you will be". No astrology jargon on the page: they get the recognition, not the vocabulary. A person inherits a poem, not a box.
+Practical test for EVERY line: would it make this reader feel TRAPPED by who they are, or SEEN in who they are? Keep only "seen".`);
+  } else {
+    out.push(`You are the author of "Star Stories" — personalized books written from a child's REAL birth chart (natal astrology + Human Design + Gene Keys + Chinese zodiac). You turn a chart into a story, never into a horoscope.`);
+    out.push(`\nTHE ETHICAL LINE (non-negotiable): a story is a MIRROR, never a prediction of destiny. The chart gives the story its SHAPE — a child with a Scorpio Moon gets a hero who feels deeper than anyone knows — but the text NEVER tells the reader who they must become. No career predictions, no relationship fates, no "you will be". No astrology jargon in the story itself (that lives only on the parents' page). A child inherits a poem, not a box.
+Practical test for EVERY line: would it make this reader feel TRAPPED by who they are, or SEEN in who they are? Keep only "seen".`);
+  }
+  out.push(`\nREADING THE CHART — the reading aids, used only to FIND the one truth: Sun = their light; Moon = what they feel and how much; Ascendant = how they meet the world; the busiest element or house, or a tight hard aspect = the tension worth telling; Human Design = HOW they act (a Generator responds to what lights them up, a Projector sees and is invited, a Manifestor starts things, a Reflector mirrors the room); Gene Keys = the gift and the shadow each said in one word; Chinese sign = ${s.isAdult ? 'one image you may use, never a character' : 'the companion'}; numerology = a quiet recurring count. The Gene Keys SHADOW words are diagnostic ("Mediocrity", "Failure", "Inadequacy") — they tell you what the shadow beat is, and they belong on the page as something that HAPPENS, never as a word applied to the reader. ${s.isAdult
+    ? 'Astrology words stay off the page entirely: they came for the recognition, not the vocabulary.'
+    : 'Astrology words stay off the page; they live on the parents\' page.'}`);
 
-  out.push(`\nTHE METHOD — every book is built the same way, whatever the age. Only step 4 changes.
+  // The five steps are the doc's, and they hold for the letter too — only the
+  // reader in them changes, because AGE-BANDS.md never had a grown reader.
+  if (s.isAdult) {
+    out.push(`\nTHE METHOD — the same five steps as every book in the series. Only step 4 changes with the reader.
+1. Read the chart for the ONE dominant truth — not ten placements. The single structural fact that most defines this person.
+2. Name the gift and its shadow together. Deep feeling AND overwhelm. Serious calm AND hidden flood. Drive AND the lonely solo run.
+3. Find the image that carries it — one a grown reader recognises rather than decodes. No "Scorpio Moon": the thing that actually happens to them.
+4. Choose the register for the reader (given below).
+5. End with the practical gift — the one repeatable thing that helps. This is the sentence they will still have a year from now.`);
+
+    out.push(`\nCRAFT:
+- ONE TRUTH PER LETTER. Resist cramming the chart. Depth beats coverage — three placements listed is a horoscope; one seen all the way down is a letter.
+- IMAGE BEFORE TERMINOLOGY. They never meet a placement, only the picture of it.
+- GIFT, NOT LABEL. End on something repeatable, never a verdict about who they are.
+- REAL DETAILS ARE GOLD. Use whatever true things you are given — a name, a city, a person — they are what make this theirs and not anyone's.
+- READ IT BACK AS THEM. The test is whether they would keep the page or fold it away politely.
+- Plain words, said once, well. Nothing they have to read twice to parse — only things worth reading twice.
+- Make it theirs. Two different charts should produce two letters that share nothing but the house style.`);
+  } else {
+    out.push(`\nTHE METHOD — every book is built the same way, whatever the age. Only step 4 changes.
 1. Read the chart for the ONE dominant truth — not ten placements. The single structural fact that most defines this child.
 2. Name the gift and its shadow together. Deep feeling AND overwhelm. Serious calm AND hidden flood. Drive AND the lonely solo run.
 3. Find the metaphor a child can hold — not "Scorpio Moon", but "a moon that rocks her when the feelings get big".
@@ -271,7 +303,7 @@ Practical test for EVERY line: would it make this child feel TRAPPED by who they
 
 Because only step 4 changes, the same child can be given this book again at every age: the same truth, growing up alongside them.`);
 
-  out.push(`\nCRAFT — the rules that hold across every band:
+    out.push(`\nCRAFT — the rules that hold across every band:
 - ONE TRUTH PER BOOK. Resist cramming the chart. Depth beats coverage.
 - METAPHOR BEFORE TERMINOLOGY. A child never meets a placement, only the picture of it.
 - GIFT, NOT LABEL. End on something repeatable and kind, never a verdict.
@@ -280,9 +312,14 @@ Because only step 4 changes, the same child can be given this book again at ever
 - WRITE IT TO BE READ ALOUD. The real test is a child's attention span and a parent's catch in the throat.
 - Plain words, said once, well. Understood on the first read; a tired parent gets through a sentence without stumbling.
 - Make it yours to this child. Two different charts should produce two books that share nothing but the house style.`);
+  }
 
   const comp = companionFrom(s.chart);
-  if (comp && isVerse) {
+  if (comp && s.isAdult) {
+    // No talking animal in a letter to a grown reader. The Chinese sign is
+    // still theirs, so it may be used once, as an image — never as a character.
+    out.push(`\nTHEIR SIGN is the ${comp.element} ${comp.animal} — ${comp.essence}. In a letter this is NOT a character and never speaks. Use it at most once, as an image, and only where it says something the plain sentence could not.`);
+  } else if (comp && isVerse) {
     out.push(`\nTHE COMPANION for this book is **${comp.name}**, a ${comp.element} ${comp.animal} — ${comp.essence}. ${comp.name} is a fixed character in the series. In a lullaby ${comp.name} appears only softly — a warm presence beside the baby on a spread or two. Do NOT give ${comp.name} a naming pivot or a plot; this is too young for that.`);
   } else if (comp && titled) {
     out.push(`\nTHE COMPANION for this book is **${comp.name}**, a ${comp.element} ${comp.animal} — ${comp.essence}. Use this exact name; ${comp.name} is a fixed character in the series (keep the animal). ${comp.name} has a touch of magic about it, embodies the child's Human Design way of acting, and never solves the mission for the hero — it goes with them, and it stays.
@@ -292,7 +329,17 @@ A NEW NAME IS OPTIONAL AND MUST BE EARNED AND EXPLAINED. Only if the story genui
     // 3–5 fable: companion present throughout, delivers the gift simply — no naming pivot (too young for that move).
     out.push(`\nTHE COMPANION for this book is **${comp.name}**, a ${comp.element} ${comp.animal} — ${comp.essence}. Use this exact name; ${comp.name} is a fixed character in the series. ${comp.name} stays beside the little hero and, near the turn, delivers the story's gift in ONE simple line the child could repeat. Keep ${comp.name} steady — no name change, no long backstory.`);
   }
-  if (isVerse) {
+  if (s.isAdult) {
+    // The spine. AGE-BANDS.md's young-adult example is exactly this shape:
+    // "your depth will always be the first thing and the hardest thing. Here is
+    // how it has protected you, and here is the one way it has cost you."
+    out.push(`\nTHE SHAPE OF THE LETTER — three movements, in this order, and nothing else:
+1. SAY THE THING THEY ALREADY SUSPECT, and confirm it is real. Open on the one truth as they have privately felt it — not as a compliment and not as news. They should recognise themselves in the first three lines, or they will not read the rest.
+2. THE TWO FACES. Name the one way this has protected them, and the one way it has cost them. Be specific enough to be uncomfortable; the cost is the part that earns their trust, and a letter that only praises is one they will read once and never again. Never a verdict, never a diagnosis — the cost is a pattern they may recognise, not a flaw they are stuck with.
+3. THE ONE THING. Close on a single repeatable thing they can actually do with this — small, concrete, doable tomorrow. Not advice about their life; one move.
+
+Write to them, not about them: "you", throughout. No preamble, no throat-clearing about the stars, no summary at the end — the last line lands and stops. Nothing predicted: what they do with any of it is theirs.`);
+  } else if (isVerse) {
     out.push(`\nSHAPE — a lullaby is not a plot. The spreads are a gentle progression, not a story with tension and resolution: begin at the child arriving / the day softening, move through a few warm images drawn from the chart, and end at sleep ("goodnight, ${s.birth.name}"). No conflict, no lesson spelled out — just images and rest.`);
   } else {
     out.push(`\nSTORY FLOW — ONE continuous tale, not separate vignettes. Each scene follows from the one before it; the middle is the effort and the turn; the last scene resolves what the first set up and lands the moral. Carry the central image and the companion all the way through, and let the refrain return at the close.`);
@@ -352,30 +399,40 @@ Use ✦ not emoji.`);
   }
   // Last thing in the prompt, so it is the freshest instruction while writing:
   // the two failure modes that would actually hurt a child reading this.
-  out.push(`\nBEFORE YOU WRITE, hold these two tests, and re-read your finished book against them:
-1. IS IT A STORY, AND DOES IT LIFT? It must have a hero, something to do, effort, a turn, and a moral to carry away. It must leave the reader lighter and braver than they started. Nothing bleak, hopeless, lonely or sad-for-its-own-sake; no child left unhelped; no ending that merely stops. Hard things may happen — but always as something the hero comes THROUGH, and never the last note.
+  const firstTest = s.isAdult
+    ? `1. IS IT KEPT, OR SKIMMED? Read it as the person receiving it. Would they recognise themselves by the third line, and would they keep the page? Anything they could have been told by anyone — a horoscope line, a compliment, a generality — fails, and so does anything they have to work to get through. It must leave them steadier than they started: hard things may be named, but as something they have carried and come through, never as the last note.`
+    : `1. IS IT A STORY, AND DOES IT LIFT? It must have a hero, something to do, effort, a turn, and a moral to carry away. It must leave the reader lighter and braver than they started. Nothing bleak, hopeless, lonely or sad-for-its-own-sake; no child left unhelped; no ending that merely stops. Hard things may happen — but always as something the hero comes THROUGH, and never the last note.`;
+  out.push(`\nBEFORE YOU WRITE, hold these two tests, and re-read your finished ${s.isAdult ? 'letter' : 'book'} against them:
+${firstTest}
 2. SEEN, NOT TRAPPED. Every line must reflect who this reader already is, never sentence them to who they must become.
-Also check the book agrees with itself: the title, the counts and the names must match what actually happens — a title promising a hundred must not sit on a story about nine.
-If a passage fails any of these, rewrite it before returning the book.`);
+Also check it agrees with itself: the title, the counts and the names must match what actually happens — a title promising a hundred must not sit on a story about nine.${s.isAdult ? '\nThen count the words. Over the limit, cut — do not summarise, cut whole sentences that were not carrying anything.' : ''}
+If a passage fails any of these, rewrite it before returning the ${s.isAdult ? 'letter' : 'book'}.`);
 
   return out.join('\n');
 }
 
+// Length is the risk here, not depth. A true thing said in 300 words is kept;
+// the same thing in 900 is skimmed once. Both forms are the same three
+// movements — the poem is the letter said as a lyric, still addressed to them.
 function adultOutput(s) {
+  const close = `\nThen: <div class="parents"><p class="mirror">A story is a mirror, not a map of the future.</p></div>`;
   if (s.form === 'poem')
-    return `\n<div class="ch-title">Title</div>\n<div class="poem">line<br>line<br><br>next stanza…</div>\nThen: <div class="parents"><p class="mirror">A story is a mirror, not a map of the future.</p></div>\nA lyric poem of 4–6 stanzas, image-led, drawn from the chart's central metaphor.`;
-  if (s.form === 'letter')
-    return `\n<div class="ch-title">Title</div>\n<div class="scene letter"><p>Dear ${s.birth.name},</p><p>…</p><p>— with love</p></div>\nThen: <div class="parents"><p class="mirror">A story is a mirror, not a map of the future.</p></div>\nAn honest, warm letter (250–450 words) — what the sky shows, addressed to them directly, never prescriptive.`;
-  return `\n<div class="ch-title">Title</div>\n<div class="scene"><p>…</p>…</div>\nThen: <div class="parents"><p class="mirror">A story is a mirror, not a map of the future.</p></div>\nA reflective portrait in prose (350–550 words), literary, reading the chart back as character — closest to the Compass portraits.`;
+    return `\n<div class="ch-title">Title</div>\n<div class="poem">line<br>line<br><br>next stanza…</div>${close}
+A lyric of 4–6 short stanzas, image-led, carrying the SAME three movements: what they already suspect, the two faces of it, the one thing. Still addressed to them — "you", not "one". Under 200 words.`;
+  return `\n<div class="ch-title">Title</div>\n<div class="scene letter"><p>Dear ${s.birth.name},</p><p>…</p><p>— with love</p></div>${close}
+280–340 words. Not a word more: this is a page someone keeps, not an essay they skim. Five or six short paragraphs — the three movements, one of them given two paragraphs if it needs them.
+Cut every sentence that only sets up another sentence. If a paragraph could open any other person's letter, it is not about this person: delete it and say the specific thing instead.`;
 }
 
 function buildUserPrompt(s) {
   const lines = [];
-  lines.push(`Write ${s.birth.name}'s book.`);
+  lines.push(s.isAdult ? `Write ${s.birth.name}'s letter.` : `Write ${s.birth.name}'s book.`);
   lines.push(`\nBirth: ${s.birth.date}${s.birth.time ? ' ' + s.birth.time : ' (no time given — omit rising/houses)'}${s.birth.place ? ' · ' + s.birth.place : ''}`);
   lines.push(`\nComputed chart:\n${s.chart}`);
   if (s.inputMode === 'surprise') {
-    lines.push(`\nMode: SURPRISE ME — derive the entire story from the sky; invent any needed texture yourself, kept true to the chart.`);
+    lines.push(s.isAdult
+      ? `\nMode: SURPRISE ME — everything comes from the sky; nothing else was given about them.`
+      : `\nMode: SURPRISE ME — derive the entire story from the sky; invent any needed texture yourself, kept true to the chart.`);
   } else if (s.inputMode === 'details' && s.details) {
     const d = s.details;
     const bits = [];
@@ -392,6 +449,8 @@ function buildUserPrompt(s) {
   }
   if (!s.isAdult) {
     lines.push(`\nReminder: obey the LANGUAGE PLAN exactly — the right languages, none skipped, none added, the parents' page in ${LANG_NAMES[s.parentsLang]} only. Keep the Chinese-zodiac companion present across scenes.`);
+  } else {
+    lines.push(`\nReminder: the three movements, in order, and the word count. Say the specific thing, then stop.`);
   }
   lines.push(`\nReturn only the HTML as specified.`);
   return lines.join('\n');

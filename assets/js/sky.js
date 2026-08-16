@@ -11,15 +11,14 @@ const AGE_BANDS = [
   { id: '6-8',  label: '6–8',        reader: 'early self-reading',    register: 'A quest with short chapters — the child as the hero.',           shape: 'rotating-chapters' },
   { id: '9-12', label: '9–12',       reader: 'private reading',       register: 'Adventure and first interiority — "your secret compass".',       shape: 'single-lead' },
   { id: 'teen', label: 'Teenager',   reader: 'skeptical reading',     register: 'Honest and unpatronising — identity and intensity.',            shape: 'single-lead' },
-  { id: 'ya',   label: 'Young adult',reader: 'leaving home',          register: 'A letter to carry — the parents’ book, re-addressed to them.', shape: 'single-lead', forms: true },
-  { id: 'adult',label: 'Adult',      reader: 'for the grown reader',  register: 'A reflective portrait — the sky read back to the person themselves.', shape: 'single-lead', forms: true },
+  { id: 'ya',   label: 'Adult',     reader: '18 and up, for keeping',register: 'A letter addressed to you — what the sky shows, in one sitting.', shape: 'single-lead', forms: true },
 ];
 
-// Form of the writing (adult editions choose; children's editions are always a story).
+// Form of the writing (the adult edition chooses; children's editions are
+// always a story). Both are the same letter — one of them said as a lyric.
 const FORMS = [
-  { id: 'prose',  label: 'Prose',  hint: 'a literary portrait' },
-  { id: 'poem',   label: 'Poem',   hint: 'a lyric, image-led piece' },
-  { id: 'letter', label: 'Letter', hint: 'addressed to them directly' },
+  { id: 'letter', label: 'Letter', hint: 'written to them, about 300 words' },
+  { id: 'poem',   label: 'Poem',   hint: 'the same letter, said as a lyric' },
 ];
 
 // ─── PRODUCT: how the chosen languages sit in the book ───────────────────────

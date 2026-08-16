@@ -19,7 +19,7 @@ const state = {
   age: '6-8',
   bookLangs: ['LT', 'IT', 'DE'],
   parentsLang: 'IT',
-  form: 'prose',            // adult editions: prose | poem | letter
+  form: 'letter',           // adult edition: letter | poem
   inputMode: 'surprise',    // surprise | details | theme
   details: { crew: '', familyWords: '', treasure: '' },
   theme: '',
@@ -68,6 +68,12 @@ function scheduleSave() { clearTimeout(_saveTimer); _saveTimer = setTimeout(save
 
 function applyDraft(d) {
   for (const k of DRAFT_FIELDS) if (d[k] !== undefined && d[k] !== null) state[k] = d[k];
+  // A draft saved before a band or form was renamed must not land the reader on
+  // a chip that no longer exists.
+  const RENAMED = { '2-5': '3-5', 'adult': 'ya' };
+  if (RENAMED[state.age]) state.age = RENAMED[state.age];
+  if (!AGE_BANDS.some(b => b.id === state.age)) state.age = '6-8';
+  if (!FORMS.some(f => f.id === state.form)) state.form = 'letter';
   const setVal = (sel, v) => { const el = document.querySelector(sel); if (el && v) el.value = v; };
   setVal('#fName', state.name);       setVal('#fFullName', state.fullName);
   setVal('#fDate', state.birthDate);  setVal('#fTime', state.birthTime);
@@ -187,9 +193,21 @@ function syncMixShape() {
   document.getElementById('mixShape').textContent = mixingShapeText(band, state.bookLangs.length, names);
   const formRow = document.getElementById('formRow');
   if (formRow) formRow.style.display = band.forms ? '' : 'none';
+
+  // The adult edition is not a book — the order card must not call it one, and
+  // there is no parents' page to choose a language for.
+  const adult = band.id === 'ya';
+  const word = adult ? (state.form === 'poem' ? 'poem' : 'letter') : 'book';
+  const setText = (sel, t) => { const el = document.querySelector(sel); if (el) el.textContent = t; };
+  setText('#ssCard5Title', adult ? `Your ${word}` : 'Your book');
+  setText('#ssCreate', adult ? `Create this ${word}` : 'Create this book');
+  setText('#ssCreateNote', adult
+    ? 'One page, digital first; print it or keep it on the phone.'
+    : 'Digital PDF first; a printed copy can follow.');
+  document.querySelectorAll('.child-only').forEach(el => { el.style.display = adult ? 'none' : ''; });
 }
 
-// ─── FORM (adult editions: prose / poem / letter) ────────────────────────────
+// ─── FORM (the adult edition: letter / poem) ─────────────────────────────────
 function renderForms() {
   const wrap = document.getElementById('formChips');
   if (!wrap) return;
@@ -202,6 +220,8 @@ function renderForms() {
     btn.addEventListener('click', () => {
       state.form = btn.dataset.form;
       wrap.querySelectorAll('.ss-chip').forEach(c => c.classList.toggle('is-on', c.dataset.form === state.form));
+      syncMixShape();  // the order card names the thing: a letter or a poem
+      updateSummary();
     }));
 }
 
@@ -504,10 +524,16 @@ function updateSummary() {
   if (!el) return;
   const band = currentBand();
   const langs = state.bookLangs.length ? state.bookLangs.join(' · ') : '—';
+  // The adult edition has no parents' page — it is written to the reader.
+  const adult = band.id === 'ya';
   el.innerHTML = `
     <div><span>Edition</span><strong>${band.label} · ${esc(band.reader)}</strong></div>
-    <div><span>Book languages</span><strong>${esc(langs)}</strong></div>
-    <div><span>Parents’ page</span><strong>${esc(state.parentsLang)}</strong></div>`;
+    <div><span>${adult ? 'Written as' : 'Book languages'}</span><strong>${adult
+      ? esc((FORMS.find(f => f.id === state.form) || FORMS[0]).label)
+        + ' · ' + esc(state.bookLangs[0] || '—')
+        + (state.bookLangs.length > 1 ? `, phrases from ${esc(state.bookLangs.slice(1).join(' · '))}` : '')
+      : esc(langs)}</strong></div>
+    ${adult ? '' : `<div><span>Parents’ page</span><strong>${esc(state.parentsLang)}</strong></div>`}`;
 }
 
 // ─── ART STYLE (house-style vector, or rendered/painted opt-in) ──────────────
