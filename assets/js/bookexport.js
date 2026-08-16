@@ -82,7 +82,10 @@ body { font-family: Georgia, 'Times New Roman', serif; color: #2c2416; backgroun
 .scene { font-size: 11pt; line-height: 1.75; text-align: left; }
 .scene p { margin-bottom: 4.5mm; }
 .scene p:last-child { margin-top: 7mm; color: #6b5a3e; font-style: italic; }
-.poem { font-size: 12.5pt; line-height: 1.95; color: #3a3020; }
+/* A poem breaks every line itself, so it has none of prose's wrapping economy:
+   the same word count runs far taller. Set for a six-stanza piece at the top of
+   the range and it still lands on one sheet. */
+.poem { font-size: 11pt; line-height: 1.65; color: #3a3020; }
 .parents { margin-top: auto; padding-top: 10mm; }
 .parents .mirror { font-size: 9pt; font-style: italic; color: #8a7860; }
 .parents h2, .parents .chart { display: none; }
