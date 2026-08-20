@@ -334,7 +334,7 @@ A NEW NAME IS OPTIONAL AND MUST BE EARNED AND EXPLAINED. Only if the story genui
     out.push(`\nTHE SHAPE OF THE LETTER — three movements, in this order:
 1. SAY THE THING THEY ALREADY SUSPECT, and confirm it is real. Not a compliment, not news. They recognise themselves in the first three lines or they stop reading.
 2. THE SAME THING, BOTH WAYS. What it has kept safe in them, then the same quality running the other direction and leaving them worse off. Both halves as scenes inside the letter's image, concrete enough to be uncomfortable — the second half is what earns their trust, and a letter that only praises gets read once and never again. A pattern they may recognise, never a verdict or a diagnosis.
-3. THE ONE THING. One small repeatable move, built from the letter's own material.
+3. THE ONE THING. What they actually DO about the hard half you just named — not a principle and not a change of character, but a move small enough to make while staying exactly who they are. Say it plainly enough that they would know afterwards whether they had done it. The image may frame it; it cannot stand in for it. A close that only works as a picture has given them nothing to do, and this is the part they came for.
 
 Write to them, not about them: "you", throughout. No preamble, no summary at the end — the last line lands and stops. What they do with any of it is theirs.
 These movement names are mine, for building the letter; none of that language belongs on the page. A paragraph that opens by announcing what it is about to do has handed over its scaffolding instead of its scene — start every turn inside the picture, mid-thing.`);
