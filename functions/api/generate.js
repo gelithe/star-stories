@@ -195,7 +195,10 @@ const ADVENTURE_SCALE = {
   'teen': 'No magic needed. A real situation told honestly, with a genuine dilemma and no tidy moral tacked on — the truth is arrived at, never delivered.',
 };
 // Illustration motif vocabulary the model tags each scene with (see illustrate.js).
-const MOTIFS_LIST = 'sea, mountain-sea, mountain, fog, sword, sun, moon, sky, cosmos, star, egg, forest, garden, door-home, boat, whale, companion, crown';
+// Deliberately NOT sent to the writer. Eighteen concrete images in the brief
+// are eighteen images it can reach for, and the illustration vocabulary was
+// steering the stories toward a mythic outdoors. The writer now names the
+// picture in whatever plain word fits; illustrate.js resolves it (resolveMotif).
 const ROMAN = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII'];
 const sceneCount = e => SCENE_COUNT[e] || 5;
 
@@ -308,7 +311,7 @@ Because only step 4 changes, the same child can be given this book again at ever
 - FAMILY WORDS STAY FAMILY WORDS — names, pets, the words a family actually uses.
 - SIBLINGS AND REAL DETAILS ARE GOLD. They turn a personalised book into THEIR book; use whatever true details you are given.
 - WRITE IT TO BE READ ALOUD. The real test is a child's attention span and a parent's catch in the throat.
-- Plain words, said once, well. Understood on the first read; a tired parent gets through a sentence without stumbling.
+- PLAIN WORDS, SAID ONCE, WELL. Whoever reads it aloud gets through every sentence without stumbling, and the child never has to stop and ask what a word means. Feelings arrive as things that HAPPEN — something the hero does, something done to them, something they can see — never as a description they would only meet in a grown-up's book.
 - Make it yours to this child. Two different charts should produce two books that share nothing but the house style.`);
   }
 
@@ -334,7 +337,7 @@ A NEW NAME IS OPTIONAL AND MUST BE EARNED AND EXPLAINED. Only if the story genui
     out.push(`\nTHE SHAPE OF THE LETTER — three movements, in this order:
 1. SAY THE THING THEY ALREADY SUSPECT, and confirm it is real. Not a compliment, not news. They recognise themselves in the first three lines or they stop reading.
 2. THE SAME THING, BOTH WAYS. What it has kept safe in them, then the same quality running the other direction and leaving them worse off. Both halves as scenes inside the letter's image, concrete enough to be uncomfortable — the second half is what earns their trust, and a letter that only praises gets read once and never again. A pattern they may recognise, never a verdict or a diagnosis.
-3. THE ONE THING. What they actually DO about the hard half you just named — not a principle and not a change of character, but a move small enough to make while staying exactly who they are. Say it plainly enough that they would know afterwards whether they had done it. The image may frame it; it cannot stand in for it. A close that only works as a picture has given them nothing to do, and this is the part they came for.
+3. THE ONE THING. What they actually DO about the bind you have just described — and it is a bind, not a fault: the gift and the price are one quality, so there is nothing to cut out and no version of themselves that keeps the first without the second. That is why the move must be small. Give them the one that keeps the whole of it and spares them the worst of the price, said plainly enough that they would know afterwards whether they had done it. The image may frame it; it cannot stand in for it. A close that only works as a picture has given them nothing to do, and this is the part they came for.
 
 Write to them, not about them: "you", throughout. No preamble, no summary at the end — the last line lands and stops. What they do with any of it is theirs.
 These movement names are mine, for building the letter; none of that language belongs on the page. A paragraph that opens by announcing what it is about to do has handed over its scaffolding instead of its scene — start every turn inside the picture, mid-thing.`);
@@ -371,7 +374,7 @@ Each spread, in order:
 <figure class="art" data-motif="KEY" data-scene="one short vivid visual line, in English, for the illustrator"></figure>
 <div class="verse"><p class="line">first language — two very short lines<br>(the second line)</p><p class="line">next language — the same image, retold</p>… one <p class="line"> per language, in this fixed order: ${langList}</div>
 - Each line is 2–6 words; at most two lines per language; keep the whole spread under ${bf.words} words across all languages.
-- KEY is ONE word (best fit per spread) from: ${MOTIFS_LIST}.
+- KEY is ONE ordinary English word naming what is pictured on this spread. Write the spread first; the word only labels it afterwards.
 - Do NOT add an echo line or a <div class="spell"> chant — saying the couplet once per language IS the refrain.
 - After the last spread, the parents' page, written ENTIRELY in ${parentsName} and in no other language: ${parentsBlock}
 Use ✦ not emoji.`);
@@ -385,7 +388,7 @@ Use ✦ not emoji.`);
 <figure class="art" data-motif="KEY" data-scene="one short vivid visual line, in English, describing this scene for an illustrator"></figure>${titleLine}
 <div class="scene"><p>…</p>… <p class="echo">closing echo (rotating shapes only; omit for a single-lead book)</p></div>
 - ${brevity}
-- KEY is only a picture-tag for the illustrator, chosen AFTER the scene is written — never let it shape the story. Pick the closest of: ${MOTIFS_LIST}.${bf.titles ? '\n- If the companion grows a fuller name, mark it inside that scene: <div class="evolve">✦ NAME → NEWNAME ✦</div>' : ''}
+- KEY is only a picture-tag for the illustrator: ONE ordinary English word naming what is pictured, written AFTER the scene and never allowed to shape it.${bf.titles ? '\n- If the companion grows a fuller name, mark it inside that scene: <div class="evolve">✦ NAME → NEWNAME ✦</div>' : ''}
 - After the last ${unit.replace(/s$/, '')}, the line that has been returning through the book: ${isSingleLead(s)
         ? `<div class="spell">the one line, in ${LANG_NAMES[s.langs[0]]} only</div>`
         : `the shared chant, <div class="spell">line per language<br>…</div>`}

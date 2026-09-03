@@ -212,14 +212,35 @@ const ART = (() => {
     return `<svg viewBox="0 0 288 176" class="ss-art-svg" role="img" aria-label="${(key||'scene').replace(/[<>&"]/g,'')}">${inner}</svg>`;
   }
 
+  // The writer is no longer given a list of motif words to choose from — a list
+  // of eighteen concrete images sitting in its context is eighteen images it can
+  // reach for, and the art vocabulary was quietly steering the stories. It now
+  // writes whatever plain word fits the scene, and resolution happens here:
+  // exact key, then alias, then a scan of the scene description the writer also
+  // supplies, and only then a fallback. The fallback is the human world rather
+  // than a mythic landscape, because guessing wrong toward a kitchen door is a
+  // smaller error in a child's book than guessing wrong toward a mountain.
+  function resolveMotif(key, sceneText) {
+    const norm = w => String(w || '').toLowerCase().replace(/[^a-z-]/g, '');
+    const direct = norm(key);
+    if (M[direct]) return direct;
+    if (ALIASES[direct]) return ALIASES[direct];
+    const words = String(sceneText || '').toLowerCase().match(/[a-z-]+/g) || [];
+    for (const w of words) {
+      if (M[w]) return w;
+      if (ALIASES[w]) return ALIASES[w];
+    }
+    return 'door-home';
+  }
+
   function fill(root, element) {
     if (!root) return;
     root.querySelectorAll('figure.art[data-motif]').forEach(f => {
       if (f.dataset.rendered) return;
-      f.innerHTML = motifSVG(f.dataset.motif, element);
+      f.innerHTML = motifSVG(resolveMotif(f.dataset.motif, f.dataset.scene), element);
       f.dataset.rendered = '1';
     });
   }
 
-  return { fill, motifSVG, motifs: () => Object.keys(M).filter(k => !k.startsWith('__')) };
+  return { fill, motifSVG, resolveMotif, motifs: () => Object.keys(M).filter(k => !k.startsWith('__')) };
 })();
